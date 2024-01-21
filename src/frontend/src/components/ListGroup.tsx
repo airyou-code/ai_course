@@ -3,7 +3,6 @@ import { useState } from "react";
 interface Props {
   items: string[];
   heading: string;
-  onSelectItem: (item: string) => void;
 }
 
 function ListGroup(props: Props) {
@@ -11,8 +10,8 @@ function ListGroup(props: Props) {
 
   return (
     <>
-      <h1>{ props.heading }</h1>
-      <ul className="list-group">
+      <h1>{props.heading}</h1>
+      <ul className="list-group blur-background">
         {props.items.map((item, index) => (
           <li
             className={

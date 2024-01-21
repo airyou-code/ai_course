@@ -1,0 +1,26 @@
+body {
+  background: linear-gradient(106deg, #171e47, #d622d9, #266df3, #cde28f);
+  background-size: 240% 240%;
+  height: 100vh;
+  margin: 0;
+  animation: gradient-animation 30s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.blur-background {
+  background: rgba(255, 255, 255, 0.7) import!;
+  backdrop-filter: blur(10px) import!;
+}
