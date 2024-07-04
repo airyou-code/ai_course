@@ -1,10 +1,10 @@
-body {
+/* body {
   background: linear-gradient(106deg, #171e47, #d622d9, #266df3, #cde28f);
   background-size: 240% 240%;
   height: 100vh;
   margin: 0;
   animation: gradient-animation 30s ease infinite;
-}
+} */
 
 @keyframes gradient-animation {
   0% {
