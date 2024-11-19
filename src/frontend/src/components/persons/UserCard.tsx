@@ -1,11 +1,11 @@
 import React from 'react'
-import { useFetchUserData } from '../../hooks/user'
+import { useFetchPersonsData } from '../../hooks/persons'
 import { Person } from '../types'
-import { useDeleteUser } from '../../hooks/user'
+import { useDeletePerson } from '../../hooks/persons'
 
 
 const UserCard = ({ person }: {person: Person}) => {
-  const userDelete = useDeleteUser()
+  const userDelete = useDeletePerson()
   
   return (
     <div key={person.id} className="row mb-2 align-items-center shadow-sm ">

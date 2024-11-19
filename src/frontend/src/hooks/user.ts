@@ -1,59 +1,56 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import API from '../config/api';
+import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
+import { getHeders } from '../utils/headers';
 import { useRequest } from './request';
+import { readCookie, setCookie } from '../utils/cookie';
+import { CSRF_TOKEN } from '../config/cookies';
 
 
-export const useFetchUserData = () => {
+export const useLogin = () => {
     const request = useRequest();
-  
-    return useQuery(
-    {
-      queryKey: ['USERS'],
-      queryFn: async () => {
-          const { data } = await request("https://3f7d6e58b5bc239a.mokky.dev/users");
-          return data;
-      }
-    });
+    // const refetchUser = useRefetchUser();
+    // const displayResponseMessage = useDisplayResponseMessage();
+
+    return ({ username, password }: { username: string; password: string }) => {
+        return request(API.USER_LOGIN, {
+            method: 'POST',
+            data: {
+                username: username,
+                password: password,
+            }
+        }).then(({ data }) => {
+            const { refresh, access } = data;
+
+            setCookie(ACCESS_TOKEN, access);
+            setCookie(REFRESH_TOKEN, refresh, 0.5 / 24);
+            //   refetchUser();
+        })
+        .catch(() => {
+            console.log('users.login.error');
+        });
+    };
 };
 
 
-export const useCreateUser = () => {
+export const useRefreshLogin = () => {
     const request = useRequest();
-    const queryClient = useQueryClient()
+    // const refetchUser = useRefetchUser();
+    // const displayResponseMessage = useDisplayResponseMessage();
+    const refreshtoken = readCookie(REFRESH_TOKEN, '')
 
-    return useMutation(
-    {
-      mutationFn: async (data: any) => {
-        return await request(
-            "https://3f7d6e58b5bc239a.mokky.dev/users",
-            {
-                data: data,
-                method: "post"
+    return () => {
+        return request(API.USER_LOGIN, {
+            method: 'POST',
+            data: {
+                refresh: refreshtoken,
             }
-        );
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['USERS'] })
-      },
-    });
-};
-
-
-export const useDeleteUser = () => {
-    const request = useRequest();
-    const queryClient = useQueryClient()
-  
-    return useMutation(
-    {
-      mutationFn: async (id: number) => {
-        return await request(
-            `https://3f7d6e58b5bc239a.mokky.dev/users/${id}`,
-            {
-                method: "delete"
-            }
-        );
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['USERS'] })
-      },
-    });
+        }).then(({ data }) => {
+            const { refresh, access } = data;
+            setCookie(REFRESH_TOKEN, refresh);
+            //   refetchUser();
+        })
+        .catch(() => {
+            console.log('users.refreshtoken.error');
+        });
+    };
 };

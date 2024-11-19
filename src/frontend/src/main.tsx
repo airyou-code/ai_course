@@ -6,11 +6,12 @@ import { BrowserRouter as Router } from "react-router-dom";
 import './main.css'
 
 import AppRoutes from './app/AppRoutes';
+import WithQueryClient from './app/WithQueryClient';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
-      <Router>
-        <AppRoutes />
-      </Router>
+    <WithQueryClient>
+      <AppRoutes />
+    </WithQueryClient>
   // </React.StrictMode>
 );

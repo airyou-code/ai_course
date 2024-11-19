@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { getHeders } from '../utils/headers';
 
 export const useRequest = () => {
   return async (
@@ -17,7 +18,8 @@ export const useRequest = () => {
   ) => {
     return axios({
       headers: {
-        ...headers
+        ...headers,
+        ...getHeders()
       },
       url,
       data,

@@ -1,14 +1,14 @@
 import React from 'react'
-import { useFetchUserData } from '../hooks/user'
-import { useCreateUser } from '../hooks/user'
-import UserCard from '../components/users/UserCard'
+import { useFetchPersonsData } from '../hooks/persons'
+import { useCreatePerson } from '../hooks/persons'
+import UserCard from '../components/persons/UserCard'
 import { Person } from '../components/types'
 import { useQueryClient, QueryClient } from '@tanstack/react-query'
 
-const UsersPage = () => {
+const PersonsPage = () => {
 
-  const { data, isLoading, isError } = useFetchUserData()
-  const mutation = useCreateUser()
+  const { data, isLoading, isError } = useFetchPersonsData()
+  const mutation = useCreatePerson()
   const [formData, setFormData] = React.useState({
     fullname: '',
     gender: '',
@@ -98,4 +98,4 @@ const UsersPage = () => {
   )
 }
 
-export default UsersPage
+export default PersonsPage

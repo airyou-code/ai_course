@@ -1,7 +1,7 @@
 import Header from "../components/layout/Header";
 import CardPagination from "../components/cards/CardPagination";
 import axios from "axios";
-import { useFetchUserData } from '../hooks/user'
+import { useFetchPersonsData } from '../hooks/persons'
 
 async function fetchPosts () {
   const data = await axios.get(
@@ -32,7 +32,7 @@ function MainPage() {
   //     },
   //   });
 
-    const { data, isLoading, isError } = useFetchUserData()
+    const { data, isLoading, isError } = useFetchPersonsData()
     
     if (isLoading) {
       return "... Loading"
