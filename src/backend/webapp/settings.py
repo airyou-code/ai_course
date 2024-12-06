@@ -41,7 +41,7 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=Csv()
 )
 
-CORS_ORIGIN_WHITELIST = ( 
+CORS_ORIGIN_WHITELIST = (
        'http://localhost:5173',
 )
 
@@ -49,6 +49,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:5173",
 ]
+
+SITE_ID = 1
+
+# https://github.com/jazzband/django-tinymce/issues/354
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+# https://issueantenna.com/repo/jazzband/django-tinymce/issues/389
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_ALLOW_ALL = True
@@ -58,6 +65,14 @@ CORS_ALLOWED_ORIGINS = [
 
 INSTALLED_APPS = [
     'jazzmin',
+    'tinymce',
+
+    # 'djangocms_admin_style',
+    # 'django.contrib.sites',
+    # 'sekizai',
+    # 'cms',
+    # 'menus',
+    # 'treebeard',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -86,6 +101,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # #cms
+    # "django.middleware.locale.LocaleMiddleware",
+
+    # "cms.middleware.user.CurrentUserMiddleware",
+    # "cms.middleware.page.CurrentPageMiddleware",
+    # "cms.middleware.toolbar.ToolbarMiddleware",
+    # "cms.middleware.language.LanguageCookieMiddleware",
+
 ]
 
 ROOT_URLCONF = 'webapp.urls'
@@ -94,6 +118,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            # 'templates',
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(
                 BASE_DIR,
@@ -108,6 +133,11 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # #cms
+                # 'django.template.context_processors.i18n',
+                # 'sekizai.context_processors.sekizai',
+                # 'cms.context_processors.cms_settings',
             ],
         },
     },
@@ -130,10 +160,22 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+# REST_KNOX = {
+#     "TOKEN_TTL": timedelta(days=7),  # AuthToken expiration time
+#     "AUTH_HEADER_PREFIX": "Bearer",
+# }
+
 SPECTACULAR_SETTINGS = {
     'TITLE': "Trader Note API",
     'DESCRIPTION': ' API for development',
-    'VERSION': "0.0.1"
+    'VERSION': "0.0.1",
+    # "SERVE_INCLUDE_SCHEMA": False,
+    # "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
+    # "SCHEMA_PATH_PREFIX_TRIM": True,
+    # "SWAGGER_UI_SETTINGS": {
+    #     "deepLinking": True,
+    #     "displayOperationId": True,
+    # },
 }
 
 # Database
@@ -176,7 +218,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = config("LANGUAGE_CODE", default='en-us')
+LANGUAGE_CODE = config("LANGUAGE_CODE", default='en')
 
 TIME_ZONE = config("TIME_ZONE", default="Europe/Prague")
 
@@ -225,7 +267,9 @@ JAZZMIN_SETTINGS = {
 JAZZMIN_UI_TWEAKS = {
 }
 
-# https://github.com/jazzband/django-tinymce/issues/354
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-# https://issueantenna.com/repo/jazzband/django-tinymce/issues/389
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# https://docs.django-cms.org/en/latest/introduction
+CMS_CONFIRM_VERSION4 = True
+CMS_TEMPLATES = [
+    ('home.html', 'Home page template'),
+]
