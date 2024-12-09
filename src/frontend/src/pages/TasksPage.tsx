@@ -35,7 +35,7 @@ const TasksPage = () => {
                 }}
               />
             </div>
-            <div className="col-8 mx-5 my-2 p-2 rounded align-items-center shadow">
+            <div className="col-8 mx-4 my-2 p-2 rounded align-items-center shadow">
               <TasksCard task={task} />
             </div>
         </div>

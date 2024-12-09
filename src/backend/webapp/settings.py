@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'core',
+    'cources',
     'tasks',
 ]
 
@@ -268,8 +269,14 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 
-# https://docs.django-cms.org/en/latest/introduction
-CMS_CONFIRM_VERSION4 = True
-CMS_TEMPLATES = [
-    ('home.html', 'Home page template'),
-]
+TINYMCE_DEFAULT_CONFIG = {
+    # 'theme': 'modern',
+    'height': 300,
+    # 'plugins': 'advlist autolink link image lists charmap print preview hr anchor pagebreak',
+    "plugins": [
+        "advlist", "anchor", "autolink", "code", "fullscreen",
+        "help", "image", "insertdatetime", "link", "media",
+        "preview", "searchreplace", "table", "accordion"
+    ],
+    'toolbar': "undo redo | styles | bold italic underline strikethrough | align | bullist numlist | searchreplace",
+}
