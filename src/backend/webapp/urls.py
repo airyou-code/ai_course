@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from cources import views
 # from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('admin/contentblock/change_order/', views.change_content_block_order, name='change_content_block_order'),
     # path('', include('cms.urls')),
     path('api/', include("api.urls")),
 ]

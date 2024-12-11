@@ -22,7 +22,7 @@ const TasksPage = () => {
       <div>
       {data.results.map(
         (task: {title: string, description: string, completed: boolean}) =>
-          <div className="col mt-4 mb-4">
+          <div className="grid-cols-none mt-4 mb-4">
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <img
                 src="https://via.placeholder.com/50"
@@ -35,7 +35,7 @@ const TasksPage = () => {
                 }}
               />
             </div>
-            <div className="col-8 mx-4 my-2 p-2 rounded align-items-center shadow">
+            <div className="grid-cols-8 mx-5 my-2 p-5 rounded shadow-md">
               <TasksCard task={task} />
             </div>
         </div>

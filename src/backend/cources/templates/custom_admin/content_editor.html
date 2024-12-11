@@ -1,51 +1,8 @@
 {% load i18n admin_urls static %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Обработчик кнопки "Move Up"
-        document.querySelectorAll('.move-up-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var blockId = button.getAttribute('data-id');
-                var currentOrder = parseInt(button.getAttribute('data-order'));
-
-                // Находим блок с меньшим порядком
-                var prevBlock = document.querySelector('[data-id="' + (blockId - 1) + '"]');
-                if (prevBlock) {
-                    var prevOrder = parseInt(prevBlock.getAttribute('data-order'));
-
-                    // Меняем порядки
-                    button.setAttribute('data-order', prevOrder);
-                    prevBlock.setAttribute('data-order', currentOrder);
-
-                    // Обновляем скрытые поля "order"
-                    button.parentElement.previousElementSibling.querySelector('input[name="order"]').value = prevOrder;
-                    prevBlock.parentElement.previousElementSibling.querySelector('input[name="order"]').value = currentOrder;
-                }
-            });
-        });
-
-        // Обработчик кнопки "Move Down"
-        document.querySelectorAll('.move-down-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var blockId = button.getAttribute('data-id');
-                var currentOrder = parseInt(button.getAttribute('data-order'));
-
-                // Находим блок с большим порядком
-                var nextBlock = document.querySelector('[data-id="' + (blockId + 1) + '"]');
-                if (nextBlock) {
-                    var nextOrder = parseInt(nextBlock.getAttribute('data-order'));
-
-                    // Меняем порядки
-                    button.setAttribute('data-order', nextOrder);
-                    nextBlock.setAttribute('data-order', currentOrder);
-
-                    // Обновляем скрытые поля "order"
-                    button.parentElement.previousElementSibling.querySelector('input[name="order"]').value = nextOrder;
-                    nextBlock.parentElement.previousElementSibling.querySelector('input[name="order"]').value = currentOrder;
-                }
-            });
-        });
-    });
-</script>
+{% load static %}
+{% block extrastyle %}
+<script src="{% static 'js/htmx.min.1.9.10.js' %}"></script>
+{% endblock %}
 <div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group" data-inline-type="stacked" data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
     <fieldset class="module {{ inline_admin_formset.classes }} card card-outline">
         <div class="card-body">
@@ -94,17 +51,9 @@
                         {% if inline_admin_form.form.non_field_errors %}{{ inline_admin_form.form.non_field_errors }}{% endif %}
                         
                         {% for fieldset in inline_admin_form %}
-                            <fieldset class="module aligned {{ fieldset.classes }}"{% if fieldset.name %} aria-labelledby="{{ prefix }}-{{ id_prefix}}-{{ id_suffix }}-heading"{% endif %}>
-                                {% if fieldset.name %}
-                                    {% if fieldset.is_collapsible %}<details><summary>{% endif %}
-                                    <h{{ heading_level|default:2 }} id="{{ prefix }}-{{ id_prefix}}-{{ id_suffix }}-heading" class="fieldset-heading">{{ fieldset.name }}</h{{ heading_level|default:2 }}>
-                                    {% if fieldset.is_collapsible %}</summary>{% endif %}
-                                {% endif %}
-                                {% if fieldset.description %}
-                                    <div class="description">{{ fieldset.description|safe }}</div>
-                                {% endif %}
+                            <fieldset class="module aligned">
                                 {% for line in fieldset %}
-                                    <div class="{% if line.fields|length == 1 and line.errors %} errors{% endif %}{% if not line.has_visible_field %} hidden{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
+                                    <div>
                                         {% for field in line %}
                                             <div>
                                                 {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
@@ -113,7 +62,6 @@
                                         {% endfor %}
                                     </div>
                                 {% endfor %}
-                                {% if fieldset.name and fieldset.is_collapsible %}</details>{% endif %}
                             </fieldset>
                         {% endfor %}
 
@@ -125,7 +73,6 @@
                         {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
                         {% if inline_admin_form.fk_field %}{{ inline_admin_form.fk_field.field }}{% endif %}
                         </div>
-                        
                     </div>
                 </div>
             {% endfor %}
