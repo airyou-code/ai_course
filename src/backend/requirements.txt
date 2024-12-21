@@ -53,3 +53,6 @@ sphinxcontrib-serializinghtml==2.0.0
 sqlparse==0.4.3
 uritemplate==4.1.1
 urllib3==2.2.3
+
+# https://whitenoise.readthedocs.io/en/latest/
+whitenoise==6.8.2
