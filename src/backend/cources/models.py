@@ -3,7 +3,6 @@ from core.models import CoreModel
 from tinymce.models import HTMLField
 
 
-# Create your models here.
 class Course(CoreModel):
     title = models.CharField(max_length=255)
     description = models.TextField()
