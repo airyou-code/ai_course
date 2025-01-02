@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import CoreModel
 from tinymce.models import HTMLField
+from adminsortable.models import SortableMixin
 
 
 class Course(CoreModel):
@@ -11,11 +12,11 @@ class Course(CoreModel):
         return self.title
 
 
-class ContentBlock(CoreModel):
+class ContentBlock(CoreModel, SortableMixin):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content = HTMLField(blank=True, null=True)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0, editable=False, db_index=True)
 
     class Meta:
         ordering = ['order']

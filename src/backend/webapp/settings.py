@@ -66,7 +66,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 INSTALLED_APPS = [
     'jazzmin',
     'tinymce',
-
+    'adminsortable',
     # 'djangocms_admin_style',
     # 'django.contrib.sites',
     # 'sekizai',
