@@ -25,8 +25,22 @@ export const useLogin = () => {
             setCookie(REFRESH_TOKEN, refresh, 0.5 / 24);
             //   refetchUser();
         })
-        .catch(() => {
-            console.log('users.login.error');
+        .catch((error) => {
+            let errorMessage = 'An unknown error occurred';
+            if (error.response) {
+            if (error.response.status === 401) {
+                errorMessage = 'Invalid username or password';
+            } else if (error.response.status === 404) {
+                errorMessage = 'User not found';
+            } else {
+                errorMessage =
+                error.response.data?.message || 'An unexpected error occurred';
+            }
+            } else {
+            errorMessage = error.message || 'Network error';
+            }
+            console.error('Login failed:', errorMessage);
+            return Promise.reject(errorMessage);
         });
     };
 };
