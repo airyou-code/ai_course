@@ -8,9 +8,12 @@ import TestPage from '../pages/TestPage';
 import ProductsPage from '../pages/ProductsPage';
 import TasksPage from '../pages/TasksPage';
 import LoginPage from '../pages/LoginPage';
+import AllLessonsPage from '../pages/cources/AllLessonsPage';
+import CoursePage from '../pages/cources/CoursePage';
 
 import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';
+import AuthPage from '../pages/users/AuthPage';
 
 const routesForAuthenticatedOnly = [
   {
@@ -32,11 +35,15 @@ const routesForAuthenticatedOnly = [
 const routesForNotAuthenticatedOnly = [
   {
     path: "/",
-    element: <div>Home Page</div>,
+    element: <CoursePage />,
   },
   {
-    path: "/login",
-    element: <LoginPage />,
+    path: "/alllessons",
+    element: <AllLessonsPage />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
   },
 ];
 
