@@ -14,7 +14,7 @@
       <i class="fa fa-{% if forloop.first %}sort-desc{% elif forloop.counter == initial_forms_count %}sort-asc{% else %}sort{% endif %}"></i>
       {% endwith %}
     {% endif %}
-    <b>{{ inline_admin_formset.opts.verbose_name|capfirst }}:</b>&nbsp;<span class="inline_label">{% if inline_admin_form.original %}{{ inline_admin_form.original }}{% if inline_admin_form.model_admin.show_change_link and inline_admin_form.model_admin.has_registered_model %} <a href="{% url inline_admin_form.model_admin.opts|admin_urlname:'change' inline_admin_form.original.pk|admin_urlquote %}" class="inlinechangelink">{% trans "Change" %}</a>{% endif %}
+    <b>{{ inline_admin_form.original.get_block_type_display|capfirst }}:</b>&nbsp;<span class="inline_label">{% if inline_admin_form.original %}{{ inline_admin_form.original }}{% if inline_admin_form.model_admin.show_change_link and inline_admin_form.model_admin.has_registered_model %} <a href="{% url inline_admin_form.model_admin.opts|admin_urlname:'change' inline_admin_form.original.pk|admin_urlquote %}" class="inlinechangelink">{% trans "Change" %}</a>{% endif %}
 {% else %}#{{ forloop.counter }}{% endif %}</span>
       {% if inline_admin_form.show_url %}<a href="{{ inline_admin_form.absolute_url }}">{% trans "View on site" %}</a>{% endif %}
     {% if inline_admin_formset.formset.can_delete and inline_admin_form.original %}<span class="delete">{{ inline_admin_form.deletion_field.field }} {{ inline_admin_form.deletion_field.label_tag }}</span>{% endif %}
@@ -23,14 +23,66 @@
   {% for fieldset in inline_admin_form %}
     <fieldset class="module aligned">
       {% for line in fieldset %}
-          <div>
-              {% for field in line %}
-                  <div>
-                      {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
-                      {{ field.field }}
-                  </div>
-              {% endfor %}
-          </div>
+        <div>
+          {% if inline_admin_form.original.block_type == "html_text" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_html"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "button_next" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_text"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "button_continue" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_text"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "input_gpt" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_text"%}
+                {% if line.fields.0 == "content_text" %}
+                Promt:
+                {% endif %}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "choices_field" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_json"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" %}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
       {% endfor %}
     </fieldset>
   {% endfor %}

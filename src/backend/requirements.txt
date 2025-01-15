@@ -57,3 +57,4 @@ urllib3==2.2.3
 # https://whitenoise.readthedocs.io/en/latest/
 whitenoise==6.8.2
 django-admin-sortable==2.3
+django_json_widget==2.0.1

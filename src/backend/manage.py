@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""Django's command-line utility for administrative ai_course."""
 import os
 import sys
 
 
 def core():
-    """Run administrative tasks."""
+    """Run administrative ai_course."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webapp.settings')
     try:
         from django.core.management import execute_from_command_line
