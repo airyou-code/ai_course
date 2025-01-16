@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavigateFunction, useNavigate } from 'react-router-dom';
+import { NavigateFunction, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from 'lucide-react'
@@ -14,6 +14,8 @@ export default function AuthPage() {
 
   const login = useLogin();
   let navigate: NavigateFunction = useNavigate();
+  const location = useLocation();
+
 
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -39,7 +41,8 @@ export default function AuthPage() {
 
     login({username: username, password: password}).then(
       () => {
-        navigate("/");
+        const redirectTo = location.state?.from?.pathname || "/";
+        navigate(redirectTo);
         // window.location.reload();
       },
       (error) => {

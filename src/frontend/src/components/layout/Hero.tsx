@@ -52,7 +52,7 @@ export default function Hero() {
               Purchase Course
             </Link>
             <Link
-              to="/portal"
+              to="/alllessons"
               className="bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 transition duration-300"
             >
               Launch Portal

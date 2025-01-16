@@ -8,7 +8,7 @@ interface NavbarProps {
 
 export default function Navbar({ onSignIn, onPurchase }: NavbarProps) {
   return (
-    <nav className="bg-black px-4 py-3 flex items-center justify-between">
+    <nav className="bg-black border-b border-slate-600 px-4 py-3 flex items-center justify-between">
       {/* Logo and Brand */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-purple-600 rounded-full"></div>

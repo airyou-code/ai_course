@@ -22,7 +22,6 @@ const LoginPage = () => {
     event.preventDefault();
     console.log('Form Data:', formData);
     login({ username: formData.username, password: formData.password });
-
   };
 
   return (

@@ -41,7 +41,7 @@ const lessonGroups: LessonGroup[] = [
 
 export default function Sidebar() {
   return (
-    <div className="w-80 bg-gray-900 h-screen overflow-y-auto p-4">
+    <div className="w-80 h-max border-r border-slate-600 p-4">
       <div className="relative mb-4">
         <input
           type="text"
@@ -62,10 +62,10 @@ export default function Sidebar() {
         </div>
       </div>
       {lessonGroups.map((group, index) => (
-        <div key={index} className="mb-6">
+        <div key={index} className="mb-7">
           <h3 className="text-white font-bold mb-2">{group.title}</h3>
           {group.lessons.map((lesson, lessonIndex) => (
-            <div key={lessonIndex} className="flex justify-between items-center mb-2">
+            <div key={lessonIndex} className="flex justify-between items-center mb-4">
               <span className="text-gray-400 text-sm">{lesson.title}</span>
               <div className="flex items-center space-x-2">
                 <span className="text-gray-500 text-xs">{lesson.duration}</span>

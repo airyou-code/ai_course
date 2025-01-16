@@ -2,10 +2,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import ROUTES from '../config/routes';
 
-import MainPage from '../pages/MainPage';
-import PersonsPage from '../pages/PersonsPage';
-import TestPage from '../pages/TestPage';
-import ProductsPage from '../pages/ProductsPage';
 import TasksPage from '../pages/TasksPage';
 import LoginPage from '../pages/LoginPage';
 import AllLessonsPage from '../pages/cources/AllLessonsPage';
@@ -16,13 +12,14 @@ import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
 
 const routesForAuthenticatedOnly = [
+  //  Добавить логику редиректа обратно после логина
   {
     path: "/",
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/",
-        element: <div>User Home Page</div>,
+        path: "/alllessons",
+        element: <AllLessonsPage />,
       },
       {
         path: "/tasks",
@@ -38,11 +35,7 @@ const routesForNotAuthenticatedOnly = [
     element: <CoursePage />,
   },
   {
-    path: "/alllessons",
-    element: <AllLessonsPage />,
-  },
-  {
-    path: "/auth",
+    path: ROUTES.LOGIN,
     element: <AuthPage />,
   },
 ];

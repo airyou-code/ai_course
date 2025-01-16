@@ -89,7 +89,8 @@ INSTALLED_APPS = [
     'django_filters',
 
     'core',
-    'cources'
+    'cources',
+    'users'
 ]
 
 MIDDLEWARE = [

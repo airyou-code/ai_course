@@ -1,6 +1,6 @@
 const ROUTES = {
   INDEX: '/',
-  LOGIN: '/login',
+  LOGIN: '/auth',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   FORGOT_PASSWORD: '/forgot-password',

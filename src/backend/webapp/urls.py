@@ -21,6 +21,5 @@ from cources import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('admin/contentblock/change_order/', views.change_content_block_order, name='change_content_block_order'),
-    # path('', include('cms.urls')),
-    path('api/', include("api.urls")),
+    path('api/', include("api.urls"))
 ]

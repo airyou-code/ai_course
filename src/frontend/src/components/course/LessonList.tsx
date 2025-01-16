@@ -36,7 +36,7 @@ export default function LessonList() {
   return (
     <div className="space-y-4">
       {dummyLessons.map((lesson) => (
-        <div key={lesson.id} className="bg-gray-900 rounded-lg p-4">
+        <div key={lesson.id} className="bg-black border border-slate-600 rounded-lg p-4">
           <div className="flex items-start space-x-4">
             <div className="w-12 h-12 bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
               <Play className="w-6 h-6 text-white" />
