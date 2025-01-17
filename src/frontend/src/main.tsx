@@ -5,11 +5,17 @@ import './main.css'
 
 import AppRoutes from './app/AppRoutes';
 import WithQueryClient from './app/WithQueryClient';
+import WithInitialData from './app/WithInitialData';
+import WithProviders from './app/WithProviders';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
     <WithQueryClient>
-      <AppRoutes />
+      <WithProviders>
+        <WithInitialData>
+          <AppRoutes />
+        </WithInitialData>
+      </WithProviders>
     </WithQueryClient>
   // </React.StrictMode>
 );

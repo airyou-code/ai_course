@@ -2,17 +2,16 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import ROUTES from '../config/routes';
 
-import TasksPage from '../pages/TasksPage';
-import LoginPage from '../pages/LoginPage';
 import AllLessonsPage from '../pages/cources/AllLessonsPage';
 import CoursePage from '../pages/cources/CoursePage';
 
 import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
+import NotFound from '../pages/NotFound';
+import ProfilePage from '../pages/users/ProfilePage';
 
 const routesForAuthenticatedOnly = [
-  //  Добавить логику редиректа обратно после логина
   {
     path: "/",
     element: <ProtectedRoute />,
@@ -22,8 +21,8 @@ const routesForAuthenticatedOnly = [
         element: <AllLessonsPage />,
       },
       {
-        path: "/tasks",
-        element: <TasksPage />,
+        path: ROUTES.PROFILE,
+        element: <ProfilePage />,
       },
     ],
   },
@@ -38,6 +37,10 @@ const routesForNotAuthenticatedOnly = [
     path: ROUTES.LOGIN,
     element: <AuthPage />,
   },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
 ];
 
 export const APP_ROUTES = [
@@ -49,28 +52,6 @@ const AppRoutes = () => {
   const router = createBrowserRouter(APP_ROUTES);
   return (
       <RouterProvider router={router} />
-
-
-    // <WithQueryClient>
-    //   <Routes>
-    //     <Route path={ROUTES.INDEX} element={<MainPage />} />
-    //     {/* <Route path={"/persons"} element={<PersonsPage/>} /> */}
-    //     <Route path={"/test"} element={<TestPage />} />
-    //     <Route path={"/products"} element={
-    //       <ProtectedRoute>
-    //         <ProductsPage />
-    //       </ProtectedRoute>
-    //     }
-    //     />
-    //     <Route path={"/tasks"} element={
-    //       <ProtectedRoute>
-    //         <TasksPage />
-    //       </ProtectedRoute>
-    //     }
-    //     />
-    //     <Route path={"/login"} element={<LoginPage />} />
-    //   </Routes>
-    // </WithQueryClient>
   );
 };
 

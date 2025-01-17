@@ -10,38 +10,46 @@ interface LessonGroup {
   }[]
 }
 
-const lessonGroups: LessonGroup[] = [
-  {
-    title: "Fundamentals",
-    lessons: [
-      { title: "Intro to Framer", duration: "14:54", isFree: true, isLocked: false },
-      { title: "Design system styles", duration: "5:34", isFree: true, isLocked: false },
-      { title: "File setup", duration: "7:32", isFree: true, isLocked: false },
-    ]
-  },
-  {
-    title: "Designing",
-    lessons: [
-      { title: "Using components", duration: "9:49", isFree: false, isLocked: true },
-      { title: "Creating sections", duration: "5:52", isFree: false, isLocked: true },
-      { title: "How to use stacks and frames", duration: "3:46", isFree: false, isLocked: true },
-      { title: "Importing from figma", duration: "8:12", isFree: false, isLocked: true },
-    ]
-  },
-  {
-    title: "Jazzing it Up",
-    lessons: [
-      { title: "Interactivity and animations", duration: "2:49", isFree: false, isLocked: true },
-      { title: "Overrides & code components", duration: "19:45", isFree: false, isLocked: true },
-      { title: "Blog & CMS", duration: "9:56", isFree: false, isLocked: true },
-      { title: "Publishing", duration: "6:40", isFree: false, isLocked: true },
-    ]
-  }
-]
+// const lessonGroups: LessonGroup[] = [
+//   {
+//     title: "Fundamentals",
+//     lessons: [
+//       { title: "Intro to Framer", duration: "14:54", isFree: true, isLocked: false },
+//       { title: "Design system styles", duration: "5:34", isFree: true, isLocked: false },
+//       { title: "File setup", duration: "7:32", isFree: true, isLocked: false },
+//     ]
+//   },
+//   {
+//     title: "Designing",
+//     lessons: [
+//       { title: "Using components", duration: "9:49", isFree: false, isLocked: true },
+//       { title: "Creating sections", duration: "5:52", isFree: false, isLocked: true },
+//       { title: "How to use stacks and frames", duration: "3:46", isFree: false, isLocked: true },
+//       { title: "Importing from figma", duration: "8:12", isFree: false, isLocked: true },
+//     ]
+//   },
+//   {
+//     title: "Jazzing it Up",
+//     lessons: [
+//       { title: "Interactivity and animations", duration: "2:49", isFree: false, isLocked: true },
+//       { title: "Overrides & code components", duration: "19:45", isFree: false, isLocked: true },
+//       { title: "Blog & CMS", duration: "9:56", isFree: false, isLocked: true },
+//       { title: "Publishing", duration: "6:40", isFree: false, isLocked: true },
+//     ]
+//   }
+// ]
+type SidebarProps = {
+  lessonGroups: LessonGroup[];
+};
 
-export default function Sidebar() {
+export default function Sidebar({
+  lessonGroups,
+}: {
+  lessonGroups: LessonGroup[];
+}) {
+
   return (
-    <div className="w-80 h-max border-r border-slate-600 p-4">
+    <div className="w-20 lg:w-80 border-r border-slate-600 p-4">
       <div className="relative mb-4">
         <input
           type="text"

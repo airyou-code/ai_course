@@ -1,15 +1,16 @@
-import React from 'react'
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import React, {useEffect} from 'react'
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
 import { readCookie, setCookie } from '../utils/cookie';
 import LoginPage from '../pages/LoginPage';
 import ROUTES from '../config/routes';
+import { useUserState } from '../hooks/user';
 
 const ProtectedRoute = () => {
-  const refreshtoken = readCookie(REFRESH_TOKEN, '');
   const location = useLocation();
+  const { hasFetched, loggedIn } = useUserState();
 
-  if (!refreshtoken) {
+  if (!loggedIn) {
     return <Navigate to={{ pathname: ROUTES.LOGIN }} state={{ from: location }} />;
   }
 

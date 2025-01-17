@@ -5,14 +5,15 @@ import * as Yup from "yup";
 import { Eye, EyeOff } from 'lucide-react'
 
 import Navbar from '../../components/layout/Navbar'
-import { useLogin } from "../../hooks/user";
+import { useLogin, useFetchUserData } from "../../hooks/user";
 
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
-
+  
   const login = useLogin();
+  const fetchUserData = useFetchUserData();
   let navigate: NavigateFunction = useNavigate();
   const location = useLocation();
 
@@ -33,30 +34,48 @@ export default function AuthPage() {
     password: Yup.string().required("This field is required!"),
   });
 
-  const handleLogin = (formValue: { username: string; password: string }) => {
+  const handleLogin = async (formValue: { username: string; password: string }) => {
     const { username, password } = formValue;
 
     setMessage("");
     setLoading(true);
 
-    login({username: username, password: password}).then(
-      () => {
-        const redirectTo = location.state?.from?.pathname || "/";
-        navigate(redirectTo);
-        // window.location.reload();
-      },
-      (error) => {
-        const resMessage =
-          (error.response &&
-            error.response.data &&
-            error.response.data.message) ||
-          error.message ||
-          error.toString();
+    try {
+      await login({username: username, password: password});
+      await fetchUserData();
+      const redirectTo = location.state?.from?.pathname || "/";
+      navigate(redirectTo);
+    } catch (error) {
+      const resMessage =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      setMessage(resMessage);
+    } finally {
+      setLoading(false);
+    }
 
-        setLoading(false);
-        setMessage(resMessage);
-      }
-    );
+    // login({username: username, password: password}).then(
+    //   () => {
+    //     fetchUserData;
+    //     const redirectTo = location.state?.from?.pathname || "/";
+    //     console.log('redirectTo:', redirectTo);
+    //     navigate(redirectTo);
+    //   },
+    //   (error) => {
+    //     const resMessage =
+    //       (error.response &&
+    //         error.response.data &&
+    //         error.response.data.message) ||
+    //       error.message ||
+    //       error.toString();
+
+    //     setLoading(false);
+    //     setMessage(resMessage);
+    //   }
+    // );
   };
 
   return (

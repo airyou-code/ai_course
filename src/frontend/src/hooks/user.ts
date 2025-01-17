@@ -7,6 +7,27 @@ import { readCookie, setCookie } from '../utils/cookie';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CSRF_TOKEN } from '../config/cookies';
 
+import { useContext } from 'react';
+import { AxiosError } from 'axios';
+import { UserContext, setUser } from '../reducers/user';
+
+
+declare type User = {
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  date_joined?: string;
+};
+
+
+export const useRefetchUser = () => {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_DATA] });
+  };
+};
+
 
 export const useLogin = () => {
     const request = useRequest();
@@ -50,23 +71,36 @@ export const useLogin = () => {
 
 export const useRefreshLogin = () => {
     const request = useRequest();
-    // const refetchUser = useRefetchUser();
-    // const displayResponseMessage = useDisplayResponseMessage();
+    const refetchUser = useRefetchUser();
     const refreshtoken = readCookie(REFRESH_TOKEN, '')
 
     return () => {
-        return request(API.USER_LOGIN, {
+        return request(API.USER_REFRESH, {
             method: 'POST',
             data: {
                 refresh: refreshtoken,
             }
         }).then(({ data }) => {
-            const { refresh, access } = data;
-            setCookie(REFRESH_TOKEN, refresh);
-            //   refetchUser();
+            const { access } = data;
+            setCookie(ACCESS_TOKEN, access);
+            refetchUser();
         })
-        .catch(() => {
-            console.log('users.refreshtoken.error');
+        .catch((error) => {
+          let errorMessage = 'An unknown error occurred';
+          if (error.response) {
+          if (error.response.status === 401) {
+              errorMessage = 'Invalid username or password';
+          } else if (error.response.status === 404) {
+              errorMessage = 'User not found';
+          } else {
+              errorMessage =
+              error.response.data?.message || 'An unexpected error occurred';
+          }
+          } else {
+          errorMessage = error.message || 'Network error';
+          }
+          console.error('Login failed:', errorMessage);
+          return Promise.reject(errorMessage);
         });
     };
 };
@@ -74,50 +108,81 @@ export const useRefreshLogin = () => {
 
 export const useLogout = () => {
     // const request = useRequest();
-    // const refetchUser = useRefetchUser();
-    // const displayResponseMessage = useDisplayResponseMessage();
+    const refetchUser = useRefetchUser();
   
     return async () => {
       try {
-        // await request(API.USERS_LOGOUT(), {
-        //   method: 'POST',
-        // });
         setCookie(ACCESS_TOKEN, '');
         setCookie(REFRESH_TOKEN, '');
-        // refetchUser();
+        refetchUser();
       } catch (error) {
         console.error(error);
         let errorMessage = 'An unknown error occurred';
         return Promise.reject(errorMessage);
-        // displayResponseMessage('users.logout.error');
       }
     };
 };
 
 
-export const useFetchUserData = () => {
-    const request = useRequest();
-    const dispatch = useContext(UserContext);;
-    const displayResponseMessage = useDisplayResponseMessage();
-  
-    useQuery({
-      queryKey: [QUERY_KEYS.USER_DATA],
-      queryFn: async () => {
-        try {
-          const { data } = await request(API.USERS_USER());
-          dispatch(setUser(data as User));
-          return data as User;
-        } catch (error) {
-          if (error instanceof AxiosError) {
-            if (error?.response?.status === 401) {
-              dispatch(setUser(null));
-            } else {
-              displayResponseMessage('users.fetch.error');
-            }
-          }
-          return null;
-        }
-      },
-    });
+export const useUserState = () => {
+  const { state } = useContext(UserContext);
+  return state;
 };
-  
+
+export const useUserDispatch = () => {
+  const { dispatch } = useContext(UserContext);
+  return dispatch;
+};
+
+export const useUser = () => {
+  return useUserState().user as User;
+};
+
+
+export const useFetchUserData = () => {
+  const request = useRequest();
+  const dispatch = useUserDispatch();
+
+  const { refetch } = useQuery({
+    queryKey: [QUERY_KEYS.USER_DATA],
+    queryFn: async () => {
+      try {
+        const { data } = await request(API.USER_DATA);
+        dispatch(setUser(data as User));
+        return data as User;
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error?.response?.status === 401) {
+            dispatch(setUser(null));
+          } else {
+            // console.error('Fetch User Data Failed:', error);
+          }
+        }
+        return null;
+      }
+    },
+    // enabled: false,
+  });
+
+  return refetch;
+};
+
+
+export const useSaveUserData = () => {
+  const request = useRequest();
+  const refetchUser = useRefetchUser();
+
+  return async (data: { [key: string]: string }) => {
+    try {
+      await request(API.USERS_UPDATE_DATA, {
+        method: 'PATCH',
+        data,
+      });
+      refetchUser();
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+};

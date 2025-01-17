@@ -1,5 +1,8 @@
 import { Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useUserState } from '../../hooks/user';
+import { User } from 'lucide-react';
+import ROUTES from '../../config/routes';
 
 interface NavbarProps {
   onSignIn?: () => void
@@ -7,6 +10,9 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onSignIn, onPurchase }: NavbarProps) {
+  
+  const { hasFetched, loggedIn } = useUserState();
+
   return (
     <nav className="bg-black border-b border-slate-600 px-4 py-3 flex items-center justify-between">
       {/* Logo and Brand */}
@@ -33,12 +39,24 @@ export default function Navbar({ onSignIn, onPurchase }: NavbarProps) {
 
       {/* Action Buttons */}
       <div className="flex items-center gap-4">
-        <Link
-          to="/auth"
-          className="px-4 py-2 text-white bg-transparent hover:bg-gray-800 rounded-lg transition-colors"
-        >
-          Sign In
-        </Link>
+        {loggedIn ? (
+            <Link
+            to={{ pathname: ROUTES.PROFILE }}
+              className="px-4 py-2 text-white bg-transparent hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-4">
+                <User size={25} />
+              </div>
+            </Link>
+          ) : (
+            <Link
+              to={{ pathname: ROUTES.LOGIN }}
+              className="px-4 py-2 text-white bg-transparent hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              Sign In
+            </Link>
+          )
+        }
         <button className="flex items-center gap-2 px-4 py-2 text-white bg-transparent hover:bg-gray-800 rounded-lg transition-colors">
           <Heart className="w-5 h-5" />
           Favorites
