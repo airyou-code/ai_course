@@ -8,7 +8,7 @@ import CoursePage from '../pages/cources/CoursePage';
 import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
-import NotFound from '../pages/NotFound';
+import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 
 const routesForAuthenticatedOnly = [
@@ -39,7 +39,7 @@ const routesForNotAuthenticatedOnly = [
   },
   {
     path: '*',
-    element: <NotFound />,
+    element: <NotFoundPage />,
   },
 ];
 

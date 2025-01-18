@@ -38,7 +38,7 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <h1 className="text-3xl font-bold mb-8">My Account</h1>
         
-        <div className="bg-gray-900 rounded-lg p-6 mb-6 w-full">
+        <div className="border border-slate-400  rounded-lg p-6 mb-6 w-full">
           <div className="flex items-center mb-4">
             <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mr-4">
               <User size={32} />
@@ -56,7 +56,7 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <div className="bg-gray-900 rounded-lg p-6 mb-6 w-full">
+        <div className="border border-slate-400  rounded-lg p-6 mb-6 w-full">
           <h3 className="text-xl font-bold mb-4">Renew or Upgrade</h3>
           <div className="bg-gray-800 rounded-lg p-4 flex justify-between items-center mb-4">
             <div className="flex items-center">
@@ -83,7 +83,7 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <form onSubmit={handleSaveChanges} className="bg-gray-900 rounded-lg p-6 mb-6 w-full">
+        <form onSubmit={handleSaveChanges} className="border border-slate-400  rounded-lg p-6 mb-6 w-full">
           <h3 className="text-xl font-bold mb-4">Personal Info</h3>
           <div className="mb-4">
             <label htmlFor="email" className="block mb-2">Email</label>

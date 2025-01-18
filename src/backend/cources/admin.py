@@ -14,7 +14,8 @@ from core.admin import CoreAdmin
 class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
     model = Module
     fields = [
-        "title"
+        "title",
+        "description"
     ]
     show_change_link = True
     verbose_name_plural = _("Modules")
@@ -57,7 +58,11 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
 class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
     model = Lesson
     fields = [
-        "title"
+        "title",
+        "description",
+        "is_locked",
+        "is_free",
+        "duration",
     ]
     show_change_link = True
     verbose_name_plural = _("Lessons")
@@ -146,6 +151,8 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "module",
+                    "is_locked",
+                    "duration",
                     "description",
                     *CoreAdmin.base_fields,
                 )

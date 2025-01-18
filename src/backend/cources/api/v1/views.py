@@ -1,17 +1,14 @@
-from django.contrib.auth.models import User
+from cources.models import Module
 from rest_framework import viewsets, permissions
-from .serializers import UserSerializer
+from .serializers import ModuleSerializer
 # from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-class UserReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = UserSerializer
+class ModuleReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ModuleSerializer
     permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [
-        JWTAuthentication,
-        # SessionAuthentication
-    ]
+    authentication_classes = [JWTAuthentication]
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+        return Module.objects.prefetch_related('lesson_set')

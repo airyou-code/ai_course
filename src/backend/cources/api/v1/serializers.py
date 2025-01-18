@@ -1,23 +1,16 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from cources.models import Lesson, Module
 
 
-class UserSerializer(serializers.ModelSerializer):
+class LessonSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = [
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'is_active',
-            'date_joined'
-        ]
-        read_only_fields = [
-            'id',
-            'username',
-            'email',
-            'is_active',
-            'date_joined'
-        ]
+        model = Lesson
+        fields = ['title', 'duration', 'description', 'is_locked', "is_free"]
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+    lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')
+
+    class Meta:
+        model = Module
+        fields = ['title', 'description', 'lessons']

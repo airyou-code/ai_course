@@ -31,7 +31,11 @@ class Lesson(CoreModel, SortableMixin):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    # поле что урок платный, дефолт True
+    duration = models.CharField(
+        max_length=50, blank=True, null=True, default="15 min"
+    )
+    is_free = models.BooleanField(default=False)
+    is_locked = models.BooleanField(default=True)
     order = models.PositiveIntegerField(
         default=0, editable=False, db_index=True
     )

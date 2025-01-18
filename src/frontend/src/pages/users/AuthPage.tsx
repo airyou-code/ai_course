@@ -82,7 +82,7 @@ export default function AuthPage() {
     <div className="min-h-screen bg-black text-white">
       <Navbar />
       <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
-        <div className="w-full max-w-md p-8 bg-gray-900 rounded-lg">
+        <div className="w-full max-w-md p-8 border border-slate-400  rounded-lg">
           <div className="flex mb-6">
             <button
               className={`flex-1 py-2 text-center ${
@@ -232,7 +232,7 @@ export default function AuthPage() {
             )}
           </Form>
         </Formik> */}
-        {/* <div className="w-full max-w-md p-8 bg-gray-900 rounded-lg">
+        {/* <div className="w-full max-w-md p-8 border border-slate-400  rounded-lg">
           <div className="flex mb-6">
             <button
               className={`flex-1 py-2 text-center ${

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useSpring, animated } from 'react-spring'
 
-export default function NotFound() {
+export default function NotFoundPage() {
   const fadeIn = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
