@@ -9,7 +9,7 @@ export default function Hero() {
   })
 
   return (
-    <div className="relative bg-black text-white py-24">
+    <div className="relative dark:bg-zinc-800 text-white py-24">
       {/* Background with subtle curved lines */}
       <div className="absolute inset-0 overflow-hidden">
         <svg 

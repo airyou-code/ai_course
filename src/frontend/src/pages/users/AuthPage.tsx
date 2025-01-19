@@ -79,10 +79,10 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-zinc-800 text-balck">
       <Navbar />
       <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
-        <div className="w-full max-w-md p-8 border border-slate-400  rounded-lg">
+        <div className="w-full max-w-md p-8 bg-black border border-slate-400  rounded-lg">
           <div className="flex mb-6">
             <button
               className={`flex-1 py-2 text-center ${

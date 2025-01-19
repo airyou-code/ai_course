@@ -19,10 +19,10 @@ export default function CourseInfo({
         <div className="w-8 h-8 bg-yellow-500 rounded-full"></div>
       </div>
       <div className="text-sm text-purple-300 mb-2">ONLINE COURSE</div>
-      <h1 className="text-3xl font-bold mb-4">{title}</h1>
+      <h1 className="text-3xl font-bold text-white mb-4">{title}</h1>
       <div className="flex items-baseline space-x-2 mb-6">
-        <span className="text-3xl font-bold">${currentPrice.toFixed(2)}</span>
-        <span className="text-xl text-gray-400 line-through">${originalPrice.toFixed(2)}</span>
+        <span className="text-3xl text-white font-bold">${currentPrice.toFixed(2)}</span>
+        <span className="text-xl text-white line-through">${originalPrice.toFixed(2)}</span>
       </div>
       <button className="w-full bg-white text-black font-bold py-3 rounded-lg mb-3">
         Purchase Course

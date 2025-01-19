@@ -1,4 +1,4 @@
-from cources.models import Module
+from courses.models import Module
 from rest_framework import viewsets, permissions
 from .serializers import ModuleSerializer
 # from rest_framework.authentication import SessionAuthentication

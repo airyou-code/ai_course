@@ -2,8 +2,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import ROUTES from '../config/routes';
 
-import AllLessonsPage from '../pages/cources/AllLessonsPage';
-import CoursePage from '../pages/cources/CoursePage';
+import AllLessonsPage from '../pages/courses/AllLessonsPage';
+import CoursePage from '../pages/courses/CoursePage';
 
 import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';

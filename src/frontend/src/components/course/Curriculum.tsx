@@ -28,9 +28,9 @@ export default function Curriculum({
 }: CurriculumProps) {
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-6">{title}</h2>
+      <h2 className="text-3xl mb-6">{title}</h2>
       <LessonList lessonGroups={lessonGroups} />
-      <button className="w-full bg-gray-800 text-white font-bold py-3 rounded-lg mt-4">
+      <button className="w-full bg-gray-800 text-white py-3 rounded-lg mt-4">
         All Lessons
       </button>
     </div>

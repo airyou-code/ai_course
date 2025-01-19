@@ -89,7 +89,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'core',
-    'cources',
+    'courses',
     'users'
 ]
 
@@ -255,6 +255,8 @@ DOCS_URL = '/docs/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = "users.CourseUser"
 
 # JAZZMIN SETTINGS
 JAZZMIN_SETTINGS = {

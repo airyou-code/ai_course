@@ -23,17 +23,17 @@ class CoreModel(models.Model):
     )
 
     user_created = models.ForeignKey(
-        'auth.User', verbose_name=_("created by user"),
+        settings.AUTH_USER_MODEL, verbose_name=_("created by user"),
         editable=False, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL
     )
     user_updated = models.ForeignKey(
-        'auth.User', verbose_name=_("updated by user"),
+        settings.AUTH_USER_MODEL, verbose_name=_("updated by user"),
         editable=False, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL
     )
     user_deleted = models.ForeignKey(
-        'auth.User', verbose_name=_("deleted by user"),
+        settings.AUTH_USER_MODEL, verbose_name=_("deleted by user"),
         editable=False, null=True, blank=True,
         related_name="+", on_delete=models.SET_NULL
     )

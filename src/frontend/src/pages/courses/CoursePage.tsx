@@ -52,7 +52,7 @@ const lessonGroups: LessonGroup[] = [
 
 export default function CoursePage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <Navbar />
       <Hero />
       <div className="p-8">

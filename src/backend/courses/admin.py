@@ -7,7 +7,7 @@ from nonrelated_inlines.admin import NonrelatedStackedInline
 from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
 
-from cources.models import Course, ContentBlock, Lesson, Module
+from courses.models import Course, ContentBlock, Lesson, Module
 from core.admin import CoreAdmin
 
 

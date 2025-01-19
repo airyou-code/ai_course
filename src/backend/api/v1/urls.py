@@ -13,7 +13,7 @@ app_name = "v1"
 
 urlpatterns = [
     path('', include("users.api.v1.urls")),
-    path('', include("cources.api.v1.urls")),
+    path('', include("courses.api.v1.urls")),
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path(
