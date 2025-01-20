@@ -34,7 +34,7 @@ export default function AllLessonsPage() {
         <main className="flex-1 p-8">
           <div className="max-w-3xl mx-auto">
             {/* <h1 className="text-4xl font-bold mb-8">All Lessons</h1> */}
-            <LessonList lessonGroups={data}  theme="light" />
+            <LessonList lessonGroups={data} />
           </div>
         </main>
       </div>

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from users.models import CourseUser
 from rest_framework import viewsets, permissions
 from .serializers import UserSerializer
 # from rest_framework.authentication import SessionAuthentication
@@ -14,4 +14,4 @@ class UserReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
+        return CourseUser.objects.filter(id=self.request.user.id)

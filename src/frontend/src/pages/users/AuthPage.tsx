@@ -115,7 +115,7 @@ export default function AuthPage() {
                     name="username"
                     type="text"
                     id="username"
-                    className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
                     placeholder={isSignIn ? 'Username' : 'Email'}
                   />
                   <ErrorMessage
@@ -140,7 +140,7 @@ export default function AuthPage() {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       id="password"
-                      className="w-full px-3 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      className="w-full px-3 py-2 bg-gray-800 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
                       placeholder="Password"
                     />
                     <button
@@ -183,9 +183,6 @@ export default function AuthPage() {
               </a>
             </div>
           )}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-400">Powered by FramerAuth</p>
-          </div>
         </div>
 
       {/* <Formik

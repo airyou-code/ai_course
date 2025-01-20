@@ -32,11 +32,11 @@ export default function LessonList({
           <div className="divide-y divide-gray-200">
             {group.lessons.map((lesson, lessonIndex) => (
               <div key={lessonIndex} className="flex items-center justify-between p-4">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 px-1">
                   {lesson.is_locked ? (
-                    <Lock className="w-11 h-11 text-zinc-800" />
+                    <Lock className="w-8 h-8 text-zinc-800" />
                   ) : (
-                    <BookOpen className="w-11 h-11 text-zinc-800" />
+                    <BookOpen className="w-8 h-8 text-zinc-800" />
                   )}
                   <div>
                     <h3 className="text-sm font-medium text-text">{lesson.title}</h3>
