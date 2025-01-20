@@ -1,18 +1,17 @@
-import { Button } from "@/components/ui/button"
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from "lucide-react"
 
 interface ContinueButtonProps {
-  onClick: () => void;
+  onClick: () => void
 }
 
 export function ContinueButton({ onClick }: ContinueButtonProps) {
   return (
-    <Button 
+    <button
       onClick={onClick}
-      className="w-full"
+      className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
     >
       Continue <ChevronRight className="ml-2 h-4 w-4" />
-    </Button>
+    </button>
   )
 }
 

@@ -49,7 +49,7 @@ export default function Sidebar({
 }) {
 
   return (
-    <div className="w-20 lg:w-80 border-r border-slate-400 bg-zinc-800 p-4">
+    <div className="w-20 lg:w-80 border-r border-slate-400 bg-zinc-800 p-4 fixed top-20 left-0 h-[calc(100vh-4rem)] w-64 bg-gray-100 shadow-md overflow-y-auto">
       <div className="relative mb-4">
         <input
           type="text"

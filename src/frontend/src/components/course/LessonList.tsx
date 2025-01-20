@@ -1,4 +1,5 @@
 import { BookOpen, Lock, CheckCircle, ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 interface Lesson {
   title: string
@@ -55,9 +56,13 @@ export default function LessonList({
                   ) : lesson.is_locked ? (
                     <ChevronRight className="w-6 h-6 text-gray-400" />
                   ) : (
-                    <button className="px-5 py-2 bg-zinc-800 text-white rounded-md text-sm">
-                      Start
-                    </button>
+                    <Link
+                      to="/lesson/1"
+                    >
+                      <button className="px-5 py-2 bg-zinc-800 text-white rounded-md text-sm">
+                        Start
+                      </button>
+                    </Link>
                   )}
                 </div>
               </div>

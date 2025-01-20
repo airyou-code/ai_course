@@ -3,13 +3,14 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ROUTES from '../config/routes';
 
 import AllLessonsPage from '../pages/courses/AllLessonsPage';
-import CoursePage from '../pages/courses/CoursePage';
+import MainPage from '../pages/courses/MainPage';
 
 import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
+import CoursePage from '../pages/courses/CoursePage';
 
 const routesForAuthenticatedOnly = [
   {
@@ -19,6 +20,10 @@ const routesForAuthenticatedOnly = [
       {
         path: "/alllessons",
         element: <AllLessonsPage />,
+      },
+      {
+        path: "/lesson/:lessonId",
+        element: <CoursePage />,
       },
       {
         path: ROUTES.PROFILE,
@@ -31,7 +36,7 @@ const routesForAuthenticatedOnly = [
 const routesForNotAuthenticatedOnly = [
   {
     path: "/",
-    element: <CoursePage />,
+    element: <MainPage />,
   },
   {
     path: ROUTES.LOGIN,

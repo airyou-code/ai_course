@@ -27,14 +27,15 @@ export default function AllLessonsPage() {
     return null;
   }
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen flex flex-col bg-white text-black">
+      {/* Navbar всегда наверху */}
       <Navbar />
-      <div className="flex">
+      <div className="flex flex-1 mt-20">
+        {/* Sidebar фиксирован, прокручивается только контент */}
         <Sidebar lessonGroups={data} />
-        <main className="flex-1 p-8">
+        <main className="flex-1 ml-64 p-8 overflow-y-auto">
           <div className="max-w-3xl mx-auto">
-            {/* <h1 className="text-4xl font-bold mb-8">All Lessons</h1> */}
-            <LessonList lessonGroups={data} />
+          <LessonList lessonGroups={data} />
           </div>
         </main>
       </div>

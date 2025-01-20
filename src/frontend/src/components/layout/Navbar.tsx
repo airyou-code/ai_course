@@ -14,7 +14,7 @@ export default function Navbar({ onSignIn, onPurchase }: NavbarProps) {
   const { hasFetched, loggedIn } = useUserState();
 
   return (
-    <nav className="bg-zinc-800 border-b border-slate-400 px-4 py-3 flex items-center justify-between">
+    <nav className="bg-zinc-800 border-b border-slate-400 px-4 py-3 flex items-center justify-between fixed top-0 left-0 w-full z-10">
       {/* Logo and Brand */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-purple-600 rounded-full"></div>
