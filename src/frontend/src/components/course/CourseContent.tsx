@@ -1,28 +1,33 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { DialogBox } from "./content/dialog-box"
 import { ChatInput } from "./content/chat-input"
 import { Test } from "./content/test"
 import { ContinueButton } from "./content/continue-button"
 import { NextLessonButton } from "./content/next-lesson-button"
+import { useFetchLessonData } from "../../hooks/courses"
 import DOMPurify from 'dompurify';
 
-
 type ContentBlockType = 
-  | 'output-dialog'
-  | 'input-dialog'
+  | 'output_dialog'
+  | 'input_dialog'
   | 'text'
-  | 'input-field'
+  | 'input_field'
   | 'test'
-  | 'continue-button'
-  | 'next-lesson-button';
+  | 'button_continue'
+  | 'button_next';
+
+interface TestContent {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  right_feedback: string;
+  wrong_feedback: string;
+}
 
 interface ContentBlock {
   type: ContentBlockType;
-  content: string;
+  content: string | TestContent;
   avatar?: string;
-  options?: string[];
-  correctAnswer?: number;
-  feedback?: string;
   nextLessonUrl?: string;
 }
 
@@ -38,44 +43,57 @@ export default function CoursePage({ data }: CoursePageProps) {
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0)
   const [visibleBlocks, setVisibleBlocks] = useState<ContentBlock[]>([])
   const [userInput, setUserInput] = useState("")
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { data: fetchedData, _isLoading, _isError } = useFetchLessonData();
 
   useEffect(() => {
-    if (data.blocks.length > 0 && currentBlockIndex === 0) {
-      const firstBlock = data.blocks[0]
-      if (firstBlock.type === "output-dialog" || firstBlock.type === "input-dialog" || firstBlock.type === "text") {
-        showNextBlock()
+    if (fetchedData && fetchedData.blocks && fetchedData.blocks.length > 0 && currentBlockIndex === 0) {
+      showNextBlocks(fetchedData.blocks)
+    }
+  }, [fetchedData]) // Run when fetchedData changes
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }, [visibleBlocks])
+
+  const showNextBlocks = (blocks: ContentBlock[]) => {
+    let index = currentBlockIndex
+    while (index < blocks.length) {
+      const block = blocks[index]
+      setVisibleBlocks((prev) => [...prev, block])
+      index++
+      if (block.type === 'button_continue') {
+        break
       }
     }
-  }, []) // Only run once on mount
-
-  const showNextBlock = () => {
-    if (currentBlockIndex < data.blocks.length) {
-      setVisibleBlocks((prev) => [...prev, data.blocks[currentBlockIndex]])
-      setCurrentBlockIndex((prev) => prev + 1)
-    }
+    setCurrentBlockIndex(index)
   }
 
   const handleUserInput = (message: string) => {
     setUserInput(message)
-    showNextBlock()
+    if (fetchedData && fetchedData.blocks) {
+      showNextBlocks(fetchedData.blocks)
+    }
   }
 
   const handleTestAnswer = (isCorrect: boolean) => {
-    if (isCorrect) {
-      showNextBlock()
+    if (isCorrect && fetchedData && fetchedData.blocks) {
+      showNextBlocks(fetchedData.blocks)
     }
   }
 
   const renderBlock = (block: ContentBlock, index: number) => {
     switch (block.type) {
-      case "output-dialog":
-      case "input-dialog":
+      case "output_dialog":
+      case "input_dialog":
         return (
           <DialogBox
             key={index}
-            content={block.content}
+            content={block.content as string}
             avatar={block.avatar}
-            isInput={block.type === "input-dialog"}
+            isInput={block.type === "input_dialog"}
           />
         )
       case "text":
@@ -83,30 +101,37 @@ export default function CoursePage({ data }: CoursePageProps) {
           <div key={index} className="py-4 px-2">
             <p
               className="text-gray-700"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content) }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content as string) }}
             ></p>
           </div>
         )
-      case "input-field":
+      case "input_field":
         return (
           <div key={index} className="py-4">
-            <ChatInput onSubmit={handleUserInput} placeholder={block.content} />
+            <ChatInput onSubmit={handleUserInput} placeholder={block.content as string} />
           </div>
         )
       case "test":
+        const testContent = block.content as TestContent;
         return (
           <Test
             key={index}
-            content={block.content}
-            options={block.options || []}
-            correctAnswer={block.correctAnswer || 0}
-            feedback={block.feedback}
+            content={testContent.question}
+            options={testContent.options}
+            correctAnswer={testContent.correctAnswer}
+            rightFeedback={testContent.right_feedback}
+            wrongFeedback={testContent.wrong_feedback}
             onAnswer={handleTestAnswer}
           />
         )
-      case "continue-button":
-        return <ContinueButton key={index} onClick={showNextBlock} />
-      case "next-lesson-button":
+      case "button_continue":
+        return <ContinueButton key={index} onClick={() => {
+          setVisibleBlocks((prev) => prev.filter((_, i) => i !== index))
+          if (fetchedData && fetchedData.blocks) {
+            showNextBlocks(fetchedData.blocks)
+          }
+        }} />
+      case "button_next":
         return block.nextLessonUrl ? (
           <NextLessonButton
             key={index}
@@ -119,11 +144,22 @@ export default function CoursePage({ data }: CoursePageProps) {
     }
   }
 
+  if (_isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (_isError) {
+    return <div>Error loading data</div>
+  }
+
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
-      <div className="space-y-6">{visibleBlocks.map((block, index) => renderBlock(block, index))}</div>
-      {currentBlockIndex < data.blocks.length && <ContinueButton onClick={showNextBlock} />}
-    </div>
+    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+      <div className="max-w-3xl mx-auto pb-10">
+        <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
+          <div className="space-y-6 pb-10">{visibleBlocks.map((block, index) => renderBlock(block, index))}</div>
+        </div>
+      </div>
+    </main>
   )
 }
 

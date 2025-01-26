@@ -19,8 +19,10 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
       const timer = setTimeout(() => {
         setDisplayedText((prev) => prev + content[currentIndex])
         setCurrentIndex((prev) => prev + 1)
-      }, 30) // Adjust typing speed here
+      }, 3) // Adjust typing speed here
       return () => clearTimeout(timer)
+    } else if (isInput) {
+      setDisplayedText(content)
     }
   }, [currentIndex, content, isInput])
 
@@ -38,7 +40,7 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
         )}
       </div>
       <div
-        className={`max-w-[80%] rounded-lg p-4 ${isInput ? "bg-blue-500 text-white" : "bg-gray-100"}`}
+        className={`max-w-[80%] rounded-lg p-4 ${isInput ? "bg-gray-200" : "bg-gray-100"}`}
       >
         <p
           className="whitespace-pre-wrap"

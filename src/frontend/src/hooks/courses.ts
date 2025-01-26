@@ -16,3 +16,17 @@ export const useFetchModuleData = () => {
         }
     });
 }
+
+
+export const useFetchLessonData = () => {
+    const request = useRequest();
+
+    return useQuery({
+        queryKey: [QUERY_KEYS.LESSON_DATA],
+        queryFn: async () => {
+            const { data } = await request(API.LESSON_DATA);
+            console.log(data)
+            return data
+        }
+    });
+}

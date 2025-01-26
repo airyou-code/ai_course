@@ -6,11 +6,12 @@ interface TestProps {
   content: string
   options: string[]
   correctAnswer: number
-  feedback?: string
+  rightFeedback?: string
+  wrongFeedback?: string
   onAnswer: (isCorrect: boolean) => void
 }
 
-export function Test({ content, options, correctAnswer, feedback, onAnswer }: TestProps) {
+export function Test({ content, options, correctAnswer, rightFeedback, wrongFeedback, onAnswer }: TestProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
@@ -52,7 +53,7 @@ export function Test({ content, options, correctAnswer, feedback, onAnswer }: Te
           <div
             className={`mt-4 p-4 border-l-4 ${isCorrect ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"}`}
           >
-            {feedback || (isCorrect ? "Correct!" : "Incorrect. Try again.")}
+            {isCorrect ? rightFeedback || "Correct!" : wrongFeedback || "Incorrect. Try again."}
           </div>
         )}
       </div>

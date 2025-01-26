@@ -1,7 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { getHeders } from '../utils/headers';
-import { setCookie } from '../utils/cookie';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../config/cookies';
 
 export const useRequest = () => {
   return async (
@@ -28,10 +26,10 @@ export const useRequest = () => {
       params,
       method,
     }).catch((error: AxiosError) => {
-      if (error?.response?.status === 401) {
-        setCookie(ACCESS_TOKEN, '');
-        setCookie(REFRESH_TOKEN, '');
-      }
+      // const refreshtoken = readCookie(REFRESH_TOKEN, '')
+      // if (error?.response?.status === 401 && refreshtoken) {
+      //   return useRefreshLogin().then(() => {
+      // }
       throw error;
     });
   };
