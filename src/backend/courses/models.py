@@ -50,12 +50,32 @@ class Lesson(CoreModel, SortableMixin):
 class ContentBlock(CoreModel, SortableMixin):
     TYPE_CHOICES = [
         ('none', 'None'),
-        ('html_text', 'Html Text Block'),
+        ('text', 'Html Text Block'),
+        ('output_dialog', 'Html Output Dialog'),
         ('button_next', 'Button (Next Lesson)'),
         ('button_continue', 'Button (Continue)'),
         ('choices_field', 'Choices Field'),
+        ('test', 'Test'),
         ('input_gpt', 'Input to Chat GPT'),
     ]
+    TEST_TEMPLATE: dict = {
+        "question": "What is the main purpose of this course?",
+        "options": [
+            "options 1",
+            "options 2",
+            "options 3",
+            "options 4",
+        ],
+        "correctAnswer": 2,
+        "right_feedback": "The main purpose is to understand basic concepts!",
+        "wrong_feedback": "The main purpose is to understand basic concepts!"
+    }
+
+    CHOICES_FIELD_TEMPLATE: dict = {
+        "options": [
+            "Option 1",
+        ]
+    }
 
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
@@ -76,3 +96,11 @@ class ContentBlock(CoreModel, SortableMixin):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.content_json:
+            if self.block_type == 'test':
+                self.content_json = self.TEST_TEMPLATE
+            elif self.block_type == 'choices_field':
+                self.content_json = self.CHOICES_FIELD_TEMPLATE
+        super().save(*args, **kwargs)

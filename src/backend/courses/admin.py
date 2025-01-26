@@ -1,14 +1,28 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.db import models
-from django_json_widget.widgets import JSONEditorWidget
+from core.widgets import JSONEditorWidget
 
 from nonrelated_inlines.admin import NonrelatedStackedInline
 from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
+from django import forms
+import json
 
 from courses.models import Course, ContentBlock, Lesson, Module
 from core.admin import CoreAdmin
+
+
+# class TestInputWidget(forms.Textarea):
+#     template_name = 'widgets/test_input_widget.html'
+
+#     def format_value(self, value):
+#         if value is None:
+#             return ''
+#         if isinstance(value, dict):
+#             return json.dumps(value, indent=4, ensure_ascii=False)
+#         return value
+
 
 
 class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
@@ -116,13 +130,13 @@ class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
     template = "custom_admin/content_editor.html"
     extra = 0
 
-    # formfield_overrides = {
-    #     models.JSONField: {
-    #         "widget": JSONEditorWidget(
-    #             # attrs={"style": "height:200px;width:100%;position:relative;z-index:1;display:flex;"}
-    #         )
-    #     },
-    # }
+    formfield_overrides = {
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                attrs={"style": "margin-bottom:30px;height:350px;width:100%;"}
+            )
+        },
+    }
 
     def get_form_queryset(self, obj):
         return ContentBlock.objects.filter(lesson=obj)

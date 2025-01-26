@@ -24,7 +24,16 @@
     <fieldset class="module aligned">
       {% for line in fieldset %}
         <div>
-          {% if inline_admin_form.original.block_type == "html_text" %}
+          {% if inline_admin_form.original.block_type == "text" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type" or line.fields.0 == "content_html"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "output_dialog" %}
             {% for field in line %}
               {% if line.fields.0 == "block_type" or line.fields.0 == "content_html"%}
                 <div>
@@ -70,6 +79,17 @@
                   {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
                   {{ field.field }}
                 </div>
+              {% endif %}
+            {% endfor %}
+          {% elif inline_admin_form.original.block_type == "test" %}
+            {% for field in line %}
+              {% if line.fields.0 == "block_type"%}
+                <div>
+                  {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+                  {{ field.field }}
+                </div>
+              {% elif line.fields.0 == "content_json"%}
+                {{ field.field }}
               {% endif %}
             {% endfor %}
           {% else %}

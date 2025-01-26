@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from courses.models import Lesson, Module
+from courses.models import Lesson, Module, ContentBlock
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -14,3 +14,9 @@ class ModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module
         fields = ['title', 'description', 'lessons']
+
+
+class ContentBlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentBlock
+        fields = ['block_type', 'content_html', 'content_text', 'content_json']
