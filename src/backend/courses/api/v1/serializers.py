@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from courses.models import Lesson, Module, ContentBlock
+from courses.models import Lesson, Group, Module, ContentBlock
 
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['title', 'duration', 'description', 'is_locked', "is_free"]
+        fields = ['title', 'duration', 'description', 'is_locked', "is_free", "uuid"]
 
 
 class ModuleSerializer(serializers.ModelSerializer):
@@ -14,6 +14,14 @@ class ModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Module
         fields = ['title', 'description', 'lessons']
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    modules = ModuleSerializer(many=True, read_only=True, source='module_set')
+
+    class Meta:
+        model = Group
+        fields = ['title', 'description', 'modules']
 
 
 class ContentBlockSerializer(serializers.ModelSerializer):

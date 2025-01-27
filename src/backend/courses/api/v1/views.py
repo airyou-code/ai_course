@@ -1,26 +1,31 @@
-from courses.models import Module, ContentBlock
+from courses.models import Group, ContentBlock, Lesson
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import ModuleSerializer, ContentBlockSerializer
+from .serializers import GroupSerializer, ContentBlockSerializer
 from rest_framework.authentication import SessionAuthentication
 
 
-class ModuleReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ModuleSerializer
+class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
 
     def get_queryset(self):
-        return Module.objects.prefetch_related('lesson_set')
+        return Group.objects.prefetch_related('module_set__lesson_set')
 
 
 class LessonContentBlocksViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
 
-    def list(self, request, course_id=None, module_id=None, lesson_id=None):
-        content_blocks = ContentBlock.objects.filter(lesson_id=lesson_id).order_by('order')
+    def list(self, request, lesson_uuid: str = None):
+        try:
+            lesson = Lesson.objects.get(uuid=lesson_uuid)
+        except Lesson.DoesNotExist:
+            return Response({'error': 'Lesson not found'}, status=404)
+
+        content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by('order')
         blocks = []
 
         for block in content_blocks:

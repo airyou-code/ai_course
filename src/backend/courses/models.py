@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from core.models import CoreModel
 from tinymce.models import HTMLField
@@ -12,7 +13,7 @@ class Course(CoreModel):
         return self.title
 
 
-class Module(CoreModel, SortableMixin):
+class Group(CoreModel, SortableMixin):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -27,7 +28,24 @@ class Module(CoreModel, SortableMixin):
         ordering = ['order']
 
 
+class Module(CoreModel, SortableMixin):
+    # course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    order = models.PositiveIntegerField(
+        default=0, editable=False, db_index=True
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['order']
+
+
 class Lesson(CoreModel, SortableMixin):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)

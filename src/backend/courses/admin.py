@@ -9,7 +9,7 @@ from adminsortable.admin import SortableStackedInline
 from django import forms
 import json
 
-from courses.models import Course, ContentBlock, Lesson, Module
+from courses.models import Course, ContentBlock, Lesson, Module, Group
 from core.admin import CoreAdmin
 
 
@@ -24,20 +24,19 @@ from core.admin import CoreAdmin
 #         return value
 
 
-
-class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
-    model = Module
+class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
+    model = Group
     fields = [
         "title",
         "description"
     ]
     show_change_link = True
-    verbose_name_plural = _("Modules")
+    verbose_name_plural = _("Groups")
     # template = "custom_admin/content_editor.html"
     extra = 0
 
     def get_form_queryset(self, obj):
-        return Module.objects.filter(course=obj)
+        return Group.objects.filter(course=obj)
 
     def save_new_instance(self, parent, instance):
         instance.course = parent
@@ -51,7 +50,7 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
         "description",
     )
     search_fields = ("title",)
-    inlines = (ModulesInlain,)
+    inlines = (GroupsInlain,)
     # list_filter = ()
     # readonly_fields = ()
     # change_fields = ()
@@ -61,6 +60,49 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
             _("General"), {
                 "fields": (
                     "title",
+                    "description",
+                    *CoreAdmin.base_fields,
+                )
+            }
+        ),
+    )
+
+
+class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
+    model = Module
+    fields = [
+        "title",
+        "description"
+    ]
+    show_change_link = True
+    verbose_name_plural = _("Modules")
+    # template = "custom_admin/content_editor.html"
+    extra = 0
+
+    def get_form_queryset(self, obj):
+        return Module.objects.filter(group=obj)
+
+    def save_new_instance(self, parent, instance):
+        instance.group = parent
+        instance.save()
+
+
+@admin.register(Group)
+class GroupAdmin(SortableAdmin, CoreAdmin):
+    list_display = (
+        "title",
+        "course",
+        "description",
+    )
+    search_fields = ("title",)
+    inlines = (ModulesInlain,)
+
+    fieldsets = (
+        (
+            _("General"), {
+                "fields": (
+                    "title",
+                    "course",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -95,7 +137,7 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
 class ModuleAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
-        "course",
+        # "course",
         "description",
     )
     search_fields = ("title",)
@@ -109,7 +151,8 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
             _("General"), {
                 "fields": (
                     "title",
-                    "course",
+                    # "course",
+                    "group",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -156,7 +199,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
     search_fields = ("title",)
     inlines = (ContenBlockInlain,)
     # list_filter = ()
-    # readonly_fields = ()
+    readonly_fields = ("uuid",)
     # change_fields = ()
 
     fieldsets = (
@@ -168,6 +211,37 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "is_locked",
                     "duration",
                     "description",
+                    "uuid",
+                    *CoreAdmin.base_fields,
+                )
+            }
+        ),
+    )
+
+
+@admin.register(ContentBlock)
+class ContentBlockAdmin(SortableAdmin, CoreAdmin):
+    list_display = (
+        "block_type",
+        "lesson",
+        "content_html",
+        "content_text",
+        "content_json"
+    )
+    search_fields = ("block_type",)
+    # list_filter = ()
+    # readonly_fields = ()
+    # change_fields = ()
+
+    fieldsets = (
+        (
+            _("General"), {
+                "fields": (
+                    "block_type",
+                    "lesson",
+                    "content_html",
+                    "content_text",
+                    "content_json",
                     *CoreAdmin.base_fields,
                 )
             }
