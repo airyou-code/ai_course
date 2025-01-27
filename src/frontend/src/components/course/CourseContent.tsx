@@ -35,16 +35,12 @@ interface CourseData {
   blocks: ContentBlock[];
 }
 
-interface CoursePageProps {
-  data: CourseData
-}
-
-export default function CoursePage({ data }: CoursePageProps) {
+export default function CoursePage() {
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0)
   const [visibleBlocks, setVisibleBlocks] = useState<ContentBlock[]>([])
   const [userInput, setUserInput] = useState("")
   const containerRef = useRef<HTMLDivElement>(null)
-  const { data: fetchedData, _isLoading, _isError } = useFetchLessonData();
+  const { data: fetchedData, isLoading, isError } = useFetchLessonData();
 
   useEffect(() => {
     if (fetchedData && fetchedData.blocks && fetchedData.blocks.length > 0 && currentBlockIndex === 0) {
@@ -144,11 +140,11 @@ export default function CoursePage({ data }: CoursePageProps) {
     }
   }
 
-  if (_isLoading) {
+  if (isLoading) {
     return <div>Loading...</div>
   }
 
-  if (_isError) {
+  if (isError) {
     return <div>Error loading data</div>
   }
 

@@ -7,18 +7,25 @@ interface Lesson {
   description: string
   is_free: boolean
   is_locked: boolean
+  uuid: string
+  is_completed?: boolean
 }
 
-interface LessonGroup {
+interface Module {
   title: string
   description: string
   lessons: Lesson[]
 }
 
+interface Group {
+  title: string
+  description: string
+  modules: Module[]
+}
 interface CurriculumProps {
   title?: string
   description?: string,
-  lessonGroups?: LessonGroup[]
+  lessonGroups?: Group[]
 }
 
 export default function Curriculum({ 

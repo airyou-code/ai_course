@@ -19,7 +19,7 @@ const WithInitialData = ({ children }: React.PropsWithChildren) => {
     return null;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default WithInitialData;

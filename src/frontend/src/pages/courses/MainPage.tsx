@@ -11,48 +11,68 @@ interface Lesson {
   description: string
   is_free: boolean
   is_locked: boolean
+  uuid: string
+  is_completed?: boolean
 }
 
-interface LessonGroup {
+interface Module {
   title: string
   description: string
   lessons: Lesson[]
 }
 
-const lessonGroups: Any = [
+interface Group {
+  title: string
+  description: string
+  modules: Module[]
+}
+
+const lessonGroups: Group[] = [
   {
-    title: "The ",
-    modules: [
-    {
-      title: "The Foundations",
-      description: "In this section, I'll provide an overview of the Framer program and then we jump into setting up our file with colors, breakpoints, text styles, etc.",
-      lessons: [
-        { title: "Intro to Framer", duration: "14:54", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: true, is_locked: false },
-        { title: "Design system styles", duration: "5:34", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: true, is_locked: false },
-        { title: "File setup", duration: "7:32", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: true, is_locked: false },
-      ]
-    },
-    {
-      title: "Designing",
-      description: "In this section, we'll dive into designing pages and understanding the fundamental features that make Framer pages work.",
-      lessons: [
-        { title: "Using components", duration: "9:49", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: false, is_locked: true },
-        { title: "Creating sections", duration: "5:52", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: false, is_locked: true },
-        { title: "How to use stacks and frames", duration: "3:46", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: false, is_locked: true },
-        { title: "Importing from figma", duration: "8:12", description: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.", is_free: false, is_locked: true },
-      ]
-    },
-    {
-      title: "Jazzing it Up",
-      description: "In this section, we'll dive into designing pages and understanding the fundamental features that make Framer pages work.",
-      lessons: [
-        { title: "Interactivity and animations", duration: "2:49", description: " ", is_free: false, is_locked: true },
-        { title: "Overrides & code components", duration: "19:45", description: " ", is_free: false, is_locked: true },
-        { title: "Blog & CMS", duration: "9:56", description: " ", is_free: false, is_locked: true },
-        { title: "Publishing", duration: "6:40", description: " ", is_free: false, is_locked: true },
-      ]
-    }
-  ]
+    "title": "Live",
+    "description": "",
+    "modules": [
+      {
+        "title": "Module #1",
+        "description": "jnf kfsdlfn dsfobnsdfk kvb sb ksdbv jkbs bkjs bks bskh jhfbj;ab LK BA ABHGFV",
+        "lessons": [
+          {
+            "title": "Lesson: #1",
+            "duration": "15 min",
+            "description": "Фабричный метод — это порождающий паттерн проектирования, который определяет",
+            "is_locked": false,
+            "is_free": false,
+            "uuid": "2ee779c4-6bef-46da-a587-a2def1cb25c6"
+          },
+          {
+            "title": "Lesson: #2",
+            "duration": "15 min",
+            "description": "Фабричный метод — это порождающий паттерн проектирования, который определяет",
+            "is_locked": true,
+            "is_free": false,
+            "uuid": "4aee58a2-f0c8-4a8d-b9ca-f39965a8379d"
+          },
+          {
+            "title": "Lesson: #3",
+            "duration": "15 min",
+            "description": "Фабричный метод — это порождающий паттерн проектирования, который определяет",
+            "is_locked": true,
+            "is_free": false,
+            "uuid": "48f6b0e3-541e-47a4-b9da-d77ca8aa38e1"
+          }
+        ]
+      },
+      {
+        "title": "Modules #2",
+        "description": "sadas",
+        "lessons": []
+      },
+      {
+        "title": "Modules #3",
+        "description": "sdofjnsd nksd fksdfn",
+        "lessons": []
+      }
+    ]
   }
 ]
 
