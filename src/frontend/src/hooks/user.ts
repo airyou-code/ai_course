@@ -2,7 +2,7 @@ import API from '../config/api';
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
 import QUERY_KEYS from '../config/queries';
 import { getHeders } from '../utils/headers';
-import { useRequest } from './request';
+import { useRequest, useAuthRequest } from './request';
 import { readCookie, setCookie } from '../utils/cookie';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CSRF_TOKEN } from '../config/cookies';
@@ -10,7 +10,6 @@ import { CSRF_TOKEN } from '../config/cookies';
 import { useContext } from 'react';
 import { AxiosError } from 'axios';
 import { UserContext, setUser } from '../reducers/user';
-
 
 declare type User = {
   username: string;
@@ -20,7 +19,6 @@ declare type User = {
   date_joined?: string;
 };
 
-
 export const useRefetchUser = () => {
   const queryClient = useQueryClient();
   return () => {
@@ -28,9 +26,8 @@ export const useRefetchUser = () => {
   };
 };
 
-
 export const useLogin = () => {
-    const request = useRequest();
+    const request = useAuthRequest();
     // const refetchUser = useRefetchUser();
     // const displayResponseMessage = useDisplayResponseMessage();
 
@@ -56,7 +53,7 @@ export const useLogin = () => {
             } else if (error.response.status === 404) {
                 errorMessage = 'User not found';
             } else {
-                errorMessage =
+                errorMessage = 'An unexpected error occurred';
                 error.response.data?.message || 'An unexpected error occurred';
             }
             } else {
@@ -68,9 +65,8 @@ export const useLogin = () => {
     };
 };
 
-
 export const useRefreshLogin = () => {
-    const request = useRequest();
+    const request = useAuthRequest();
     const refetchUser = useRefetchUser();
     const refreshtoken = readCookie(REFRESH_TOKEN, '')
 
@@ -105,7 +101,6 @@ export const useRefreshLogin = () => {
     };
 };
 
-
 export const useLogout = () => {
     // const request = useRequest();
     const refetchUser = useRefetchUser();
@@ -123,7 +118,6 @@ export const useLogout = () => {
     };
 };
 
-
 export const useUserState = () => {
   const { state } = useContext(UserContext);
   return state;
@@ -137,7 +131,6 @@ export const useUserDispatch = () => {
 export const useUser = () => {
   return useUserState().user as User;
 };
-
 
 export const useFetchUserData = () => {
   const request = useRequest();
@@ -155,7 +148,7 @@ export const useFetchUserData = () => {
           if (error?.response?.status === 401) {
             dispatch(setUser(null));
           } else {
-            // console.error('Fetch User Data Failed:', error);
+            console.error('Fetch User Data Failed:', error);
           }
         }
         return null;
@@ -166,7 +159,6 @@ export const useFetchUserData = () => {
 
   return refetch;
 };
-
 
 export const useSaveUserData = () => {
   const request = useRequest();

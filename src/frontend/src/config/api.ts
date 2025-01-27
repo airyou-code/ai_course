@@ -1,14 +1,13 @@
+const BASE_URL = 'http://127.0.0.1:8000/api/v1';
 const API = {
   // users
-  USER_DATA: 'http://127.0.0.1:8000/api/v1/profile/',
-  USERS_UPDATE_DATA: 'http://127.0.0.1:8000/api/v1/profile/',
-  USER_LOGIN: 'http://127.0.0.1:8000/api/v1/token/',
-  USER_REFRESH: 'http://127.0.0.1:8000/api/v1/token/refresh/',
+  USER_DATA: `${BASE_URL}/profile/`,
+  USERS_UPDATE_DATA: `${BASE_URL}/profile/`,
+  USER_LOGIN: `${BASE_URL}/token/`,
+  USER_REFRESH: `${BASE_URL}/token/refresh/`,
   // Courses
-  MODULE_DATA: 'http://127.0.0.1:8000/api/v1/modules/',
-  LESSON_DATA: 'http://127.0.0.1:8000/api/v1/courses/1/modules/1/lessons/1/content-blocks/',
-  CONNECTIONS: (organization: number) =>
-    `/api/v1/organizations/${organization}/connections/`,
+  MODULE_DATA: `${BASE_URL}/modules/`,
+  LESSON_DATA: (lesson_uuid: string) => `${BASE_URL}/lessons/${lesson_uuid}/content-blocks/`,
 };
 
 export default API;

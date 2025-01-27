@@ -1,18 +1,17 @@
-import { useFetchUserData } from "../hooks/user";
-import { readCookie } from "../utils/cookie";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
-import { useUserState } from "../hooks/user";
-import { useEffect } from "react";
-
+import { useEffect, useState } from 'react';
+import { readCookie } from '../utils/cookie';
+import { REFRESH_TOKEN } from '../config/cookies';
+import { useFetchUserData } from '../hooks/user';
 
 const WithInitialData = ({ children }: React.PropsWithChildren) => {
-
-  const { hasFetched } = useUserState();
   const fetchUserData = useFetchUserData();
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
     if (readCookie(REFRESH_TOKEN, '')) {
-      fetchUserData();
+      fetchUserData().finally(() => setHasFetched(true));
+    } else {
+      setHasFetched(true);
     }
   }, [fetchUserData]);
 

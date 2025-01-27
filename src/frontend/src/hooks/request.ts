@@ -1,7 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import { getHeders } from '../utils/headers';
+import { useRefreshLogin } from './user';
+import { readCookie } from '../utils/cookie';
+import { REFRESH_TOKEN } from '../config/cookies';
 
-export const useRequest = () => {
+export const useAuthRequest = () => {
   return async (
     url: string,
     {
@@ -26,11 +29,67 @@ export const useRequest = () => {
       params,
       method,
     }).catch((error: AxiosError) => {
-      // const refreshtoken = readCookie(REFRESH_TOKEN, '')
-      // if (error?.response?.status === 401 && refreshtoken) {
-      //   return useRefreshLogin().then(() => {
-      // }
       throw error;
     });
+  };
+};
+
+export const useRequest = () => {
+  const refreshLogin = useRefreshLogin();
+  let isRefreshing = false;
+
+  return async (
+    url: string,
+    {
+      data = {},
+      method = 'get',
+      headers = {},
+      params = {},
+    }: {
+      data?: any;
+      method?: string;
+      headers?: any;
+      params?: any;
+    } = {},
+  ) => {
+    try {
+      return await axios({
+        headers: {
+          ...headers,
+          ...getHeders()
+        },
+        url,
+        data,
+        params,
+        method,
+      });
+    } catch (error: any) {
+      if (error?.response?.status === 401 && !isRefreshing) {
+        const refreshtoken = readCookie(REFRESH_TOKEN, '');
+        if (!refreshtoken) {
+          throw new Error('Refresh token is missing');
+        }
+
+        isRefreshing = true;
+        try {
+          await refreshLogin();
+          return await axios({
+            headers: {
+              ...headers,
+              ...getHeders()
+            },
+            url,
+            data,
+            params,
+            method,
+          });
+        } catch (refreshError) {
+          throw refreshError;
+        } finally {
+          isRefreshing = false;
+        }
+      }
+      throw error;
+    }
   };
 };

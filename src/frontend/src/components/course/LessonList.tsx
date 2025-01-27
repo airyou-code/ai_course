@@ -1,5 +1,6 @@
 import { BookOpen, Lock, CheckCircle, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import API from '../../config/api'
 
 interface Lesson {
   title: string
@@ -7,31 +8,40 @@ interface Lesson {
   description: string
   is_free: boolean
   is_locked: boolean
+  uuid: string
   is_completed?: boolean
 }
 
-interface LessonGroup {
+interface Module {
   title: string
   description: string
   lessons: Lesson[]
 }
 
+interface Group {
+  title: string
+  description: string
+  modules: Module[]
+}
+
 export default function LessonList({
   lessonGroups,
 }: {
-  lessonGroups: LessonGroup[];
+  lessonGroups: Group[];
 }) {
   return (
     <div className="space-y-6">
-      <h1 className="text-4xl font-bold text-text">Modules</h1>
       {lessonGroups.map((group, groupIndex) => (
-        <div key={groupIndex} className="bg-surface rounded-lg shadow overflow-hidden border">
+        <div key={groupIndex}>
+        <h1 className="text-4xl font-bold text-text">{group.title}</h1>
+        {group.modules.map((module, modulesIndex) => (
+        <div key={modulesIndex} className="bg-surface rounded-lg shadow overflow-hidden border">
           <div className="bg-zinc-800 text-white p-4">
-            <h2 className="text-xl font-semibold">{group.title}</h2>
-            <p className="text-sm text-gray-300">{group.description}</p>
+            <h2 className="text-xl font-semibold">{module.title}</h2>
+            <p className="text-sm text-gray-300">{module.description}</p>
           </div>
           <div className="divide-y divide-gray-200">
-            {group.lessons.map((lesson, lessonIndex) => (
+            {module.lessons.map((lesson, lessonIndex) => (
               <div key={lessonIndex} className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-3 px-1">
                   {lesson.is_locked ? (
@@ -69,6 +79,8 @@ export default function LessonList({
             ))}
           </div>
         </div>
+      ))}
+      </div>
       ))}
     </div>
   )

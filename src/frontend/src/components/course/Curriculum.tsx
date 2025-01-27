@@ -19,7 +19,6 @@ interface CurriculumProps {
   title?: string
   description?: string,
   lessonGroups?: LessonGroup[]
-
 }
 
 export default function Curriculum({ 
