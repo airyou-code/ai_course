@@ -49,9 +49,10 @@ RUN rm /etc/nginx/sites-enabled/default
 EXPOSE 80
 EXPOSE 8000
 
-# Check Nginx configuration
+# Check Nginx configuration on a non-privileged port
+RUN sed -i 's/listen 80;/listen 8080;/' /etc/nginx/conf.d/app.conf
 RUN nginx -t -c /etc/nginx/nginx.conf
+RUN sed -i 's/listen 8080;/listen 80;/' /etc/nginx/conf.d/app.conf
 
 # Start Nginx and your application
 CMD service nginx start && /entrypoint
-# ENTRYPOINT ["/entrypoint"]
