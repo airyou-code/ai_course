@@ -4,6 +4,7 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
 RUN apt-get update && apt-get install -y \
+    nginx \
     build-essential \
     libpq-dev \
     libmagic-dev \
@@ -25,11 +26,11 @@ COPY ./src/frontend/package.json ./src/frontend/package-lock.json /app/frontend/
 RUN pip install --no-cache-dir -r /requirements.txt
 RUN npm install --prefix /app/frontend
 
-COPY ./docker/deploy/entrypoint /entrypoint
+COPY ./docker/deploy_monolith/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
 
-COPY ./docker/deploy/start /start
+COPY ./docker/deploy_monolith/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
@@ -38,4 +39,19 @@ COPY ./src/frontend /app/frontend
 
 RUN npm run build --prefix /app/frontend
 
-ENTRYPOINT ["/entrypoint"]
+# Copy Nginx configuration file
+COPY ./docker/deploy_monolith/nginx.conf /etc/nginx/conf.d/app.conf
+
+# Remove default Nginx configuration
+RUN rm /etc/nginx/sites-enabled/default
+
+# Expose ports
+EXPOSE 80
+EXPOSE 8000
+
+# Check Nginx configuration
+RUN nginx -t -c /etc/nginx/nginx.conf
+
+# Start Nginx and your application
+CMD service nginx start && /entrypoint
+# ENTRYPOINT ["/entrypoint"]
