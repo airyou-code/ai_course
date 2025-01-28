@@ -37,18 +37,21 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
-    default='http://localhost:5173',
+    default='http://localhost:5173,https://ai-course-dyb7.onrender.com',
     cast=Csv()
 )
 
-CORS_ORIGIN_WHITELIST = (
-       'http://localhost:5173',
+CORS_ORIGIN_WHITELIST = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:5173,http://localhost:8000,https://ai-course-dyb7.onrender.com',
+    cast=Csv()
 )
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:5173,http://localhost:8000,https://ai-course-dyb7.onrender.com',
+    cast=Csv()
+)
 
 SITE_ID = 1
 
