@@ -42,12 +42,11 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
       <div
         className={`max-w-[80%] rounded-lg p-4 ${isInput ? "bg-gray-200" : "bg-gray-100"}`}
       >
-        <p
-          className="whitespace-pre-wrap"
+        <div
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(displayedText),
           }}
-        ></p>
+        ></div>
         {!isInput && currentIndex < content.length && (
           <span className="inline-block w-1 h-4 bg-gray-500 ml-1 animate-blink"></span>
         )}

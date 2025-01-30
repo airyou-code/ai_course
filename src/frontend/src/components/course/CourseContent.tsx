@@ -35,12 +35,12 @@ interface CourseData {
   blocks: ContentBlock[];
 }
 
-export default function CoursePage() {
+export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0)
   const [visibleBlocks, setVisibleBlocks] = useState<ContentBlock[]>([])
   const [userInput, setUserInput] = useState("")
   const containerRef = useRef<HTMLDivElement>(null)
-  const { data: fetchedData, isLoading, isError } = useFetchLessonData();
+  const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
 
   useEffect(() => {
     if (fetchedData && fetchedData.blocks && fetchedData.blocks.length > 0 && currentBlockIndex === 0) {
@@ -95,10 +95,9 @@ export default function CoursePage() {
       case "text":
         return (
           <div key={index} className="py-4 px-2">
-            <p
-              className="text-gray-700"
+            <div
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content as string) }}
-            ></p>
+            ></div>
           </div>
         )
       case "input_field":

@@ -1,8 +1,9 @@
 from courses.models import Group, ContentBlock, Lesson
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import GroupSerializer, ContentBlockSerializer
+from .serializers import GroupSerializer, ContentBlockSerializer, ContentBlockListSerializer
 from rest_framework.authentication import SessionAuthentication
 
 
@@ -15,9 +16,13 @@ class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         return Group.objects.prefetch_related('module_set__lesson_set')
 
 
-class LessonContentBlocksViewSet(viewsets.ViewSet):
+class LessonContentBlocksViewSet(
+    viewsets.GenericViewSet,
+    viewsets.mixins.ListModelMixin
+):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
+    serializer_class = ContentBlockListSerializer
 
     def list(self, request, lesson_uuid: str = None):
         try:
@@ -45,3 +50,19 @@ class LessonContentBlocksViewSet(viewsets.ViewSet):
             })
 
         return Response({'blocks': blocks})
+
+    # def create(self, request, lesson_uuid: str = None):
+    #     serializer = self.get_serializer(
+    #         data=request.data,
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     validated_data = serializer.validated_data
+
+    #     blocks_data = validated_data.get('blocks')
+
+    #     lesson = Lesson.objects.get(uuid=lesson_uuid)
+    #     for block_data in blocks_data:
+    #         ContentBlock.objects.create(lesson=lesson, **block_data)
+
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
