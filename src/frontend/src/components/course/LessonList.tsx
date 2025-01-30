@@ -35,7 +35,7 @@ export default function LessonList({
         <div key={groupIndex}>
         <h1 className="text-4xl font-bold text-text">{group.title}</h1>
         {group.modules.map((module, modulesIndex) => (
-        <div key={modulesIndex} className="bg-surface rounded-lg shadow overflow-hidden border">
+        <div key={modulesIndex} className="mt-5 bg-surface rounded-lg shadow overflow-hidden border">
           <div className="bg-zinc-800 text-white p-4">
             <h2 className="text-xl font-semibold">{module.title}</h2>
             <p className="text-sm text-gray-300">{module.description}</p>
@@ -45,9 +45,9 @@ export default function LessonList({
               <div key={lessonIndex} className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-3 px-1">
                   {lesson.is_locked ? (
-                    <Lock className="w-8 h-8 text-zinc-800" />
+                    <Lock style={{ width: '2rem', height: '2rem', display: 'inline-block', verticalAlign: 'middle' }} className="w-8 h-8 text-zinc-800" />
                   ) : (
-                    <BookOpen className="w-8 h-8 text-zinc-800" />
+                    <BookOpen style={{ width: '2rem', height: '2rem', display: 'inline-block', verticalAlign: 'middle' }} className="w-8 h-8 text-zinc-800" />
                   )}
                   <div>
                     <h3 className="text-sm font-medium text-text">{lesson.title}</h3>
@@ -67,7 +67,7 @@ export default function LessonList({
                     <ChevronRight className="w-6 h-6 text-gray-400" />
                   ) : (
                     <Link
-                      to="/lesson/1"
+                      to={`/lesson/${lesson.uuid}`}
                     >
                       <button className="px-5 py-2 bg-zinc-800 text-white rounded-md text-sm">
                         Start

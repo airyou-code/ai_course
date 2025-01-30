@@ -1,3 +1,4 @@
+from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 from django.db import models
@@ -6,8 +7,7 @@ from core.widgets import JSONEditorWidget
 from nonrelated_inlines.admin import NonrelatedStackedInline
 from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
-from django import forms
-import json
+from .utils import process_lesson_to_json
 
 from courses.models import Course, ContentBlock, Lesson, Module, Group
 from core.admin import CoreAdmin
@@ -189,8 +189,19 @@ class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
         instance.save()
 
 
+class LessonAdminForm(forms.ModelForm):
+    fake_field = forms.CharField(
+        widget=forms.Textarea, required=False, label="Fake Field"
+    )
+
+    class Meta:
+        model = Lesson
+        fields = '__all__'
+
+
 @admin.register(Lesson)
 class LessonAdmin(SortableAdmin, CoreAdmin):
+    form = LessonAdminForm
     list_display = (
         "title",
         "module",
@@ -209,14 +220,33 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "title",
                     "module",
                     "is_locked",
+                    "is_free",
                     "duration",
                     "description",
                     "uuid",
+                    "fake_field",
                     *CoreAdmin.base_fields,
                 )
             }
         ),
     )
+
+    def save_model(self, request, obj, form, change):
+        # Get the value from the fake field
+        fake_field_value = form.cleaned_data.get('fake_field')
+
+        # Process the value and save it to the appropriate fields
+        if fake_field_value:
+            # Example processing: save the value to the description field
+            blocks_data: dict = process_lesson_to_json(
+                text=fake_field_value
+            ).get('blocks', [])
+            for block_data in blocks_data:
+                ContentBlock.objects.create(
+                    lesson=obj, **block_data
+                )
+
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ContentBlock)

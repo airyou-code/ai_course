@@ -18,13 +18,13 @@ export const useFetchModuleData = () => {
 }
 
 
-export const useFetchLessonData = () => {
+export const useFetchLessonData = (lesson_uuid: string) => {
     const request = useRequest();
 
     return useQuery({
         queryKey: [QUERY_KEYS.LESSON_DATA],
         queryFn: async () => {
-            const { data } = await request(API.LESSON_DATA("2ee779c4-6bef-46da-a587-a2def1cb25c6"));
+            const { data } = await request(API.LESSON_DATA(lesson_uuid));
             console.log(data)
             return data
         }

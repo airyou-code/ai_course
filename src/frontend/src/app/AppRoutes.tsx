@@ -22,7 +22,7 @@ const routesForAuthenticatedOnly = [
         element: <AllLessonsPage />,
       },
       {
-        path: "/lesson/:lessonId",
+        path: "/lesson/:lessonUUId",
         element: <CoursePage />,
       },
       {

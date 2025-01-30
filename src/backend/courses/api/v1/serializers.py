@@ -28,3 +28,11 @@ class ContentBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentBlock
         fields = ['block_type', 'content_html', 'content_text', 'content_json']
+
+
+class ContentBlockListSerializer(serializers.ModelSerializer):
+    blocks = ContentBlockSerializer(many=True)
+
+    class Meta:
+        model = Lesson
+        fields = ['blocks']
