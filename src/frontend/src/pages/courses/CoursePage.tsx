@@ -31,6 +31,11 @@ export default function AllLessonsPage() {
   if (isLoading) {
     return null;
   }
+
+  if (!lessonUUId) {
+    return <div>Error: lessonUUId is undefined</div>;
+  }
+
   return (
     // <Layout lessonGroups={data}>
     //   <CourseContent lessonUUId={lessonUUId}/>
