@@ -1,17 +1,17 @@
-import { ChevronRight } from "lucide-react"
+import React from 'react';
 
 interface ContinueButtonProps {
-  onClick: () => void
+  content?: string;
+  onClick: () => void;
 }
 
-export function ContinueButton({ onClick }: ContinueButtonProps) {
+export function ContinueButton({ content = "Continue", onClick }: ContinueButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+      className="mb-10 text-black text-center font-bold text-lg underline hover:text-gray-700 transition-colors duration-200"
     >
-      Continue <ChevronRight className="ml-2 h-4 w-4" />
+      {content}
     </button>
-  )
-}
-
+  );
+};
