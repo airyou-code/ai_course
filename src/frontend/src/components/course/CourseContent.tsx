@@ -96,6 +96,7 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
         return (
           <div key={index} className="py-4 px-2">
             <div
+              className="tinymce-content"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content as string) }}
             ></div>
           </div>
@@ -120,12 +121,17 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
           />
         )
       case "button_continue":
-        return <ContinueButton key={index} onClick={() => {
-          setVisibleBlocks((prev) => prev.filter((_, i) => i !== index))
-          if (fetchedData && fetchedData.blocks) {
-            showNextBlocks(fetchedData.blocks)
-          }
-        }} />
+        return <div key={index} className="flex justify-center">
+          <ContinueButton
+                  content={block.content as string}
+                  onClick={() => {
+                    setVisibleBlocks((prev) => prev.filter((_, i) => i !== index))
+                    if (fetchedData && fetchedData.blocks) {
+                      showNextBlocks(fetchedData.blocks)
+                    }
+                  }}
+          />
+        </div>
       case "button_next":
         return block.nextLessonUrl ? (
           <NextLessonButton
