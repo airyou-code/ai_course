@@ -28,7 +28,10 @@ def process_lesson_to_json(text: str) -> dict:
                 current_block = []
 
             blocks.append(
-                {"block_type": "button_next", "content_text": button_match.group(1)}
+                {
+                    "block_type": "button_continue",
+                    "content_text": button_match.group(1)
+                }
             )
             continue
 
