@@ -11,7 +11,7 @@ type ContentBlockType =
   | 'output_dialog'
   | 'input_dialog'
   | 'text'
-  | 'input_field'
+  | 'input_gpt'
   | 'test'
   | 'button_continue'
   | 'button_next';
@@ -55,23 +55,38 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   }, [visibleBlocks])
 
   const showNextBlocks = (blocks: ContentBlock[]) => {
-    let index = currentBlockIndex
+    let index = currentBlockIndex;
+
+    setVisibleBlocks((prev) => prev.filter((block) => block.type !== "input_gpt"));
+
     while (index < blocks.length) {
-      const block = blocks[index]
-      setVisibleBlocks((prev) => [...prev, block])
-      index++
-      if (block.type === 'button_continue') {
-        break
+      const block = blocks[index];
+      setVisibleBlocks((prev) => [...prev, block]);
+      index++;
+      if (block.type === 'button_continue' || block.type === 'input_gpt') {
+        break;
       }
     }
-    setCurrentBlockIndex(index)
-  }
+
+    setCurrentBlockIndex(index);
+  };
 
   const handleUserInput = (message: string) => {
-    setUserInput(message)
-    if (fetchedData && fetchedData.blocks) {
-      showNextBlocks(fetchedData.blocks)
-    }
+    // setUserInput(message);
+    setVisibleBlocks((prev) => {
+      const filtered = prev.filter(
+        (block) =>
+          !["input_gpt", "button_continue"].includes(block.type)
+      );
+
+      return [
+        ...filtered,
+        { type: "input_dialog", content: message },
+        { type: "output_dialog", content: "Mock answer from server Mock answer from server Mock answer from server Mock answer from server" },
+        { type: "input_gpt", content: "" },
+        { type: "button_continue", content: "Continue" },
+      ];
+    });
   }
 
   const handleTestAnswer = (isCorrect: boolean) => {
@@ -101,7 +116,7 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
             ></div>
           </div>
         )
-      case "input_field":
+      case "input_gpt":
         return (
           <div key={index} className="py-4">
             <ChatInput onSubmit={handleUserInput} placeholder={block.content as string} />
