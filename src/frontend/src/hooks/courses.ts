@@ -22,11 +22,12 @@ export const useFetchLessonData = (lesson_uuid: string) => {
     const request = useRequest();
 
     return useQuery({
-        queryKey: [QUERY_KEYS.LESSON_DATA],
+        queryKey: [QUERY_KEYS.LESSON_DATA, lesson_uuid],
         queryFn: async () => {
             const { data } = await request(API.LESSON_DATA(lesson_uuid));
             console.log(data)
             return data
-        }
+        },
+        staleTime: 60 * 1000, // 1 minute
     });
 }

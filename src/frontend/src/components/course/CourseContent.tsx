@@ -1,166 +1,146 @@
-import { useState, useEffect, useRef } from "react"
-import { DialogBox } from "./content/dialog-box"
-import { ChatInput } from "./content/chat-input"
-import { Test } from "./content/test"
-import { ContinueButton } from "./content/continue-button"
-import { NextLessonButton } from "./content/next-lesson-button"
-import { useFetchLessonData } from "../../hooks/courses"
+import React, { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../store';
+import {
+  removeBlockAtIndex,
+  showNextBlocks,
+  removeByTypes,
+  addBlocks,
+  clearBlocks,
+  setCurrentLessonUUId,
+} from '../../store/slices/blocksSlice';
+import { useFetchLessonData } from '../../hooks/courses';
+import { DialogBox } from './content/dialog-box';
+import { ChatInput } from './content/chat-input';
+import { ContinueButton } from './content/continue-button';
+import { Test } from './content/test';
+import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
 
-type ContentBlockType = 
-  | 'output_dialog'
-  | 'input_dialog'
-  | 'text'
-  | 'input_field'
-  | 'test'
-  | 'button_continue'
-  | 'button_next';
-
-interface TestContent {
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  right_feedback: string;
-  wrong_feedback: string;
-}
-
-interface ContentBlock {
-  type: ContentBlockType;
-  content: string | TestContent;
-  avatar?: string;
-  nextLessonUrl?: string;
-}
-
-interface CourseData {
-  blocks: ContentBlock[];
-}
-
 export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
-  const [currentBlockIndex, setCurrentBlockIndex] = useState(0)
-  const [visibleBlocks, setVisibleBlocks] = useState<ContentBlock[]>([])
-  const [userInput, setUserInput] = useState("")
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lastBlockRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+  const { blocks, currentIndex, currentLessonUUId } = useSelector(
+    (state: RootState) => state.blocks
+  );
+
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
 
-  useEffect(() => {
-    if (fetchedData && fetchedData.blocks && fetchedData.blocks.length > 0 && currentBlockIndex === 0) {
-      showNextBlocks(fetchedData.blocks)
-    }
-  }, [fetchedData]) // Run when fetchedData changes
 
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight
-    }
-  }, [visibleBlocks])
-
-  const showNextBlocks = (blocks: ContentBlock[]) => {
-    let index = currentBlockIndex
-    while (index < blocks.length) {
-      const block = blocks[index]
-      setVisibleBlocks((prev) => [...prev, block])
-      index++
-      if (block.type === 'button_continue') {
-        break
-      }
-    }
-    setCurrentBlockIndex(index)
+  if (currentLessonUUId !== lessonUUId) {
+    dispatch(clearBlocks());
+    dispatch(setCurrentLessonUUId(lessonUUId));
+    dispatch(showNextBlocks(fetchedData.blocks));
   }
+
+  useEffect(() => {
+    if (fetchedData?.blocks?.length && currentIndex === 0) {
+      dispatch(showNextBlocks(fetchedData.blocks));
+    }
+  }, [fetchedData]);
+
+  useEffect(() => {
+    if (lastBlockRef.current) {
+      lastBlockRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [blocks]);
 
   const handleUserInput = (message: string) => {
-    setUserInput(message)
-    if (fetchedData && fetchedData.blocks) {
-      showNextBlocks(fetchedData.blocks)
-    }
-  }
+    dispatch(removeByTypes(['input_gpt', 'button_continue']));
+    dispatch(
+      addBlocks([
+        { type: 'input_dialog', content: message },
+        { type: 'output_dialog', content: 'Mock answer from server' },
+        { type: 'input_gpt', content: '' },
+        { type: 'button_continue', content: 'Continue' },
+      ])
+    );
+  };
 
-  const handleTestAnswer = (isCorrect: boolean) => {
-    if (isCorrect && fetchedData && fetchedData.blocks) {
-      showNextBlocks(fetchedData.blocks)
-    }
-  }
+  const renderBlock = (block: any, index: number) => {
+    const isSecondLastBlock = index === blocks.length - 2;
+    const blockRef = isSecondLastBlock ? lastBlockRef : null;
 
-  const renderBlock = (block: ContentBlock, index: number) => {
     switch (block.type) {
-      case "output_dialog":
-      case "input_dialog":
+      case 'output_dialog':
+      case 'input_dialog':
         return (
-          <DialogBox
-            key={index}
-            content={block.content as string}
-            avatar={block.avatar}
-            isInput={block.type === "input_dialog"}
-          />
-        )
-      case "text":
+          <div key={index} ref={blockRef}>
+            <DialogBox
+              content={block.content as string}
+              isInput={block.type === 'input_dialog'}
+            />
+          </div>
+        );
+      case 'text':
         return (
-          <div key={index} className="py-4 px-2">
+          <div key={index} className="py-4 px-2" ref={blockRef}>
             <div
               className="tinymce-content"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content as string) }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content) }}
             ></div>
           </div>
-        )
-      case "input_field":
+        );
+      case 'input_gpt':
         return (
-          <div key={index} className="py-4">
+          <div key={index} className="py-4" ref={blockRef}>
             <ChatInput onSubmit={handleUserInput} placeholder={block.content as string} />
           </div>
-        )
-      case "test":
-        const testContent = block.content as TestContent;
+        );
+      case 'button_continue':
         return (
-          <Test
-            key={index}
-            content={testContent.question}
-            options={testContent.options}
-            correctAnswer={testContent.correctAnswer}
-            rightFeedback={testContent.right_feedback}
-            wrongFeedback={testContent.wrong_feedback}
-            onAnswer={handleTestAnswer}
-          />
-        )
-      case "button_continue":
-        return <div key={index} className="flex justify-center">
-          <ContinueButton
-                  content={block.content as string}
-                  onClick={() => {
-                    setVisibleBlocks((prev) => prev.filter((_, i) => i !== index))
-                    if (fetchedData && fetchedData.blocks) {
-                      showNextBlocks(fetchedData.blocks)
-                    }
-                  }}
-          />
-        </div>
+          <div key={index} className="flex justify-center" ref={blockRef}>
+            <ContinueButton
+              content={block.content as string}
+              onClick={() => {
+                dispatch(removeByTypes(['input_gpt', 'button_continue']));
+                if (fetchedData && fetchedData.blocks) {
+                  dispatch(showNextBlocks(fetchedData.blocks));
+                }
+              }}
+            />
+          </div>
+        );
       case "button_next":
-        return block.nextLessonUrl ? (
-          <NextLessonButton
-            key={index}
-            onClick={() => (window.location.href = block.nextLessonUrl!)}
-            url={block.nextLessonUrl}
-          />
-        ) : null
+          return block.nextLessonUrl ? (
+            <NextLessonButton
+              key={index}
+              url={block.nextLessonUrl}
+            />
+          ) : null
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (isError) {
-    return <div>Error loading data</div>
-  }
+  if (isLoading) return (
+    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+      <div className="max-w-3xl mx-auto pb-10">
+        <div className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
+          <div className="space-y-6 pb-10">
+          <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center h-full">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+  if (isError) return <div>Error fetching data</div>;
 
   return (
     <main className="flex-1 ml-64 p-8 overflow-y-auto">
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
-          <div className="space-y-6 pb-10">{visibleBlocks.map((block, index) => renderBlock(block, index))}</div>
+          <div className="space-y-6 pb-10">
+            {blocks.map((block, index) => renderBlock(block, index))}
+          </div>
         </div>
       </div>
     </main>
-  )
+  );
 }
 
