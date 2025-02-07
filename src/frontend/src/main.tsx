@@ -7,13 +7,16 @@ import AppRoutes from './app/AppRoutes';
 import WithQueryClient from './app/WithQueryClient';
 import WithInitialData from './app/WithInitialData';
 import WithProviders from './app/WithProviders';
+import { ThemeProvider } from './app/WithThemeProvider';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
     <WithQueryClient>
       <WithProviders>
         <WithInitialData>
-          <AppRoutes />
+          <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <AppRoutes />
+          </ThemeProvider>
         </WithInitialData>
       </WithProviders>
     </WithQueryClient>

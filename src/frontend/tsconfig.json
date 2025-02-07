@@ -16,12 +16,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@": ["./src"],
-      "@app": ["./src/app"],
-      "@components": ["./src/components"],
-      "@config": ["./src/config"],
-      "@pages": ["./src/pages"],
-    }
+      "@/*": ["./src/*"],
+      "@app/*": ["./src/app"],
+      "@components/*": ["./src/components"],
+      "@config/*": ["./src/config"],
+      "@pages/*": ["./src/pages"],
+    },
+    "baseUrl": "."
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
