@@ -22,7 +22,6 @@ import {
 
 interface Lesson {
   title: string
-  icon?: LucideIcon
   duration: string
   description: string
   is_free: boolean
@@ -34,6 +33,8 @@ interface Lesson {
 interface Module {
   title: string
   description: string
+  icon?: LucideIcon
+  url?: string
   lessons: Lesson[]
 }
 
@@ -43,20 +44,7 @@ interface Group {
   modules: Module[]
 }
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
+export function NavMain() {
   const { data, isLoading, isError } = useFetchModuleData();
 
   if (isLoading) {
@@ -69,16 +57,17 @@ export function NavMain({
 
   return (
     <>
-      {data.map((group, groupIndex) => (
+      {data.map((group: Group, groupIndex: number) => (
         <SidebarGroup key={groupIndex}>
           <div>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarMenu>
               {group.modules.map((module, moduleIndex) => (
-                <Collapsible key={moduleIndex} asChild defaultOpen={module.isActive}>
+                <Collapsible key={moduleIndex} asChild>
+                {/* <Collapsible key={moduleIndex} asChild defaultOpen={module.isActive}> */}
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild tooltip={module.title}>
-                      <a href={module.url}>
+                      <a>
                         {module.icon ? <module.icon /> : <BookOpen />}
                         <span>{module.title}</span>
                       </a>
