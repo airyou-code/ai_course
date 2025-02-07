@@ -8,8 +8,15 @@ def process_lesson_to_json(text: str) -> dict:
     current_block = []
     block_type = "text"
 
-    button_pattern = re.compile(r"Кнопка:\s*_(.*?)_")
-    input_prompt_pattern = re.compile(r"\*\*Инпут промпта:\*\*")
+    # Обновленные паттерны для кнопок и инпутов
+    button_pattern = re.compile(
+        r".*кнопка:.*[“\"'(\[\{](.*?)[”\"'\)\]\}].*$",
+        re.IGNORECASE
+    )
+    input_prompt_pattern = re.compile(
+        r".*инпут.*:.*$",
+        re.IGNORECASE
+    )
 
     lines = text.split("\n")
 
