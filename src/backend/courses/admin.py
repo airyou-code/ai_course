@@ -190,8 +190,9 @@ class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
 
 
 class LessonAdminForm(forms.ModelForm):
-    fake_field = forms.CharField(
-        widget=forms.Textarea, required=False, label="Fake Field"
+    content_blocks_gen = forms.CharField(
+        widget=forms.Textarea, required=False,
+        label="Content block gen"
     )
 
     class Meta:
@@ -224,7 +225,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "duration",
                     "description",
                     "uuid",
-                    "fake_field",
+                    "content_blocks_gen",
                     *CoreAdmin.base_fields,
                 )
             }
@@ -233,13 +234,13 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
 
     def save_model(self, request, obj, form, change):
         # Get the value from the fake field
-        fake_field_value = form.cleaned_data.get('fake_field')
+        content_blocks_gen_value = form.cleaned_data.get('content_blocks_gen')
 
         # Process the value and save it to the appropriate fields
-        if fake_field_value:
+        if content_blocks_gen_value:
             # Example processing: save the value to the description field
             blocks_data: dict = process_lesson_to_json(
-                text=fake_field_value
+                text=content_blocks_gen_value
             ).get('blocks', [])
             for block_data in blocks_data:
                 ContentBlock.objects.create(
