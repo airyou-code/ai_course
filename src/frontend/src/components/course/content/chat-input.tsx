@@ -1,35 +1,80 @@
-import { Send } from "lucide-react"
+import React, { useRef, useState } from "react";
+import { Send } from "lucide-react";
 
 interface ChatInputProps {
-  onSubmit: (message: string) => void
-  placeholder?: string
+  onSubmit: (message: string) => void;
+  placeholder?: string;
 }
 
-export function ChatInput({ onSubmit, placeholder = "Send a message" }: ChatInputProps) {
+export function ChatInput({
+  onSubmit,
+  placeholder = "Send a message",
+}: ChatInputProps) {
+  const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const form = e.currentTarget
-    const input = form.elements.namedItem("message") as HTMLInputElement
-    if (input.value.trim()) {
-      onSubmit(input.value)
-      input.value = ""
+    e.preventDefault();
+    if (message.trim()) {
+      onSubmit(message.trim());
+      setMessage("");
+      if (textareaRef.current) {
+        // Сбрасываем высоту при очистке
+        textareaRef.current.style.height = "auto";
+      }
     }
-  }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = e.target;
+    setMessage(value);
+
+    // Автоматическая подстройка высоты
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // При Enter (без Shift) отправляем форму
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // чтобы не добавлялся перенос
+      // "Ручной" вызов handleSubmit
+      if (message.trim()) {
+        onSubmit(message.trim());
+        setMessage("");
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
+      }
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="relative">
-      <input
-        name="message"
-        placeholder={placeholder}
-        className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button
-        type="submit"
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <Send className="h-4 w-4" />
-      </button>
+      <div className="relative">
+        <textarea
+          ref={textareaRef}
+          value={message}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          rows={1}
+          className="
+            w-full px-4 py-2 pr-10 border border-gray-300 
+            rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 
+            resize-none overflow-hidden
+          "
+          style={{ minHeight: "2.5rem" }}
+        />
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <Send className="h-4 w-4" />
+        </button>
+      </div>
     </form>
-  )
+  );
 }
-
