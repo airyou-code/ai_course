@@ -132,7 +132,7 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   if (isError) return <div>Error fetching data</div>;
 
   return (
-    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+    <main className="flex-1">
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
