@@ -115,13 +115,13 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   };
 
   if (isLoading) return (
-    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+    <main className="flex-1">
       <div className="max-w-3xl mx-auto pb-10">
-        <div className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
+        <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
           <div className="flex justify-center items-center h-full">
             <div className="flex justify-center items-center h-full">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-black"></div>
             </div>
           </div>
           </div>
