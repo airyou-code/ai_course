@@ -1,4 +1,4 @@
-import React from 'react';
+import { Button } from "@/components/ui/button"
 
 interface ContinueButtonProps {
   content?: string;
@@ -7,11 +7,6 @@ interface ContinueButtonProps {
 
 export function ContinueButton({ content = "Continue", onClick }: ContinueButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      className="mb-10 text-black text-center font-bold text-lg underline hover:text-gray-700 transition-colors duration-200"
-    >
-      {content}
-    </button>
+    <Button onClick={onClick} variant="link">{content}</Button>
   );
 };
