@@ -168,6 +168,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
               </a>
+              
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

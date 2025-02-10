@@ -18,13 +18,9 @@ const routesForAuthenticatedOnly = [
     path: "/",
     element: <ProtectedRoute />,
     children: [
-      // {
-      //   path: "/alllessons",
-      //   element: <AllLessonsPage />,
-      // },
       {
         path: "/alllessons",
-        element: <LessonPage />,
+        element: <AllLessonsPage />,
       },
       // {
       //   path: "/lesson/:lessonUUId",
