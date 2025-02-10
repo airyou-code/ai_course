@@ -13,17 +13,6 @@ from courses.models import Course, ContentBlock, Lesson, Module, Group
 from core.admin import CoreAdmin
 
 
-# class TestInputWidget(forms.Textarea):
-#     template_name = 'widgets/test_input_widget.html'
-
-#     def format_value(self, value):
-#         if value is None:
-#             return ''
-#         if isinstance(value, dict):
-#             return json.dumps(value, indent=4, ensure_ascii=False)
-#         return value
-
-
 class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
     model = Group
     fields = [
@@ -32,7 +21,6 @@ class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
     ]
     show_change_link = True
     verbose_name_plural = _("Groups")
-    # template = "custom_admin/content_editor.html"
     extra = 0
 
     def get_form_queryset(self, obj):
@@ -51,9 +39,6 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
     )
     search_fields = ("title",)
     inlines = (GroupsInlain,)
-    # list_filter = ()
-    # readonly_fields = ()
-    # change_fields = ()
 
     fieldsets = (
         (
@@ -76,7 +61,6 @@ class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
     ]
     show_change_link = True
     verbose_name_plural = _("Modules")
-    # template = "custom_admin/content_editor.html"
     extra = 0
 
     def get_form_queryset(self, obj):
@@ -95,6 +79,7 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
         "description",
     )
     search_fields = ("title",)
+    list_filter = ("course",)
     inlines = (ModulesInlain,)
 
     fieldsets = (
@@ -122,7 +107,6 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
     ]
     show_change_link = True
     verbose_name_plural = _("Lessons")
-    # template = "custom_admin/content_editor.html"
     extra = 0
 
     def get_form_queryset(self, obj):
@@ -137,21 +121,19 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
 class ModuleAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
-        # "course",
+        "group",
+        "course",
         "description",
     )
     search_fields = ("title",)
+    list_filter = ("group__course", "group")
     inlines = (LessonsInlain,)
-    # list_filter = ()
-    # readonly_fields = ()
-    # change_fields = ()
 
     fieldsets = (
         (
             _("General"), {
                 "fields": (
                     "title",
-                    # "course",
                     "group",
                     "description",
                     *CoreAdmin.base_fields,
@@ -159,6 +141,10 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
             }
         ),
     )
+
+    def course(self, obj):
+        return obj.group.course if obj.group else None
+    course.short_description = 'Course'
 
 
 class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
@@ -206,13 +192,18 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
         "module",
+        "group",
+        "course",
         "description",
     )
     search_fields = ("title",)
+    list_filter = (
+        "module",
+        "module__group",
+        "module__group__course",
+    )
     inlines = (ContenBlockInlain,)
-    # list_filter = ()
     readonly_fields = ("uuid",)
-    # change_fields = ()
 
     fieldsets = (
         (
@@ -232,13 +223,18 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         ),
     )
 
+    def group(self, obj):
+        return obj.module.group if obj.module else None
+    group.short_description = 'Group'
+
+    def course(self, obj):
+        return obj.module.group.course if obj.module and obj.module.group else None
+    course.short_description = 'Course'
+
     def save_model(self, request, obj, form, change):
-        # Get the value from the fake field
         content_blocks_gen_value = form.cleaned_data.get('content_blocks_gen')
 
-        # Process the value and save it to the appropriate fields
         if content_blocks_gen_value:
-            # Example processing: save the value to the description field
             blocks_data: dict = process_lesson_to_json(
                 text=content_blocks_gen_value
             ).get('blocks', [])
@@ -255,14 +251,15 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "block_type",
         "lesson",
-        "content_html",
-        "content_text",
-        "content_json"
+        "module",
+        "group",
+        "course",
+        # "content_html",
+        # "content_text",
+        # "content_json"
     )
     search_fields = ("block_type",)
-    # list_filter = ()
-    # readonly_fields = ()
-    # change_fields = ()
+    list_filter = ("lesson", "lesson__module", "lesson__module__group")
 
     fieldsets = (
         (
@@ -278,3 +275,15 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
             }
         ),
     )
+
+    def module(self, obj):
+        return obj.lesson.module if obj.lesson else None
+    module.short_description = 'Module'
+
+    def group(self, obj):
+        return obj.lesson.module.group if obj.lesson and obj.lesson.module else None
+    group.short_description = 'Group'
+
+    def course(self, obj):
+        return obj.lesson.module.group.course if obj.lesson and obj.lesson.module and obj.lesson.module.group else None
+    course.short_description = 'Course'
