@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
@@ -17,7 +18,12 @@ import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
 
-export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
+export default function CoursePage() {
+  const { lessonUUId } = useParams<{ lessonUUId: string }>();
+  if (!lessonUUId) {
+    return <div>Error: lessonUUId is undefined</div>;
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
   const lastBlockRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -27,18 +33,18 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
 
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
 
-
-  if (currentLessonUUId !== lessonUUId) {
-    dispatch(clearBlocks());
-    dispatch(setCurrentLessonUUId(lessonUUId));
-    dispatch(showNextBlocks(fetchedData.blocks));
-  }
+  useEffect(() => {
+    if (currentLessonUUId !== lessonUUId) {
+      dispatch(clearBlocks());
+      dispatch(setCurrentLessonUUId(lessonUUId));
+    }
+  }, [lessonUUId, currentLessonUUId, dispatch]);
 
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
       dispatch(showNextBlocks(fetchedData.blocks));
     }
-  }, [fetchedData]);
+  }, [fetchedData, currentIndex, dispatch]);
 
   useEffect(() => {
     if (lastBlockRef.current) {
@@ -115,13 +121,13 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   };
 
   if (isLoading) return (
-    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+    <main className="flex-1">
       <div className="max-w-3xl mx-auto pb-10">
-        <div className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
+        <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
           <div className="flex justify-center items-center h-full">
             <div className="flex justify-center items-center h-full">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-black"></div>
             </div>
           </div>
           </div>
@@ -132,7 +138,7 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
   if (isError) return <div>Error fetching data</div>;
 
   return (
-    <main className="flex-1 ml-64 p-8 overflow-y-auto">
+    <main className="flex-1">
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">

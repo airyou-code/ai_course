@@ -11,6 +11,7 @@ import AuthPage from '../pages/users/AuthPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 import CoursePage from '../pages/courses/CoursePage';
+import LessonPage from '@/pages/courses/LessonPage';
 
 const routesForAuthenticatedOnly = [
   {
@@ -21,9 +22,13 @@ const routesForAuthenticatedOnly = [
         path: "/alllessons",
         element: <AllLessonsPage />,
       },
+      // {
+      //   path: "/lesson/:lessonUUId",
+      //   element: <CoursePage />,
+      // },
       {
         path: "/lesson/:lessonUUId",
-        element: <CoursePage />,
+        element: <LessonPage />,
       },
       {
         path: ROUTES.PROFILE,

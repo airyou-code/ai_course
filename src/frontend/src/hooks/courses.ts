@@ -11,7 +11,6 @@ export const useFetchModuleData = () => {
         queryKey: [QUERY_KEYS.MODULE_DATA],
         queryFn: async () => {
             const { data } = await request(API.MODULE_DATA);
-            console.log(data)
             return data
         }
     });
@@ -25,7 +24,6 @@ export const useFetchLessonData = (lesson_uuid: string) => {
         queryKey: [QUERY_KEYS.LESSON_DATA, lesson_uuid],
         queryFn: async () => {
             const { data } = await request(API.LESSON_DATA(lesson_uuid));
-            console.log(data)
             return data
         },
         staleTime: 60 * 1000, // 1 minute

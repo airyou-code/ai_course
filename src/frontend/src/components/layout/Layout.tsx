@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = true, lessonGro
   return (
     <div className="min-h-screen flex flex-col bg-white text-black">
       <Navbar />
-      <div className="flex flex-1 mt-20">
+      <div className="flex flex-1">
         {showSidebar && <Sidebar lessonGroups={lessonGroups} />}
         <main className={`flex-1 ${showSidebar ? 'ml-64' : ''} p-8 overflow-y-auto`}>
           <div className="max-w-3xl mx-auto">
