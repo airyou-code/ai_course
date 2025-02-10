@@ -1,4 +1,4 @@
-import Layout from '../../components/layout/Layout';
+import LayoutShadcn from "@/components/layout/LayoutShadcn"
 import LessonList from '../../components/course/LessonList';
 import { useFetchModuleData } from '../../hooks/courses';
 
@@ -8,8 +8,8 @@ export default function AllLessonsPage() {
     return null;
   }
   return (
-    <Layout lessonGroups={data}>
+    <LayoutShadcn>
       <LessonList lessonGroups={data} />
-    </Layout>
+    </LayoutShadcn>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
@@ -17,7 +18,12 @@ import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
 
-export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
+export default function CoursePage() {
+  const { lessonUUId } = useParams<{ lessonUUId: string }>();
+  if (!lessonUUId) {
+    return <div>Error: lessonUUId is undefined</div>;
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
   const lastBlockRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -27,18 +33,18 @@ export default function CoursePage({ lessonUUId }: { lessonUUId: string }) {
 
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
 
-
-  if (currentLessonUUId !== lessonUUId) {
-    dispatch(clearBlocks());
-    dispatch(setCurrentLessonUUId(lessonUUId));
-    dispatch(showNextBlocks(fetchedData.blocks));
-  }
+  useEffect(() => {
+    if (currentLessonUUId !== lessonUUId) {
+      dispatch(clearBlocks());
+      dispatch(setCurrentLessonUUId(lessonUUId));
+    }
+  }, [lessonUUId, currentLessonUUId, dispatch]);
 
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
       dispatch(showNextBlocks(fetchedData.blocks));
     }
-  }, [fetchedData]);
+  }, [fetchedData, currentIndex, dispatch]);
 
   useEffect(() => {
     if (lastBlockRef.current) {

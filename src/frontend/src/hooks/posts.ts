@@ -8,7 +8,6 @@ export const useFetchPostData = () => {
         queryKey: ['repoData'],
         queryFn: async () => {
             const { data } = await request("https://jsonplaceholder.typicode.com/posts")
-            console.log(data)
             return data
         }
     });
