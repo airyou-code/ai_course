@@ -44,7 +44,7 @@ export default function AllLessonsPage() {
       <Navbar />
       <div className="flex flex-1 mt-20">
         <Sidebar lessonGroups={data} />
-        <CourseContent lessonUUId={lessonUUId}/>
+        <CourseContent />
       </div>
     </div>
   )
