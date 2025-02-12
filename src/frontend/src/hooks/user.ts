@@ -101,23 +101,6 @@ export const useRefreshLogin = () => {
     };
 };
 
-export const useLogout = () => {
-    // const request = useRequest();
-    const refetchUser = useRefetchUser();
-  
-    return async () => {
-      try {
-        setCookie(ACCESS_TOKEN, '');
-        setCookie(REFRESH_TOKEN, '');
-        refetchUser();
-      } catch (error) {
-        console.error(error);
-        let errorMessage = 'An unknown error occurred';
-        return Promise.reject(errorMessage);
-      }
-    };
-};
-
 export const useUserState = () => {
   const { state } = useContext(UserContext);
   return state;
@@ -130,6 +113,25 @@ export const useUserDispatch = () => {
 
 export const useUser = () => {
   return useUserState().user as User;
+};
+
+export const useLogout = () => {
+  // const request = useRequest();
+  const refetchUser = useRefetchUser();
+  const dispatch = useUserDispatch();
+
+  return async () => {
+    try {
+      setCookie(ACCESS_TOKEN, '');
+      setCookie(REFRESH_TOKEN, '');
+      dispatch(setUser(null));
+      refetchUser();
+    } catch (error) {
+      console.error(error);
+      let errorMessage = 'An unknown error occurred';
+      return Promise.reject(errorMessage);
+    }
+  };
 };
 
 export const useFetchUserData = () => {

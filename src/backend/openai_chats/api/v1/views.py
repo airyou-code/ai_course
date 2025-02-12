@@ -3,6 +3,7 @@ from openai import OpenAI
 from time import sleep
 import requests
 import json
+import markdown
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
@@ -19,7 +20,6 @@ from .serializers import ChatMessageSerializer
 #   base_url=settings.OPENAI_URL,
 #   api_key=settings.OPENAI_API_KEY,
 # )
-
 
 
 class ChatMessageViewSet(
@@ -56,8 +56,17 @@ class ChatMessageViewSet(
             chat=user_chat
         ).order_by("created_at")
 
-        serializer = ChatMessageSerializer(messages, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Convert content from Markdown to HTML
+        messages_data = [
+            {
+                'content': markdown.markdown(message.content),
+                'role': message.role,
+                'created_at': message.created_at,
+            }
+            for message in messages
+        ]
+
+        return Response(messages_data, status=status.HTTP_200_OK)
 
     def create(self, request, content_block_uuid=None):
         """
@@ -121,7 +130,7 @@ class ChatMessageViewSet(
             #     model="deepseek/deepseek-r1:free",
             #     messages=conversation,
             # )
-            if False:
+            if True:
                 response = requests.post(
                     url="https://openrouter.ai/api/v1/chat/completions",
                     headers={

@@ -3,6 +3,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface ContentBlock {
   type: string;
   content: string;
+  uuid?: string;
+  post_uuid?: string;
   avatar?: string;
   nextLessonUrl?: string;
 }
