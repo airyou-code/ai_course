@@ -95,6 +95,7 @@ class ContentBlock(CoreModel, SortableMixin):
         ]
     }
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content_html = HTMLField(blank=True, null=True)
@@ -113,7 +114,7 @@ class ContentBlock(CoreModel, SortableMixin):
         ordering = ['order']
 
     def __str__(self):
-        return self.title
+        return str(self.uuid)
 
     def save(self, *args, **kwargs):
         if not self.content_json:

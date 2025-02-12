@@ -64,12 +64,13 @@
             {% for field in line %}
               {% if line.fields.0 == "block_type" or line.fields.0 == "content_text"%}
                 {% if line.fields.0 == "content_text" %}
+                <a href="{% url inline_admin_form.model_admin.opts|admin_urlname:'change' inline_admin_form.original.pk|admin_urlquote %}" class="inlinechangelink">{% trans "Change" %}</a>
                 Promt:
-                {% endif %}
                 <div>
                   {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
                   {{ field.field }}
                 </div>
+                {% endif %}
               {% endif %}
             {% endfor %}
           {% elif inline_admin_form.original.block_type == "choices_field" %}

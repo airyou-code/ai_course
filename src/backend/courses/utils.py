@@ -3,6 +3,10 @@ import json
 import markdown
 
 
+def get_openai_completion():
+    pass
+
+
 def process_lesson_to_json(text: str) -> dict:
     blocks = []
     current_block = []
