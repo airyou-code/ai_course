@@ -60,6 +60,7 @@ class LessonContentBlocksViewSet(
                     "type": block.block_type,
                     "content": content,
                     "avatar": block.avatar if hasattr(block, "avatar") else None,
+                    "uuid": block.uuid,
                     'nextLessonUrl': next_lesson_url,
                 }
             )

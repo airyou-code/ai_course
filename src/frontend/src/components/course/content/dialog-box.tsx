@@ -28,7 +28,7 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
 
   return (
     <div className={`flex gap-4 ${isInput ? "flex-row-reverse" : "flex-row"}`}>
-      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+      {/* <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
         {avatar ? (
           <img
             src={avatar || "/placeholder.svg"}
@@ -38,7 +38,7 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
         ) : (
           <User className="w-6 h-6 text-gray-500" />
         )}
-      </div>
+      </div> */}
       <div
         className={`max-w-[80%] rounded-lg p-4 ${isInput ? "bg-gray-200" : "bg-gray-100"}`}
       >

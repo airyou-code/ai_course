@@ -59,3 +59,5 @@ whitenoise==6.8.2
 django-admin-sortable==2.3
 django_json_widget==2.0.1
 markdown==3.7
+
+openai==1.61.1

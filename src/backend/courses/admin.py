@@ -260,6 +260,7 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
     )
     search_fields = ("block_type",)
     list_filter = ("lesson", "lesson__module", "lesson__module__group")
+    readonly_fields = ("uuid",)
 
     fieldsets = (
         (
@@ -267,6 +268,7 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "block_type",
                     "lesson",
+                    "uuid",
                     "content_html",
                     "content_text",
                     "content_json",

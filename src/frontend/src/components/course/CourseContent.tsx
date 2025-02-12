@@ -11,12 +11,14 @@ import {
   setCurrentLessonUUId,
 } from '../../store/slices/blocksSlice';
 import { useFetchLessonData } from '../../hooks/courses';
+import { useFetchChatHistory } from '@/hooks/openai';
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';
 import { ContinueButton } from './content/continue-button';
 import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
+import InputGptBlock from './InputGptBlock';
 
 export default function CoursePage() {
   const { lessonUUId } = useParams<{ lessonUUId: string }>();
@@ -52,18 +54,6 @@ export default function CoursePage() {
     }
   }, [blocks]);
 
-  const handleUserInput = (message: string) => {
-    dispatch(removeByTypes(['input_gpt', 'button_continue']));
-    dispatch(
-      addBlocks([
-        { type: 'input_dialog', content: message },
-        { type: 'output_dialog', content: 'Mock answer from server' },
-        { type: 'input_gpt', content: '' },
-        { type: 'button_continue', content: 'Continue' },
-      ])
-    );
-  };
-
   const renderBlock = (block: any, index: number) => {
     const isSecondLastBlock = index === blocks.length - 2;
     const blockRef = isSecondLastBlock ? lastBlockRef : null;
@@ -89,10 +79,13 @@ export default function CoursePage() {
           </div>
         );
       case 'input_gpt':
+        console.log(block);
         return (
-          <div key={index} className="py-4" ref={blockRef}>
-            <ChatInput onSubmit={handleUserInput} placeholder={block.content as string} />
-          </div>
+          <InputGptBlock
+            key={index}
+            block={block}
+            blockRef={blockRef}
+          />
         );
       case 'button_continue':
         return (
