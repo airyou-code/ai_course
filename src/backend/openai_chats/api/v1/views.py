@@ -130,7 +130,7 @@ class ChatMessageViewSet(
             #     model="deepseek/deepseek-r1:free",
             #     messages=conversation,
             # )
-            if True:
+            if False:
                 response = requests.post(
                     url="https://openrouter.ai/api/v1/chat/completions",
                     headers={
