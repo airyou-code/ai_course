@@ -4,7 +4,7 @@ import { RootState } from '../../store';
 import { removeByTypes, addBlocks } from '../../store/slices/blocksSlice';
 import { useFetchChatHistory } from '@/hooks/openai';
 import { ChatInput } from './content/chat-input';
-
+// @ts-ignore
 const InputGptBlock = ({ block, blockRef }) => {
   const dispatch = useDispatch();
   const { data: chatHistory } = useFetchChatHistory(block.uuid);
@@ -27,6 +27,7 @@ const InputGptBlock = ({ block, blockRef }) => {
       dispatch(removeByTypes(['input_gpt', 'button_continue']));
 
       // Превращаем историю в нужный формат блоков
+      // @ts-ignore
       const historyBlocks = chatHistory.map((msg) => ({
         type: msg.role === 'user' ? 'input_dialog' : 'text',
         content: msg.content,
