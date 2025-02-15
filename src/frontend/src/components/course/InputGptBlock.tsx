@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { removeByTypes, addBlocks } from '../../store/slices/blocksSlice';
+import { removeByTypes, addBlocks, updateProcBlock, endProcBlock } from '../../store/slices/blocksSlice';
 import { useFetchChatHistory } from '@/hooks/openai';
 import { ChatInput } from './content/chat-input';
+import { useStreamChat } from '@/hooks/openai';
+
 // @ts-ignore
 const InputGptBlock = ({ block, blockRef }) => {
   const dispatch = useDispatch();
@@ -14,11 +16,24 @@ const InputGptBlock = ({ block, blockRef }) => {
     dispatch(
       addBlocks([
         { type: 'input_dialog', content: message },
-        { type: 'text', content: 'Mock answer from server' },
+        { type: 'text', content: 'Empty Box', is_processing: true },
         { type: 'input_gpt', content: '', post_uuid: block.uuid  },
         { type: 'button_continue', content: 'Continue' },
       ])
     );
+    setTimeout(() => {
+      dispatch(updateProcBlock({ content: 'New Data' }));
+    }, 500);
+    setTimeout(() => {
+      dispatch(updateProcBlock({ content: 'New Data And other ' }));
+    }, 1000);
+    setTimeout(() => {
+      dispatch(updateProcBlock({ content: 'New Data And other message, Hellow World' }));
+    }, 1500);
+    setTimeout(() => {
+      dispatch(endProcBlock());
+    }, 1501);
+    // useStreamChat(block.uuid, message, 'processed_block');
   };
 
   useEffect(() => {

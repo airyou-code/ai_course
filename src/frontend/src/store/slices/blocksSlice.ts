@@ -4,6 +4,8 @@ export interface ContentBlock {
   type: string;
   content: string;
   uuid?: string;
+  block_id?: string;
+  is_processing?: boolean;
   post_uuid?: string;
   avatar?: string;
   nextLessonUrl?: string;
@@ -69,6 +71,33 @@ export const blocksSlice = createSlice({
     setCurrentLessonUUId: (state, action: PayloadAction<string>) => {
       state.currentLessonUUId = action.payload;
     },
+    updateBlockById: (state, action: PayloadAction<{ block_id: string, content: string }>) => {
+      const { block_id, content } = action.payload;
+      const block = state.blocks.find(block => block.block_id === block_id);
+      if (block) {
+        block.content = content;
+      }
+    },
+    updateBlockId: (state, action: PayloadAction<{ block_id: string, content: string }>) => {
+      const { block_id, content } = action.payload;
+      const block = state.blocks.find(block => block.block_id === block_id);
+      if (block) {
+        block.content = content;
+      }
+    },
+    updateProcBlock: (state, action: PayloadAction<{ content: string }>) => {
+      const { content } = action.payload;
+      const block = state.blocks.find(block => block.is_processing === true);
+      if (block) {
+        block.content = content;
+      }
+    },
+    endProcBlock: (state) => {
+      const block = state.blocks.find(block => block.is_processing === true);
+      if (block) {
+        block.is_processing = false;
+      }
+    }
   },
 });
 
@@ -82,6 +111,9 @@ export const {
   resetIndex,
   removeBlockAtIndex,
   setCurrentLessonUUId,
+  updateBlockById,
+  updateProcBlock,
+  endProcBlock,
 } = blocksSlice.actions;
 
 export default blocksSlice.reducer;
