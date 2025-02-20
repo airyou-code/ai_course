@@ -20,6 +20,10 @@ import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
 import InputGptBlock from './InputGptBlock';
 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+
 export default function CoursePage() {
   const { lessonUUId } = useParams<{ lessonUUId: string }>();
   if (!lessonUUId) {
@@ -65,6 +69,7 @@ export default function CoursePage() {
           <div key={index} ref={blockRef}>
             <DialogBox
               content={block.content as string}
+              is_md={block.is_md || false}
               isInput={block.type === 'input_dialog'}
             />
           </div>
@@ -72,14 +77,19 @@ export default function CoursePage() {
       case 'text':
         return (
           <div key={index} className="py-4 px-2" ref={blockRef}>
-            <div
+            {(block.is_md || false) ? ( 
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                {block.content}
+              </ReactMarkdown>
+            ) : (
+              <div
               className="tinymce-content"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(block.content) }}
-            ></div>
+              ></div>
+            )}
           </div>
         );
       case 'input_gpt':
-        console.log(block);
         return (
           <InputGptBlock
             key={index}
