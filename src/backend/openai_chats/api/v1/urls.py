@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from django.urls import path, include
-from .views import ChatMessageViewSet
+from django.urls import path, include, re_path
+from .views import ChatMessageViewSet, OpenRouterStreamView
 
 router = DefaultRouter()
 
@@ -15,4 +15,5 @@ router.register(
 
 urlpatterns = [
     path('', include(router.urls)),
+    re_path(r'content-blocks/(?P<content_block_uuid>[0-9a-f-]{36})/ai-chat/stream', OpenRouterStreamView.as_view(), name='openrouter_stream'),
 ]

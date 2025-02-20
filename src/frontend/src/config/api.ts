@@ -10,6 +10,7 @@ const API = {
   LESSON_DATA: (lesson_uuid: string) => `${BASE_URL}/lessons/${lesson_uuid}/content-blocks/`,
   // openai_chat
   OPENAI_CHAT: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/messages/`,
+  OPENAI_CHAT_STREAM: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/stream/`,
 };
 
 export default API;

@@ -3,28 +3,16 @@
 import { useState, useEffect } from "react"
 import { User } from "lucide-react"
 import DOMPurify from "dompurify";
+import ReactMarkdown from 'react-markdown';
 
 interface DialogBoxProps {
   content: string
   avatar?: string
   isInput?: boolean
+  is_md?: boolean
 }
 
-export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) {
-  const [displayedText, setDisplayedText] = useState("")
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  useEffect(() => {
-    if (!isInput && currentIndex < content.length) {
-      const timer = setTimeout(() => {
-        setDisplayedText((prev) => prev + content[currentIndex])
-        setCurrentIndex((prev) => prev + 1)
-      }, 3) // Adjust typing speed here
-      return () => clearTimeout(timer)
-    } else if (isInput) {
-      setDisplayedText(content)
-    }
-  }, [currentIndex, content, isInput])
+export function DialogBox({ content, avatar, isInput = false, is_md = false }: DialogBoxProps) {
 
   return (
     <div className={`flex gap-4 ${isInput ? "flex-row-reverse" : "flex-row"}`}>
@@ -42,14 +30,16 @@ export function DialogBox({ content, avatar, isInput = false }: DialogBoxProps) 
       <div
         className={`max-w-[80%] rounded-lg p-4 ${isInput ? "bg-gray-200" : "bg-gray-100"}`}
       >
-        <div
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(displayedText),
-          }}
-        ></div>
-        {!isInput && currentIndex < content.length && (
-          <span className="inline-block w-1 h-4 bg-gray-500 ml-1 animate-blink"></span>
-        )}
+        {is_md ? ( 
+          <ReactMarkdown>{content}</ReactMarkdown>
+        ) : (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(content),
+            }}
+          ></div>
+        )
+      }
       </div>
     </div>
   );
