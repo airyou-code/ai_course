@@ -309,22 +309,22 @@ class OpenRouterStreamView(views.APIView):
             logger.info(f"Assistant content: {assistant_content}")
 
             # Save the user's message
-            # try:
-            #     ChatMessage.objects.create(
-            #         chat=user_chat, role="user", content=user_input
-            #     )
-            #     logger.info("User message saved successfully.")
-            # except Exception as e:
-            #     logger.error(f"Error saving user message: {e}")
+            try:
+                ChatMessage.objects.create(
+                    chat=user_chat, role="user", content=user_input
+                )
+                logger.info("User message saved successfully.")
+            except Exception as e:
+                logger.error(f"Error saving user message: {e}")
 
-            # # Save the assistant's response
-            # try:
-            #     ChatMessage.objects.create(
-            #         chat=user_chat, role="assistant", content=assistant_content
-            #     )
-            #     logger.info("Assistant message saved successfully.")
-            # except Exception as e:
-            #     logger.error(f"Error saving assistant message: {e}")
+            # Save the assistant's response
+            try:
+                ChatMessage.objects.create(
+                    chat=user_chat, role="assistant", content=assistant_content
+                )
+                logger.info("Assistant message saved successfully.")
+            except Exception as e:
+                logger.error(f"Error saving assistant message: {e}")
 
         response = StreamingHttpResponse(sse_stream(), content_type='text/event-stream')
         response['Cache-Control'] = 'no-cache'

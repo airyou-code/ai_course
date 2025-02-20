@@ -31,7 +31,7 @@ export async function streamChat(content_block_uuid: string, message: string, di
     await refreshLogin();
   
     const controller = new AbortController();
-    const url = `http://127.0.0.1:8000/api/v1/content-blocks/${content_block_uuid}/ai-chat/stream/`;
+    const url = API.OPENAI_CHAT_STREAM(content_block_uuid);
 
     let batchContent = "";
     let chunkCounter = 0;
