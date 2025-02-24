@@ -19,7 +19,7 @@ const InputGptBlock = ({ block, blockRef }) => {
     dispatch(
       addBlocks([
         { type: 'input_dialog', content: message },
-        { type: 'text', content: 'Empty Box', is_processing: true, is_md: true },
+        { type: 'output_dialog', content: 'Empty Box', is_processing: true, is_md: true },
         { type: 'input_gpt', content: '', post_uuid: blockId  },
         { type: 'button_continue', content: 'Continue' },
       ])

@@ -249,7 +249,7 @@ class OpenRouterStreamView(views.APIView):
         }
 
         payload ={
-            "model": "qwen/qwen-vl-plus:free",
+            "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
             "messages": conversation,
             "top_p": 1,
             "temperature": 1,

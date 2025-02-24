@@ -64,6 +64,14 @@ export default function CoursePage() {
 
     switch (block.type) {
       case 'output_dialog':
+        return (
+          <div key={index} ref={blockRef}>
+            <DialogBox
+              content={block.content as string}
+              is_md={block.is_md || false}
+            />
+          </div>
+        );
       case 'input_dialog':
         return (
           <div key={index} ref={blockRef}>
