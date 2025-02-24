@@ -1,0 +1,24 @@
+.
+├── CHANGELOG.rst
+├── README.md
+├── a.conf
+├── a.json
+├── docker
+│   ├── deploy
+│   ├── deploy_monolith
+│   └── local
+├── package-lock.json
+├── package.json
+├── project_structure.txt
+├── project_tree.txt
+├── src
+│   ├── backend
+│   └── frontend
+└── venv
+    ├── bin
+    ├── include
+    ├── lib
+    ├── lib64 -> lib
+    └── pyvenv.cfg
+
+13 directories, 9 files
