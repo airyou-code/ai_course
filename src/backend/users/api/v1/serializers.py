@@ -21,3 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
             'date_joined'
         ]
+        
+class UserRegistrSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseUser
+        fields = [
+            'username',
+            'password',
+            'email',
+            'first_name',
+            'last_name',
+        ]
