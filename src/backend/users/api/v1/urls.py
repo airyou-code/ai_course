@@ -7,8 +7,9 @@ router = DefaultRouter()
 # Removing the automatic creation of the root path
 router.include_root_view = False
 
-router.register(r'profile', UserViewSet, basename='user-profile')
+# router.register(r'profile', UserViewSet, basename='user-profile')
+
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("profile/", UserViewSet.as_view({"get": "retrieve", "patch": "update"}), name="profile"),
 ]
