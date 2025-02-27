@@ -3,14 +3,14 @@ import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
-  removeBlockAtIndex,
+  showSeenBlocks,
   showNextBlocks,
   removeByTypes,
   addBlocks,
   clearBlocks,
   setCurrentLessonUUId,
 } from '../../store/slices/blocksSlice';
-import { useFetchLessonData } from '../../hooks/courses';
+import { useFetchLessonData, useFetchLessonHistory } from '../../hooks/courses';
 import { useFetchChatHistory } from '@/hooks/openai';
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';
@@ -38,6 +38,7 @@ export default function CoursePage() {
   );
 
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
+  const { data: historyData } = useFetchLessonHistory(lessonUUId);
 
   useEffect(() => {
     if (currentLessonUUId !== lessonUUId) {
@@ -48,9 +49,16 @@ export default function CoursePage() {
 
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
-      dispatch(showNextBlocks(fetchedData.blocks));
+      // Если есть last_seen_block_uuid, показываем блоки до и включая этот UUID
+      if (historyData && historyData.last_seen_block_uuid) {
+          dispatch(showSeenBlocks(
+            {blocks: fetchedData.blocks, lastSeenUUID: historyData.last_seen_block_uuid}
+          ));
+      } else {
+        dispatch(showNextBlocks(fetchedData.blocks));
+      }
     }
-  }, [fetchedData, currentIndex, dispatch]);
+  }, [fetchedData, currentIndex, dispatch, historyData]);
 
   useEffect(() => {
     if (lastBlockRef.current) {
@@ -91,11 +99,11 @@ export default function CoursePage() {
         );
       case 'input_gpt':
         return (
-          <InputGptBlock
-            key={index}
-            block={block}
-            blockRef={blockRef}
-          />
+          <div key={index} className="py-4" ref={blockRef}>
+            <InputGptBlock
+              block={block}
+            />
+          </div>
         );
       case 'button_continue':
         return (
@@ -103,7 +111,7 @@ export default function CoursePage() {
             <ContinueButton
               content={block.content as string}
               onClick={() => {
-                dispatch(removeByTypes(['input_gpt', 'button_continue']));
+                dispatch(removeByTypes({types: ['input_gpt', 'button_continue']}));
                 if (fetchedData && fetchedData.blocks) {
                   dispatch(showNextBlocks(fetchedData.blocks));
                 }

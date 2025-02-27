@@ -29,3 +29,17 @@ export const useFetchLessonData = (lesson_uuid: string) => {
         staleTime: 60 * 1000, // 1 minute
     });
 }
+
+
+export const useFetchLessonHistory = (lesson_uuid: string) => {
+    const request = useRequest();
+
+    return useQuery({
+        queryKey: [QUERY_KEYS.LESSON_HISTORY, lesson_uuid],
+        queryFn: async () => {
+            const { data } = await request(API.LESSON_HISTORY(lesson_uuid));
+            return data
+        },
+        staleTime: 60 * 1000,  // 1 minute
+    });
+}
