@@ -43,7 +43,10 @@ class LessonContentBlocksViewSet(
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
             user=user, lesson=lesson,
-            defaults={'last_seen_block': last_seen_block}
+            defaults={
+                'last_seen_block': last_seen_block,
+                'procent_progress': round((1 / content_blocks.count()) * 100)
+            }
         )
             
         blocks = []
@@ -66,7 +69,8 @@ class LessonContentBlocksViewSet(
                     .order_by("order")
                     .first()
                 )
-                next_lesson_url = f"/lesson/{next_lesson.uuid}"
+                if next_lesson:
+                    next_lesson_url = f"/lesson/{next_lesson.uuid}"
 
             if block.uuid == last_seen_block.uuid:
                 is_found_last_block = True
@@ -103,7 +107,12 @@ class LessonContentBlocksViewSet(
             if block.block_type in ["button_continue", "input_gpt"] and is_found_last_block:
                 break
 
-        return Response({"blocks": blocks})
+        return Response(
+            {
+                "blocks": blocks,
+                "procent_progress": progress.procent_progress
+            }
+        )
 
 
 class LessonNextContentBlocksViewSet(
@@ -121,6 +130,7 @@ class LessonNextContentBlocksViewSet(
 
         content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by("order")
         last_seen_block = content_blocks.first()
+        blocks_count: int = content_blocks.count()
 
         user = request.user
 
@@ -134,7 +144,9 @@ class LessonNextContentBlocksViewSet(
         last_seen_block = progress.last_seen_block
         is_found_last_block = False
         is_next_block = False
+        next_block_conter: int = 0
         for block in content_blocks:
+            next_block_conter += 1
             content = None
             if block.block_type in ["text", "output_dialog"]:
                 content = block.content_html
@@ -155,6 +167,7 @@ class LessonNextContentBlocksViewSet(
             if is_found_last_block and block.block_type == "text":
                 is_next_block = True
                 progress.last_seen_block = block
+                progress.procent_progress = round((next_block_conter / blocks_count) * 100)
                 progress.save()
             
 
@@ -194,4 +207,9 @@ class LessonNextContentBlocksViewSet(
             ) and is_found_last_block and is_next_block:
                 break
 
-        return Response({"blocks": blocks})
+        return Response(
+            {
+                "blocks": blocks,
+                "procent_progress": progress.procent_progress
+            }
+        )
