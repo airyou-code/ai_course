@@ -121,8 +121,6 @@ export default function CoursePage() {
           <div key={index} className="flex justify-center" ref={blockRef}>
             <ContinueButton
               content={block.content as string}
-              blocks={blocks}
-              currentIndex={currentIndex}
               onClick={handleContinue}
             />
           </div>
