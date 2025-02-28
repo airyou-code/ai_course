@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import GroupReadOnlyViewSet, LessonContentBlocksViewSet
+from .views import GroupReadOnlyViewSet, LessonContentBlocksViewSet, LessonNextContentBlocksViewSet
 
 router = DefaultRouter()
 
@@ -12,6 +12,11 @@ router.register(
     r'lessons/(?P<lesson_uuid>[0-9a-f-]{36})/content-blocks',
     LessonContentBlocksViewSet,
     basename='lesson-content-blocks'
+)
+router.register(
+    r'lessons/(?P<lesson_uuid>[0-9a-f-]{36})/next-blocks',
+    LessonNextContentBlocksViewSet,
+    basename='lesson-next-blocks'
 )
 
 urlpatterns = [

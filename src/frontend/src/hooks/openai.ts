@@ -10,20 +10,16 @@ import { AppDispatch } from '@/store';
 
 export const useFetchChatHistory = (content_block_uuid: string) => {
     const request = useRequest();
-
-    if (!content_block_uuid) {
-        return { data: [] };
-    }
-
     return useQuery({
-        queryKey: ["CHAT", content_block_uuid],
-        queryFn: async () => {
-            const { data } = await request(API.OPENAI_CHAT(content_block_uuid));
-            return data
-        },
-        staleTime: 60 * 1000, // 1 minute
+      queryKey: ["CHAT", content_block_uuid],
+      queryFn: async () => {
+        const { data } = await request(API.OPENAI_CHAT(content_block_uuid));
+        return data;
+      },
+      staleTime: 60 * 1000, // 1 minute
+      enabled: Boolean(content_block_uuid), // если uuid отсутствует, запрос не будет запущен
     });
-}
+  };
 
 export async function streamChat(content_block_uuid: string, message: string, dispatch: AppDispatch, refreshLogin: () => Promise<void>) {
     if (!content_block_uuid || !message) return;

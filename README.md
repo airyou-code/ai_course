@@ -1,4 +1,4 @@
-# Trader Note
+# AI Course
 
 
 ## About

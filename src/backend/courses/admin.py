@@ -196,7 +196,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "course",
         "description",
     )
-    search_fields = ("title",)
+    search_fields = ("title", "uuid")
     list_filter = (
         "module",
         "module__group",
@@ -258,7 +258,7 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
         # "content_text",
         # "content_json"
     )
-    search_fields = ("block_type",)
+    search_fields = ("block_type", "uuid")
     list_filter = ("lesson", "lesson__module", "lesson__module__group")
     readonly_fields = ("uuid",)
 

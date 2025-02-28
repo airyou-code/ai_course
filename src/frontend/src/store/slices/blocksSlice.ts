@@ -8,6 +8,7 @@ export interface ContentBlock {
   is_processing?: boolean;
   post_uuid?: string;
   uuid?: string;
+  parent_uuid?: string;
   avatar?: string;
   nextLessonUrl?: string;
 }
@@ -39,7 +40,12 @@ export const blocksSlice = createSlice({
       let index = state.currentIndex;
       const externalBlocks = action.payload;
       while (index < externalBlocks.length) {
-        const block = externalBlocks[index];
+        let previousUuid: string = "";
+        if (index > 0) {
+          previousUuid = externalBlocks[index - 1].uuid || "";
+        }
+        let block = externalBlocks[index];
+        block = { ...block, parent_uuid: previousUuid };
         state.blocks.push(block);
         index++;
         if (block.type === "button_continue" || block.type === "input_gpt") {
@@ -48,13 +54,93 @@ export const blocksSlice = createSlice({
       }
       state.currentIndex = index;
     },
+    showSeenBlocks: (
+      state, action: PayloadAction<{ blocks: ContentBlock[]; lastSeenUUID: string }>
+    ) => {
+      const { blocks: externalBlocks, lastSeenUUID } = action.payload;
+      const idx = externalBlocks.findIndex((b) => b.uuid === lastSeenUUID);
+      let index = state.currentIndex;
+    
+      if (idx === -1) {
+        while (index < externalBlocks.length) {
+          let previousUuid: string = "";
+          if (index > 0) {
+            previousUuid = externalBlocks[index - 1].uuid || "";
+          }
+          let block = externalBlocks[index];
+          block = { ...block, parent_uuid: previousUuid };
+          state.blocks.push(block);
+          index++;
+          if (block.type === "button_continue" || block.type === "input_gpt") {
+            break;
+          }
+        }
+        state.currentIndex = index;
+      }
+
+      while (index < externalBlocks.length) {
+        let previousUuid: string = "";
+        if (index > 0) {
+          previousUuid = externalBlocks[index - 1].uuid || "";
+        }
+        let block = externalBlocks[index];
+        block = { ...block, parent_uuid: previousUuid };
+        state.blocks.push(block);
+        index++;
+        if (index > idx) {
+          if (block.type === 'button_continue' || block.type === 'input_gpt') {
+            break;
+          }
+        }
+      }
+      state.currentIndex = index;
+    },
     addBlocks: (state, action: PayloadAction<ContentBlock[]>) => {
       state.blocks = [...state.blocks, ...action.payload];
     },
-    removeByTypes: (state, action: PayloadAction<string[]>) => {
-      state.blocks = state.blocks.filter(
-        (block) => !action.payload.includes(block.type)
-      );
+    addBlocksAfterBlock: (
+      state,
+      action: PayloadAction<{
+        blocks: ContentBlock[];
+        parent_uuid: string;
+        extraBlocks?: ContentBlock[];
+      }>
+    ) => {
+      const { blocks: newBlocks, parent_uuid, extraBlocks } = action.payload;
+      const index = state.blocks.findIndex((block) => block.uuid === parent_uuid);
+    
+      if (index !== -1) {
+        // Если extraBlocks переданы И родительский блок является последним в списке,
+        // то вставляем сначала новые блоки, затем extraBlocks.
+        if (extraBlocks && index === state.blocks.length - 1) {
+          state.blocks = [
+            ...state.blocks.slice(0, index + 1),
+            ...newBlocks,
+            ...extraBlocks,
+            ...state.blocks.slice(index + 1),
+          ];
+        } else {
+          // Иначе просто вставляем новые блоки после родительского
+          state.blocks = [
+            ...state.blocks.slice(0, index + 1),
+            ...newBlocks,
+            ...state.blocks.slice(index + 1),
+          ];
+        }
+      }
+      return state;
+    },
+    removeByTypes: (state, action: PayloadAction<{ types: string[], parent_uuid?: string }>) => {
+      const { types, parent_uuid = "" } = action.payload;
+      if (parent_uuid) {
+        state.blocks = state.blocks.filter(
+          (block) => !types.includes(block.type) || block.parent_uuid !== parent_uuid
+        );
+      } else {
+        state.blocks = state.blocks.filter(
+          (block) => !types.includes(block.type)
+        );
+      }
     },
     incrementIndex: (state) => {
       state.currentIndex++;
@@ -107,6 +193,7 @@ export const {
   clearBlocks,
   showNextBlocks,
   addBlocks,
+  addBlocksAfterBlock,
   removeByTypes,
   incrementIndex,
   resetIndex,
@@ -115,6 +202,7 @@ export const {
   updateBlockById,
   updateProcBlock,
   endProcBlock,
+  showSeenBlocks,
 } = blocksSlice.actions;
 
 export default blocksSlice.reducer;

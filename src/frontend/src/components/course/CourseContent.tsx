@@ -3,15 +3,15 @@ import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import {
-  removeBlockAtIndex,
+  showSeenBlocks,
   showNextBlocks,
   removeByTypes,
   addBlocks,
   clearBlocks,
   setCurrentLessonUUId,
 } from '../../store/slices/blocksSlice';
-import { useFetchLessonData } from '../../hooks/courses';
-import { useFetchChatHistory } from '@/hooks/openai';
+import { useFetchLessonData, useFetchLessonHistory } from '../../hooks/courses';
+import { useFetchNextLessonData } from "@/hooks/courses";
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';
 import { ContinueButton } from './content/continue-button';
@@ -38,6 +38,16 @@ export default function CoursePage() {
   );
 
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
+  const { refetch: fetchNext } = useFetchNextLessonData(lessonUUId);
+
+  const handleContinue = async () => {
+    dispatch(removeByTypes({types: ['input_gpt', 'button_continue']}));
+    const { data } = await fetchNext();
+    console.log(data);
+    if (data) {
+      dispatch(addBlocks(data.blocks));
+    }
+  };
 
   useEffect(() => {
     if (currentLessonUUId !== lessonUUId) {
@@ -48,7 +58,7 @@ export default function CoursePage() {
 
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
-      dispatch(showNextBlocks(fetchedData.blocks));
+        dispatch(addBlocks(fetchedData.blocks));
     }
   }, [fetchedData, currentIndex, dispatch]);
 
@@ -64,6 +74,15 @@ export default function CoursePage() {
 
     switch (block.type) {
       case 'output_dialog':
+        return (
+          <div key={index} ref={blockRef}>
+            <DialogBox
+              content={block.content as string}
+              is_md={block.is_md || false}
+              isInput={block.type === 'input_dialog'}
+            />
+          </div>
+        );
       case 'input_dialog':
         return (
           <div key={index} ref={blockRef}>
@@ -91,23 +110,20 @@ export default function CoursePage() {
         );
       case 'input_gpt':
         return (
-          <InputGptBlock
-            key={index}
-            block={block}
-            blockRef={blockRef}
-          />
+          <div key={index} className="py-4" ref={blockRef}>
+            <InputGptBlock
+              block={block}
+            />
+          </div>
         );
       case 'button_continue':
         return (
           <div key={index} className="flex justify-center" ref={blockRef}>
             <ContinueButton
               content={block.content as string}
-              onClick={() => {
-                dispatch(removeByTypes(['input_gpt', 'button_continue']));
-                if (fetchedData && fetchedData.blocks) {
-                  dispatch(showNextBlocks(fetchedData.blocks));
-                }
-              }}
+              blocks={blocks}
+              currentIndex={currentIndex}
+              onClick={handleContinue}
             />
           </div>
         );

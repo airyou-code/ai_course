@@ -9,8 +9,8 @@ import os
 import sys
 import django
 
-project = "Trader Note"
-copyright = "2023, Trader Note"
+project = "AI Course"
+copyright = "2023, AI Course"
 author = "A"
 
 # -- General configuration ---------------------------------------------------
