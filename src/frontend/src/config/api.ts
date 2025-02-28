@@ -8,6 +8,9 @@ const API = {
   // Courses
   MODULE_DATA: `${BASE_URL}/modules/`,
   LESSON_DATA: (lesson_uuid: string) => `${BASE_URL}/lessons/${lesson_uuid}/content-blocks/`,
+  LESSON_NEXT_DATA: (lesson_uuid: string) => `${BASE_URL}/lessons/${lesson_uuid}/next-blocks/`,
+  LESSON_PROGRESS: (lesson_uuid: string) => `${BASE_URL}/progress/lesson/${lesson_uuid}/`,
+  LESSON_UPDATE_PROGRESS: `${BASE_URL}/progress/update/`,
   // openai_chat
   OPENAI_CHAT: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/messages/`,
   OPENAI_CHAT_STREAM: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/stream/`,

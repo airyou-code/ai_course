@@ -29,3 +29,31 @@ export const useFetchLessonData = (lesson_uuid: string) => {
         staleTime: 60 * 1000, // 1 minute
     });
 }
+
+
+export const useFetchNextLessonData = (lesson_uuid: string) => {
+    const request = useRequest();
+    
+    return useQuery({
+      queryKey: [QUERY_KEYS.LESSON_NEXT_DATA, lesson_uuid],
+      queryFn: async () => {
+        const { data } = await request(API.LESSON_NEXT_DATA(lesson_uuid));
+        return data;
+      },
+      enabled: false // Query не будет выполняться автоматически
+    });
+  };
+
+
+export const useFetchLessonHistory = (lesson_uuid: string) => {
+    const request = useRequest();
+
+    return useQuery({
+        queryKey: [QUERY_KEYS.LESSON_PROGRESS, lesson_uuid],
+        queryFn: async () => {
+            const { data } = await request(API.LESSON_PROGRESS(lesson_uuid));
+            return data
+        },
+        staleTime: 60 * 1000,  // 1 minute
+    });
+}

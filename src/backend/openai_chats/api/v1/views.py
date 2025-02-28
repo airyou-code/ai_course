@@ -21,6 +21,8 @@ from rest_framework import views
 from openai_chats.models import ContentBlock, ChatMessage, Chat
 from .serializers import ChatMessageSerializer
 
+from drf_spectacular.utils import extend_schema
+
 # Load the API key from .env (or from settings)
 # client = OpenAI(
 #   base_url=settings.OPENAI_URL,
@@ -29,6 +31,8 @@ from .serializers import ChatMessageSerializer
 
 logger = logging.getLogger(__name__)
 
+
+@extend_schema(exclude=True)
 class ChatMessageViewSet(
     viewsets.GenericViewSet,
     viewsets.mixins.ListModelMixin,
@@ -184,6 +188,7 @@ class EventStreamRenderer(BaseRenderer):
         return data
 
 
+@extend_schema(exclude=True)
 class OpenRouterStreamView(views.APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [EventStreamRenderer]

@@ -184,7 +184,7 @@ REST_FRAMEWORK = {
 # }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': "Trader Note API",
+    'TITLE': "AI Course API",
     'DESCRIPTION': ' API for development',
     'VERSION': "0.0.1",
     # "SERVE_INCLUDE_SCHEMA": False,
@@ -199,20 +199,20 @@ SPECTACULAR_SETTINGS = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
-    'default': config(
-        'DATABASE_URL',
-        default='postgres://user:password@127.0.0.1:5432/db_name',
-        cast=db_url
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+# DATABASES = {
+#     'default': config(
+#         'DATABASE_URL',
+#         default='postgres://user:password@127.0.0.1:5432/db_name',
+#         cast=db_url
+#     )
+# }
 
 
 # Password validation
@@ -272,10 +272,10 @@ AUTH_USER_MODEL = "users.CourseUser"
 # JAZZMIN SETTINGS
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Trader Note",
+    "site_title": "AI Course",
 
     # Title on the brand, and login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Welcome to Trader Note!",
+    "site_header": "Welcome to AI Course!",
 
     # Welcome text on the login screen
     "welcome_sign": "Log in",
