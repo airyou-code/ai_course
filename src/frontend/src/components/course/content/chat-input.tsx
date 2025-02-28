@@ -62,15 +62,27 @@ export function ChatInput({
           placeholder={placeholder}
           rows={1}
           className="
-            w-full px-4 py-2 pr-10 border border-gray-300 
-            rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 
+            w-full px-4 py-2 pr-10 
+            border border-gray-300 dark:border-gray-600
+            rounded-md 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 
             resize-none overflow-hidden
+            bg-white dark:bg-gray-800
+            text-gray-900 dark:text-gray-100
+            placeholder-gray-500 dark:placeholder-gray-400
           "
           style={{ minHeight: "2.5rem" }}
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="
+            absolute right-2 top-1/2 transform -translate-y-1/2 
+            p-1 rounded-full 
+            bg-blue-500 dark:bg-blue-600 
+            text-white
+            hover:bg-blue-600 dark:hover:bg-blue-700
+            focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+          "
         >
           <Send className="h-4 w-4" />
         </button>
