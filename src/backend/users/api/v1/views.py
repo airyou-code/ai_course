@@ -28,7 +28,8 @@ class UpdateProgressView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         block_uuid = request.data.get('last_seen_block_uuid')
         content_block = ContentBlock.objects.filter(uuid=block_uuid).first()
-        UserLessonProgress.objects.get_or_create(
+        
+        UserLessonProgress.objects.update_or_create(
             user=request.user, lesson=content_block.lesson,
             defaults={'last_seen_block': content_block}
         )
