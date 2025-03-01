@@ -171,12 +171,12 @@ class LessonNextContentBlocksViewSet(
                 progress.save()
             
 
-            is_exist_messages = False
-            if block.block_type == "input_gpt" and is_found_last_block:
-                messages_data: list = get_chat_messages(user, block.uuid)
-                if messages_data:
-                    is_exist_messages = True
-                    blocks += messages_data
+            # is_exist_messages = False
+            # if block.block_type == "input_gpt" and is_found_last_block:
+            #     messages_data: list = get_chat_messages(user, block.uuid)
+            #     if messages_data:
+            #         is_exist_messages = True
+            #         blocks += messages_data
 
             if is_next_block:
                 blocks.append(
@@ -188,7 +188,8 @@ class LessonNextContentBlocksViewSet(
                         'nextLessonUrl': next_lesson_url,
                     }
                 )
-                if block.block_type == "input_gpt" and is_exist_messages:
+                # if block.block_type == "input_gpt" and is_exist_messages:
+                if block.block_type == "input_gpt":
                     blocks.append(
                         {
                             "type": "button_continue",
