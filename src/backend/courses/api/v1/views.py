@@ -71,6 +71,12 @@ class LessonContentBlocksViewSet(
                 )
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
+                
+                progress.is_completed = True
+                progress.procent_progress = 100
+                progress.save()
+                
+
 
             if block.uuid == last_seen_block.uuid:
                 is_found_last_block = True
@@ -163,6 +169,11 @@ class LessonNextContentBlocksViewSet(
                     .first()
                 )
                 next_lesson_url = f"/lesson/{next_lesson.uuid}"
+
+                progress.is_completed = True
+                progress.procent_progress = 100
+                progress.save()
+
 
             if is_found_last_block and block.block_type == "text":
                 is_next_block = True

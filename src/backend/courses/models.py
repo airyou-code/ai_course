@@ -3,6 +3,7 @@ from django.db import models
 from core.models import CoreModel
 from tinymce.models import HTMLField
 from adminsortable.models import SortableMixin
+from users.models import UserLessonProgress
 
 
 class Course(CoreModel):
@@ -63,6 +64,20 @@ class Lesson(CoreModel, SortableMixin):
 
     class Meta:
         ordering = ['order']
+
+    def get_progress(self, user):
+        progress = UserLessonProgress.objects.filter(
+            user=user, lesson=self
+        ).first()
+        if not progress:
+            return 0
+        return progress.procent_progress
+    
+    def is_completed(self, user):
+        is_completed = UserLessonProgress.objects.filter(
+            user=user, lesson=self, is_completed=True
+        ).exists()
+        return is_completed
 
 
 class ContentBlock(CoreModel, SortableMixin):
