@@ -18,8 +18,12 @@ const routesForAuthenticatedOnly = [
     path: "/",
     element: <ProtectedRoute />,
     children: [
+      // {
+      //   path: "/alllessons",
+      //   element: <AllLessonsPage />,
+      // },
       {
-        path: "/alllessons",
+        path: "/",
         element: <AllLessonsPage />,
       },
       // {
@@ -39,10 +43,6 @@ const routesForAuthenticatedOnly = [
 ]
 
 const routesForNotAuthenticatedOnly = [
-  {
-    path: "/",
-    element: <MainPage />,
-  },
   {
     path: ROUTES.LOGIN,
     element: <AuthPage />,
