@@ -1,5 +1,6 @@
 import LayoutShadcn from "@/components/layout/LayoutShadcn"
 import LessonList from '../../components/course/LessonList';
+import CourseGroups from "@/components/course/course-card";
 import { useFetchModuleData } from '../../hooks/courses';
 
 export default function AllLessonsPage() {
@@ -9,7 +10,7 @@ export default function AllLessonsPage() {
   }
   return (
     <LayoutShadcn>
-      <LessonList lessonGroups={data} />
+      <CourseGroups lessonGroups={data} />
     </LayoutShadcn>
   );
 }

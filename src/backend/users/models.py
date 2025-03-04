@@ -29,6 +29,7 @@ class UserLessonProgress(models.Model):
     lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE)
     last_seen_block = models.ForeignKey('courses.ContentBlock', on_delete=models.CASCADE)
     procent_progress = models.IntegerField(default=0)
+    is_completed = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
