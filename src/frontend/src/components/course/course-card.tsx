@@ -1,3 +1,4 @@
+import React, { useRef } from "react"
 import { CheckCircle, BookOpen, Lock } from "lucide-react"
 import { Progress } from "../ui/progress"
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,7 @@ interface Group {
   modules: ModuleProps[]
 }
 
+// ------------------- LessonItem -------------------
 export function LessonItem({ lesson }: { lesson: LessonProps }) {
   return (
     <div className="flex items-start gap-4 p-5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors rounded-md dark:hover:bg-zinc-800/50">
@@ -49,7 +51,6 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
       </div>
 
       <div className="flex items-center gap-2">
-
         {lesson.is_completed ? (
           <Button
             variant="outline"
@@ -64,9 +65,7 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
             <span className="sr-only">Locked</span>
           </Button>
         ) : (
-          <Link
-            to={`/lesson/${lesson.uuid}`}
-          >
+          <Link to={`/lesson/${lesson.uuid}`}>
             <Button className="font-medium px-6">Start</Button>
           </Link>
         )}
@@ -75,6 +74,7 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
   )
 }
 
+// ------------------- CourseModule -------------------
 export function CourseModule({ module }: { module: ModuleProps }) {
   const completedLessons = module.lessons.filter((lesson) => lesson.is_completed).length
   const totalLessons = module.lessons.length
@@ -84,14 +84,24 @@ export function CourseModule({ module }: { module: ModuleProps }) {
     <Card className="mb-8 border-none shadow-md dark:bg-zinc-900">
       <CardHeader className="bg-zinc-900 text-white rounded-t-lg p-6 space-y-3 dark:bg-zinc-800">
         <CardTitle className="text-xl font-bold">{module.title}</CardTitle>
-        <CardDescription className="text-zinc-300 text-base">{module.description}</CardDescription>
+        <CardDescription className="text-zinc-300 text-base">
+          {module.description}
+        </CardDescription>
 
         <div className="pt-2 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-zinc-300">Прогресс модуля</span>
-            <span className="text-sm font-medium text-green-400">{moduleProgress}%</span>
+            <span className="text-sm font-medium text-zinc-300">
+              Прогресс модуля
+            </span>
+            <span className="text-sm font-medium text-green-400">
+              {moduleProgress}%
+            </span>
           </div>
-          <Progress value={moduleProgress} className="h-2 bg-zinc-700" indicatorClassName="bg-green-500" />
+          <Progress
+            value={moduleProgress}
+            className="h-2 bg-zinc-700"
+            indicatorClassName="bg-green-500"
+          />
           <div className="text-sm text-zinc-400 pt-1">
             {completedLessons} из {totalLessons} уроков завершено
           </div>
@@ -107,29 +117,32 @@ export function CourseModule({ module }: { module: ModuleProps }) {
   )
 }
 
-
-export default function CourseGroups({
-  lessonGroups,
-}: {
-  lessonGroups: Group[];
-}) {
+// ------------------- CourseGroups -------------------
+export default function CourseGroups({ lessonGroups }: { lessonGroups: Group[] }) {
   return (
     <div className="min-h-screen dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       {lessonGroups.map((group, groupIndex) => (
-      <div className="max-w-4xl mx-auto my-1" key={groupIndex}>
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-4">{group.title}</h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            {group.description}
-          </p>
-        </div>
+        <div className="max-w-4xl mx-auto my-1" key={groupIndex}>
+          <div className="mb-10">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-4">
+              {group.title}
+            </h1>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400">
+              {group.description}
+            </p>
+          </div>
 
-        <div className="space-y-8">
-          {group.modules.map((module) => (
-            <CourseModule key={module.id} module={module} />
-          ))}
+          <div className="space-y-8">
+            {group.modules.map((module, moduleIndex) => (
+              <div
+                key={module.id}
+                id={`module-${groupIndex}-${moduleIndex}`}
+              >
+                <CourseModule module={module} />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
       ))}
     </div>
   )
