@@ -69,7 +69,7 @@ const InputGptBlock = ({ block }) => {
           addBlocks(
             [
               { parent_uuid: blockParentId, type: 'input_dialog', content: message },
-              { parent_uuid: blockParentId, type: 'output_dialog', content: 'Empty Box', is_processing: true, is_md: true },
+              { parent_uuid: blockParentId, type: 'output_dialog', content: 'request processing...', is_processing: true, is_md: true },
               { parent_uuid: blockParentId, type: 'input_gpt', content: '', post_uuid: blockId },
               { parent_uuid: blockParentId, type: 'button_continue', content: 'Continue' },
             ]

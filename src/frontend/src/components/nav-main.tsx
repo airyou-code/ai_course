@@ -2,6 +2,7 @@ import { ChevronRight, type LucideIcon } from "lucide-react"
 import { useFetchModuleData } from '@/hooks/courses';
 import { BookOpen } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { NavSkeleton } from "./nav-skeleton";
 
 import {
   Collapsible,
@@ -49,7 +50,7 @@ export function NavMain() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (isLoading) return null;
+  if (isLoading) return <NavSkeleton />;
   if (isError) return <div>Error loading data</div>;
 
   function scrollToModule(groupIndex: number, moduleIndex: number) {
@@ -86,30 +87,6 @@ export function NavMain() {
                       <span>{module.title}</span>
                     </button>
                   </SidebarMenuButton>
-
-                  {/* {module.lessons?.length ? (
-                    <Collapsible>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuAction className="data-[state=open]:rotate-90">
-                          <ChevronRight />
-                          <span className="sr-only">Toggle</span>
-                        </SidebarMenuAction>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {module.lessons.map((lesson, lessonIndex) => (
-                            <SidebarMenuSubItem key={lessonIndex}>
-                              <SidebarMenuSubButton asChild>
-                                <Link to={`/lesson/${lesson.uuid}`}>
-                                  <span>{lesson.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : null} */}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

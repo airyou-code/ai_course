@@ -5,7 +5,10 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Link } from 'react-router-dom'
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -27,9 +30,19 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="line-clamp-1">
-                      Project Management & Task Tracking
-                    </BreadcrumbPage>
+                    <BreadcrumbLink>
+                      <Link to="/">Home</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink>
+                      <Link to="/components">Components</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -39,7 +52,6 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
-            <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
             <div className="mx-auto w-full max-w-3xl">
               {children}
             </div>
