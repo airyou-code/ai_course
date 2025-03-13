@@ -50,13 +50,14 @@ export default function CoursePage() {
       addBlocks(
         [
           {type: 'loading', content: "" },
+          {type: 'button_skeleton', content: "" },
         ]
       )
     );
     const { data } = await fetchNext();
     console.log(data);
     if (data) {
-      dispatch(removeByTypes({types: ['loading']}));
+      dispatch(removeByTypes({types: ['loading', 'button_skeleton']}));
       dispatch(addBlocks(data.blocks));
     }
   };
@@ -152,6 +153,12 @@ export default function CoursePage() {
         return (
           <div className="py-4 px-2">
             <SkeletonLoader count={4} />
+          </div>
+        );
+      case "button_skeleton":
+        return (
+          <div className="py-4 px-2">
+            <div className="h-4 bg-muted rounded animate-pulse w-1/4" />
           </div>
         );
       default:
