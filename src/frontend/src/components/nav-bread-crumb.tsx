@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useFetchModuleData } from '@/hooks/courses';
-import { useWindowSize } from '../hooks/useWindowSize';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Update the truncateText function to be responsive
