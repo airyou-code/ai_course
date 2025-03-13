@@ -1,11 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarRight } from "@/components/sidebar-right"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
+import { Link, useParams } from 'react-router-dom'
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -13,8 +8,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { ModeToggle } from "../mode-toggle"
+import NavBreadcrumb from "../nav-bread-crumb"
 
 export default function LayoutShadcn({ children }: React.PropsWithChildren) {
+
   return (
     <SidebarProvider>
       <div className="fixed inset-0 flex">
@@ -24,22 +21,13 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
             <div className="flex flex-1 items-center gap-2 px-3">
               <SidebarTrigger />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="line-clamp-1">
-                      Project Management & Task Tracking
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <NavBreadcrumb />
             </div>
             <div className="px-2">
               <ModeToggle />
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
-            <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
             <div className="mx-auto w-full max-w-3xl">
               {children}
             </div>

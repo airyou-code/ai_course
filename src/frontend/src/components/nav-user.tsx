@@ -28,7 +28,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useNavigate } from 'react-router-dom';
-import { useLogout } from '../hooks/user';
+import { useLogout, useUserState } from '../hooks/user';
 
 import ROUTES from '../config/routes'
 
@@ -45,6 +45,7 @@ export function NavUser({
   const { isMobile } = useSidebar()
   const navigate = useNavigate();
   const logout = useLogout();
+  const { user: userData } = useUserState() || { user: { username: '', email: '' } };
 
   const handleLogout = async () => {
     try {
@@ -69,8 +70,8 @@ export function NavUser({
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-semibold">{userData?.username || ''}</span>
+                <span className="truncate text-xs">{userData?.email || 'No email'}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -88,8 +89,8 @@ export function NavUser({
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-semibold">{userData?.username || ''}</span>
+                  <span className="truncate text-xs">{userData?.email || 'No email'}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

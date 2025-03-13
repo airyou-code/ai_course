@@ -1,7 +1,8 @@
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import { useFetchModuleData } from '@/hooks/courses';
-import { BookOpen, Lock, SquareTerminal } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { BookOpen } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { NavSkeleton } from "./nav-skeleton";
 
 import {
   Collapsible,
@@ -46,13 +47,26 @@ interface Group {
 
 export function NavMain() {
   const { data, isLoading, isError } = useFetchModuleData();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  if (isLoading) {
-    return null;
+  if (isLoading) return <NavSkeleton />;
+  if (isError) return <div>Error loading data</div>;
+
+  function scrollToModule(groupIndex: number, moduleIndex: number) {
+    const elementId = `module-${groupIndex}-${moduleIndex}`;
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }
 
-  if (isError) {
-    return <div>Error loading data</div>;
+  function handleModuleClick(groupIndex: number, moduleIndex: number) {
+    if (location.pathname === "/") {
+      scrollToModule(groupIndex, moduleIndex);
+    } else {
+      navigate(`/?g=${groupIndex}&m=${moduleIndex}`);
+    }
   }
 
   return (
@@ -63,40 +77,17 @@ export function NavMain() {
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarMenu>
               {group.modules.map((module, moduleIndex) => (
-                <Collapsible key={moduleIndex} asChild>
-                {/* <Collapsible key={moduleIndex} asChild defaultOpen={module.isActive}> */}
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip={module.title}>
-                      <a>
-                        {module.icon ? <module.icon /> : <BookOpen />}
-                        <span>{module.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                    {module.lessons?.length ? (
-                      <>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuAction className="data-[state=open]:rotate-90">
-                            <ChevronRight />
-                            <span className="sr-only">Toggle</span>
-                          </SidebarMenuAction>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {module.lessons?.map((lesson, lessonIndex) => (
-                              <SidebarMenuSubItem key={lessonIndex}>
-                                <SidebarMenuSubButton asChild>
-                                  <Link to={`/lesson/${lesson.uuid}`}>
-                                    <span>{lesson.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </>
-                    ) : null}
-                  </SidebarMenuItem>
-                </Collapsible>
+                <SidebarMenuItem key={moduleIndex}>
+                  <SidebarMenuButton asChild tooltip={module.title}>
+                    <button
+                      onClick={() => handleModuleClick(groupIndex, moduleIndex)}
+                      className="flex items-center space-x-2 w-full text-left"
+                    >
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>{module.title}</span>
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </div>

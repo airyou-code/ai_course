@@ -116,7 +116,8 @@ class LessonContentBlocksViewSet(
         return Response(
             {
                 "blocks": blocks,
-                "procent_progress": progress.procent_progress
+                "procent_progress": progress.procent_progress,
+                "description": lesson.description
             }
         )
 

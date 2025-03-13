@@ -24,6 +24,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
+import {
+  SkeletonLoader
+} from '../ui/loader';
+
 export default function CoursePage() {
   const { lessonUUId } = useParams<{ lessonUUId: string }>();
   if (!lessonUUId) {
@@ -42,16 +46,24 @@ export default function CoursePage() {
 
   const handleContinue = async () => {
     dispatch(removeByTypes({types: ['input_gpt', 'button_continue']}));
+    dispatch(
+      addBlocks(
+        [
+          {type: 'loading', content: "" },
+        ]
+      )
+    );
     const { data } = await fetchNext();
     console.log(data);
     if (data) {
+      dispatch(removeByTypes({types: ['loading']}));
       dispatch(addBlocks(data.blocks));
     }
   };
 
   useEffect(() => {
+    dispatch(clearBlocks());
     if (currentLessonUUId !== lessonUUId) {
-      dispatch(clearBlocks());
       dispatch(setCurrentLessonUUId(lessonUUId));
     }
   }, [lessonUUId, currentLessonUUId, dispatch]);
@@ -131,7 +143,17 @@ export default function CoursePage() {
               key={index}
               url={block.nextLessonUrl}
             />
-          ) : null
+          ) : <NextLessonButton
+            key={index}
+            content="Select the next module"
+            url={'/'}
+          />;
+      case "loading":
+        return (
+          <div className="py-4 px-2">
+            <SkeletonLoader count={4} />
+          </div>
+        );
       default:
         return null;
     }
@@ -142,11 +164,9 @@ export default function CoursePage() {
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
-          <div className="flex justify-center items-center h-full">
-            <div className="flex justify-center items-center h-full">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-black"></div>
+            <div className="py-4 px-2">
+              <SkeletonLoader count={10} />
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -159,6 +179,9 @@ export default function CoursePage() {
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
+            <div className="py-4 px-2">
+            {fetchedData.description}
+            </div>
             {blocks.map((block, index) => renderBlock(block, index))}
           </div>
         </div>
