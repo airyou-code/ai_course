@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Link } from 'react-router-dom'
+import { useFetchModuleData } from '../../hooks/courses';
+import { CourseGroupsSkeleton } from "./course-skeleton"
 
 interface LessonProps {
   uuid: string
@@ -118,7 +120,11 @@ export function CourseModule({ module }: { module: ModuleProps }) {
 }
 
 // ------------------- CourseGroups -------------------
-export default function CourseGroups({ lessonGroups }: { lessonGroups: Group[] }) {
+export default function CourseGroups() {
+  const { data: lessonGroups, isLoading, isError } = useFetchModuleData();
+  if (isLoading) return <CourseGroupsSkeleton />;;
+  if (isError) return <div>Error loading data</div>;
+
   return (
     <div className="min-h-screen dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       {lessonGroups.map((group, groupIndex) => (

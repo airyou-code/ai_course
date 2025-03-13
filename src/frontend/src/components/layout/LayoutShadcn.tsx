@@ -1,14 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarRight } from "@/components/sidebar-right"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -16,8 +8,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { ModeToggle } from "../mode-toggle"
+import NavBreadcrumb from "../nav-bread-crumb"
 
 export default function LayoutShadcn({ children }: React.PropsWithChildren) {
+
   return (
     <SidebarProvider>
       <div className="fixed inset-0 flex">
@@ -27,25 +21,7 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
             <div className="flex flex-1 items-center gap-2 px-3">
               <SidebarTrigger />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink>
-                      <Link to="/">Home</Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink>
-                      <Link to="/components">Components</Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <NavBreadcrumb />
             </div>
             <div className="px-2">
               <ModeToggle />

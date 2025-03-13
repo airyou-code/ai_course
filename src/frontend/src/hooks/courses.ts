@@ -12,7 +12,8 @@ export const useFetchModuleData = () => {
         queryFn: async () => {
             const { data } = await request(API.MODULE_DATA);
             return data
-        }
+        },
+        staleTime: 2 * 1000, // 1 minute
     });
 }
 

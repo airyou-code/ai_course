@@ -5,7 +5,7 @@ import CourseGroups from "@/components/course/course-card";
 import { useFetchModuleData } from '../../hooks/courses';
 
 export default function AllLessonsPage() {
-  const { data, isLoading, isError } = useFetchModuleData();
+  // const { data, isLoading, isError } = useFetchModuleData();
   const location = useLocation();
 
   useEffect(() => {
@@ -26,13 +26,9 @@ export default function AllLessonsPage() {
     }
   }, [location.search, location.pathname]);
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <LayoutShadcn>
-      <CourseGroups lessonGroups={data} />
+      <CourseGroups />
     </LayoutShadcn>
   );
 }

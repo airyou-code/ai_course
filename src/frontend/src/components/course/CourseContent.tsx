@@ -62,8 +62,8 @@ export default function CoursePage() {
   };
 
   useEffect(() => {
+    dispatch(clearBlocks());
     if (currentLessonUUId !== lessonUUId) {
-      dispatch(clearBlocks());
       dispatch(setCurrentLessonUUId(lessonUUId));
     }
   }, [lessonUUId, currentLessonUUId, dispatch]);

@@ -143,7 +143,9 @@ export const useFetchUserData = () => {
     queryFn: async () => {
       try {
         const { data } = await request(API.USER_DATA);
-        dispatch(setUser(data as User));
+        if (data) {
+          dispatch(setUser(data[0] as User));
+        }
         return data as User;
       } catch (error) {
         if (error instanceof AxiosError) {
