@@ -142,6 +142,7 @@ export default function CoursePage() {
           return block.nextLessonUrl ? (
             <NextLessonButton
               key={index}
+              content={block.content as string}
               url={block.nextLessonUrl}
             />
           ) : <NextLessonButton
