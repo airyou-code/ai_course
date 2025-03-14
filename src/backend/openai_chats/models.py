@@ -31,3 +31,9 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"{self.get_role_display()} | {self.content[:30]}"
+
+
+class Option(models.Model):
+    """This model stores options for a chat message."""
+
+    parameters = models.JSONField(default=dict, blank=True)

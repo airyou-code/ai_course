@@ -55,7 +55,7 @@ export async function streamChat(content_block_uuid: string, message: string, di
         batchContent += ev.data.replace(/\\n/g, '\n\n');
         chunkCounter++;
 
-        if (chunkCounter >= 5) {
+        if (chunkCounter >= 2) {
             dispatch(updateProcBlock({ content: batchContent }));
             chunkCounter = 0;
         }

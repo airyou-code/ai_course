@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Chat, ChatMessage
+from django.db import models
+from core.widgets import JSONEditorWidget
+from .models import Chat, ChatMessage, Option
 
 class ChatMessageInline(admin.TabularInline):
     model = ChatMessage
@@ -28,3 +30,16 @@ class ChatMessageAdmin(admin.ModelAdmin):
     def short_content(self, obj):
         return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
     short_content.short_description = "Content"
+
+
+@admin.register(Option)
+class OptionAdmin(admin.ModelAdmin):
+    list_display = ("id",)
+
+    formfield_overrides = {
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                attrs={"style": "margin-bottom:30px;height:350px;width:100%;"}
+            )
+        },
+    }

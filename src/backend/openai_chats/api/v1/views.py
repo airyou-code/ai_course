@@ -18,7 +18,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.renderers import BaseRenderer
 from rest_framework import views
 
-from openai_chats.models import ContentBlock, ChatMessage, Chat
+from openai_chats.models import ContentBlock, ChatMessage, Chat, Option
 from .serializers import ChatMessageSerializer
 
 from drf_spectacular.utils import extend_schema
@@ -253,17 +253,28 @@ class OpenRouterStreamView(views.APIView):
             "Content-Type": "application/json"
         }
 
-        payload ={
-            "model": "qwen/qwen-vl-plus:free",
-            "messages": conversation,
-            "top_p": 1,
-            "temperature": 1,
-            "frequency_penalty": 0,
-            "presence_penalty": 0,
-            "repetition_penalty": 1,
-            "top_k": 0,
-            "stream": True
-        }
+        # get options parameters from
+        option = Option.objects.all().first()
+        if option:
+            payload = {
+                **option.parameters,
+                "messages": conversation,
+                "stream": True
+            }
+        else:
+            payload = {
+                "model": "qwen/qwen-vl-plus:free",
+                # "model": "meta-llama/llama-3.3-70b-instruct:free",
+                "messages": conversation,
+                "max_tokens": 500,
+                "top_p": 1,
+                "temperature": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+                "repetition_penalty": 1,
+                "top_k": 0,
+                "stream": True
+            }
 
         def sse_stream():
             buffer = ""
