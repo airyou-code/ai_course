@@ -187,8 +187,10 @@ export default function CoursePage() {
       <div className="max-w-3xl mx-auto pb-10">
         <div ref={containerRef} className="max-w-3xl mx-auto p-4 space-y-6" style={{ maxHeight: '80vh' }}>
           <div className="space-y-6 pb-10">
-            <div className="py-4 px-2">
-            {fetchedData.description}
+            <div className="pt-4 px-2 tinymce-content">
+              <h1>
+                {fetchedData.title}
+              </h1>
             </div>
             {blocks.map((block, index) => renderBlock(block, index))}
           </div>

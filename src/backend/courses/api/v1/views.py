@@ -42,13 +42,14 @@ class LessonContentBlocksViewSet(
         user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
-            user=user, lesson=lesson,
+            user=user,
+            lesson=lesson,
             defaults={
-                'last_seen_block': last_seen_block,
-                'procent_progress': round((1 / content_blocks.count()) * 100)
-            }
+                "last_seen_block": last_seen_block,
+                "procent_progress": round((1 / content_blocks.count()) * 100),
+            },
         )
-            
+
         blocks = []
 
         last_seen_block = progress.last_seen_block
@@ -71,17 +72,14 @@ class LessonContentBlocksViewSet(
                 )
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
-                
+
                 progress.is_completed = True
                 progress.procent_progress = 100
                 progress.save()
-                
-
 
             if block.uuid == last_seen_block.uuid:
                 is_found_last_block = True
 
-            
             is_exist_messages = False
             if block.block_type == "input_gpt":
                 messages_data: list = get_chat_messages(user, block.uuid)
@@ -89,14 +87,17 @@ class LessonContentBlocksViewSet(
                     is_exist_messages = True
                     blocks += messages_data
 
-            if block.block_type not in ["button_continue", "input_gpt"] or is_found_last_block:
+            if (
+                block.block_type not in ["button_continue", "input_gpt"]
+                or is_found_last_block
+            ):
                 blocks.append(
                     {
                         "type": block.block_type,
                         "content": content,
                         "avatar": block.avatar if hasattr(block, "avatar") else None,
                         "uuid": block.uuid,
-                        'nextLessonUrl': next_lesson_url,
+                        "nextLessonUrl": next_lesson_url,
                     }
                 )
                 if block.block_type == "input_gpt" and is_exist_messages:
@@ -105,19 +106,22 @@ class LessonContentBlocksViewSet(
                             "type": "button_continue",
                             "content": _("Continue"),
                             "uuid": "",
-                            'nextLessonUrl': next_lesson_url,
+                            "nextLessonUrl": next_lesson_url,
                         }
                     )
 
-
-            if block.block_type in ["button_continue", "input_gpt"] and is_found_last_block:
+            if (
+                block.block_type in ["button_continue", "input_gpt"]
+                and is_found_last_block
+            ):
                 break
 
         return Response(
             {
                 "blocks": blocks,
                 "procent_progress": progress.procent_progress,
-                "description": lesson.description
+                "description": lesson.description,
+                "title": lesson.title,
             }
         )
 
@@ -142,8 +146,7 @@ class LessonNextContentBlocksViewSet(
         user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
-            user=user, lesson=lesson,
-            defaults={'last_seen_block': last_seen_block}
+            user=user, lesson=lesson, defaults={"last_seen_block": last_seen_block}
         )
 
         blocks: list = []
@@ -175,13 +178,13 @@ class LessonNextContentBlocksViewSet(
                 progress.procent_progress = 100
                 progress.save()
 
-
             if is_found_last_block and block.block_type == "text":
                 is_next_block = True
                 progress.last_seen_block = block
-                progress.procent_progress = round((next_block_conter / blocks_count) * 100)
+                progress.procent_progress = round(
+                    (next_block_conter / blocks_count) * 100
+                )
                 progress.save()
-            
 
             # is_exist_messages = False
             # if block.block_type == "input_gpt" and is_found_last_block:
@@ -197,7 +200,7 @@ class LessonNextContentBlocksViewSet(
                         "content": content,
                         "avatar": block.avatar if hasattr(block, "avatar") else None,
                         "uuid": block.uuid,
-                        'nextLessonUrl': next_lesson_url,
+                        "nextLessonUrl": next_lesson_url,
                     }
                 )
                 # if block.block_type == "input_gpt" and is_exist_messages:
@@ -207,7 +210,7 @@ class LessonNextContentBlocksViewSet(
                             "type": "button_continue",
                             "content": _("Continue"),
                             "uuid": "",
-                            'nextLessonUrl': next_lesson_url,
+                            "nextLessonUrl": next_lesson_url,
                         }
                     )
 
@@ -216,8 +219,10 @@ class LessonNextContentBlocksViewSet(
                 continue
 
             if (
-                block.block_type in ["button_continue", "input_gpt"]
-            ) and is_found_last_block and is_next_block:
+                (block.block_type in ["button_continue", "input_gpt"])
+                and is_found_last_block
+                and is_next_block
+            ):
                 break
 
         return Response(
