@@ -53,13 +53,15 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
 
       <div className="flex items-center gap-2">
         {lesson.is_completed ? (
-          <Button
+          <Link to={`/lesson/${lesson.uuid}`}>
+            <Button
             variant="outline"
-            className="rounded-full w-10 h-10 p-0 bg-green-50 border-green-200 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
-          >
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            <span className="sr-only">Completed</span>
-          </Button>
+            className="px-8 bg-green-50 border-green-200 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
+            >
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <span className="sr-only">Completed</span>
+            </Button>
+          </Link>
         ) : lesson.is_locked ? (
           <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
             <Lock className="h-5 w-5" />
