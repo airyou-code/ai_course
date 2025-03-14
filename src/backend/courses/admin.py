@@ -228,11 +228,40 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
     def get_lesson_link(self, obj):
         if obj.uuid:
             return format_html(
-                '<a href="https://prompthub.study/lesson/{}" target="_blank">Open lesson →</a>',
+                '''
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="padding: 10px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">
+                        <a href="https://prompthub.study/lesson/{}" target="_blank" 
+                           style="margin-bottom: 10px; display: inline-block;">
+                            Открыть урок в новом окне →
+                        </a>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                            UUID: {}<br/>
+                            URL: https://prompthub.study/lesson/{}
+                        </div>
+                    </div>
+                    
+                    <div style="position: relative;">
+                        <iframe 
+                            src="https://prompthub.study/lesson/{}"
+                            style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 4px;"
+                            title="Предпросмотр урока"
+                            allowfullscreen="true"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                        ></iframe>
+                        <div style="position: absolute; bottom: -20px; right: 0; font-size: 11px; color: #666;">
+                            Если предпросмотр не работает, используйте ссылку выше
+                        </div>
+                    </div>
+                </div>
+                ''',
+                obj.uuid,
+                obj.uuid,
+                obj.uuid,
                 obj.uuid
             )
         return "-"
-    get_lesson_link.short_description = "Lesson Link"
+    get_lesson_link.short_description = "Предпросмотр урока"
 
     def group(self, obj):
         return obj.module.group if obj.module else None
