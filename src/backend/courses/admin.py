@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
+from django.utils.html import format_html
 from django.db import models
 from core.widgets import JSONEditorWidget
 
@@ -203,7 +204,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "module__group__course",
     )
     inlines = (ContenBlockInlain,)
-    readonly_fields = ("uuid",)
+    readonly_fields = ("uuid", "get_lesson_link")
 
     fieldsets = (
         (
@@ -211,6 +212,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "module",
+                    "get_lesson_link",
                     "is_locked",
                     "is_free",
                     "duration",
@@ -222,6 +224,15 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
             }
         ),
     )
+
+    def get_lesson_link(self, obj):
+        if obj.uuid:
+            return format_html(
+                '<a href="https://prompthub.study/lesson/{}" target="_blank">Open lesson →</a>',
+                obj.uuid
+            )
+        return "-"
+    get_lesson_link.short_description = "Lesson Link"
 
     def group(self, obj):
         return obj.module.group if obj.module else None
