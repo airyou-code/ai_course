@@ -7,6 +7,11 @@ export default {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			sans: ['AvertaCY light', 'sans-serif'],
+			heading: ['AvertaCY bold', 'sans-serif'],
+			breadcrumbs: ['AvertaCY regulat', 'sans-serif'],
+		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -66,5 +71,15 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+	function({ addBase, theme }) {
+		addBase({
+			'body': { fontFamily: theme('fontFamily.sans') },
+			'h1': { fontFamily: theme('fontFamily.heading') },
+			'h2': { fontFamily: theme('fontFamily.heading') },
+			'h3': { fontFamily: theme('fontFamily.heading') },
+			'h4': { fontFamily: theme('fontFamily.heading') },
+		});
+	},
+],
 }

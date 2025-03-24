@@ -211,3 +211,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: 'AvertaCY light';
+  src: url('/fonts/AvertaCY-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AvertaCY bold';
+  src: url('/fonts/AvertaCY-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AvertaCY regulat';
+  src: url('/fonts/AvertaCY-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}

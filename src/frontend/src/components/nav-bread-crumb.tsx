@@ -94,7 +94,7 @@ export default function NavBreadcrumb() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList className="flex-wrap">
+      <BreadcrumbList className="flex-wrap font-breadcrumbs">
         <BreadcrumbItem>
           <BreadcrumbLink>
             <Link to="/">Home</Link>
