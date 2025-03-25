@@ -240,9 +240,11 @@ class OpenRouterStreamView(views.APIView):
             "created_at"
         )
 
-        conversation: list = [
-            {"role": "system", "content": block.content_text}
-        ]
+        conversation: list = []
+        if block.content_text:
+            conversation.append(
+                {"role": "system", "content": block.content_text}
+            )
         for msg in conversation_queryset:
             if msg.content and msg.role != "system":
                 conversation.append({"role": msg.role, "content": msg.content})
@@ -328,9 +330,10 @@ class OpenRouterStreamView(views.APIView):
 
             # Save the user's message
             try:
-                ChatMessage.objects.create(
-                    chat=user_chat, role="system", content=block.content_text
-                )
+                if block.content_text:
+                    ChatMessage.objects.create(
+                        chat=user_chat, role="system", content=block.content_text
+                    )
                 ChatMessage.objects.create(
                     chat=user_chat, role="user", content=user_input
                 )

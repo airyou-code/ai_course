@@ -172,7 +172,8 @@ class LessonNextContentBlocksViewSet(
                     .order_by("order")
                     .first()
                 )
-                next_lesson_url = f"/lesson/{next_lesson.uuid}"
+                if next_lesson:
+                    next_lesson_url = f"/lesson/{next_lesson.uuid}"
 
                 progress.is_completed = True
                 progress.procent_progress = 100
@@ -197,14 +198,13 @@ class LessonNextContentBlocksViewSet(
                 blocks.append(
                     {
                         "type": block.block_type,
-                        "content": content,
+                        "content": content if block.block_type != "input_gpt" else "",
                         "avatar": block.avatar if hasattr(block, "avatar") else None,
                         "uuid": block.uuid,
                         "nextLessonUrl": next_lesson_url,
                     }
                 )
                 if block.block_type == "input_gpt" and is_exist_messages:
-                # if block.block_type == "input_gpt":
                     blocks.append(
                         {
                             "type": "button_continue",
