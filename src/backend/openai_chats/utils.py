@@ -23,7 +23,7 @@ def get_chat_messages(user, input_block_uuid) -> list:
             'content': markdown.markdown(message.content),
             'type': "input_dialog" if message.role == "user" else "output_dialog",
         }
-        for message in messages
+        for message in messages if message.role != "system"
     ]
 
     return messages_data

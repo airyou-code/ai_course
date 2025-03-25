@@ -30,7 +30,6 @@ export async function streamChat(content_block_uuid: string, message: string, di
     const url = API.OPENAI_CHAT_STREAM(content_block_uuid);
 
     let batchContent = "";
-    let chunkCounter = 0;
   
     fetchEventSource(url, {
       method: 'POST',
@@ -53,12 +52,7 @@ export async function streamChat(content_block_uuid: string, message: string, di
             return;
         }
         batchContent += ev.data.replace(/\\n/g, '\n\n');
-        chunkCounter++;
-
-        if (chunkCounter >= 2) {
-            dispatch(updateProcBlock({ content: batchContent }));
-            chunkCounter = 0;
-        }
+        dispatch(updateProcBlock({ content: batchContent }));
       },
   
       onerror(err) {
