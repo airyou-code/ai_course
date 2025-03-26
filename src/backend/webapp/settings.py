@@ -178,10 +178,10 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-# REST_KNOX = {
-#     "TOKEN_TTL": timedelta(days=7),  # AuthToken expiration time
-#     "AUTH_HEADER_PREFIX": "Bearer",
-# }
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+}
 
 SPECTACULAR_SETTINGS = {
     'TITLE': "AI Course API",
