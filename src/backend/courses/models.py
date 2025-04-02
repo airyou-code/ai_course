@@ -32,7 +32,7 @@ class Group(CoreModel, SortableMixin):
 class Module(CoreModel, SortableMixin):
     # course = models.ForeignKey(Course, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, help_text="the special character `$` will be replaced by a sequence number")
     description = models.TextField(blank=True, null=True)
     order = models.PositiveIntegerField(
         default=0, editable=False, db_index=True
@@ -48,7 +48,7 @@ class Module(CoreModel, SortableMixin):
 class Lesson(CoreModel, SortableMixin):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, help_text="the special character `$` will be replaced by a sequence number")
     description = models.TextField(blank=True, null=True)
     duration = models.CharField(
         max_length=50, blank=True, null=True, default="15 min"

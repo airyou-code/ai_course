@@ -80,8 +80,12 @@ export default function NavBreadcrumb() {
           const lesson = mod.lessons[li]
           if (lesson.uuid === lessonUUId) {
             courseTitle = group.title
-            moduleTitle = mod.title
-            lessonTitle = lesson.title
+            moduleTitle = mod.title.includes('$')
+              ? mod.title.replace('$', (mi + 1).toString())
+              : mod.title
+            lessonTitle = lesson.title.includes('$')
+              ? lesson.title.replace('$', (li + 1).toString())
+              : lesson.title
             foundGroupIndex = gi
             foundModuleIndex = mi
             break outerLoop

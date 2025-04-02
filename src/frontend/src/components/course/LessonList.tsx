@@ -37,7 +37,13 @@ export default function LessonList({
         {group.modules.map((module, modulesIndex) => (
         <div key={modulesIndex} className="mt-5 bg-surface rounded-lg shadow overflow-hidden border">
           <div className="bg-zinc-800 text-white p-4">
-            <h2 className="text-xl font-semibold">{module.title}</h2>
+            <h2 className="text-xl font-semibold">
+            {
+              module.title.includes('$')
+                ? module.title.replace('$', modulesIndex.toString())
+                : module.title
+            }
+            </h2>
             <p className="text-sm text-gray-300">{module.description}</p>
           </div>
           <div className="divide-y divide-gray-200">
@@ -50,7 +56,13 @@ export default function LessonList({
                     <BookOpen style={{ width: '2rem', height: '2rem', display: 'inline-block', verticalAlign: 'middle' }} className="w-8 h-8 text-zinc-800" />
                   )}
                   <div>
-                    <h3 className="text-sm font-medium text-text">{lesson.title}</h3>
+                    <h3 className="text-sm font-medium text-text">
+                    {
+                      lesson.title.includes('$')
+                        ? lesson.title.replace('$', lessonIndex.toString())
+                        : lesson.title
+                    }
+                    </h3>
                     <p className="text-sm text-text-secondary">{lesson.description}</p>
                   </div>
                 </div>

@@ -30,7 +30,7 @@ interface GroupProps {
 }
 
 // ------------------- LessonItem -------------------
-export function LessonItem({ lesson }: { lesson: LessonProps }) {
+export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lessonIndex: number }) {
   return (
     <div className="flex items-start gap-4 p-5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors rounded-md dark:hover:bg-zinc-800/50">
       <div className="mt-1">
@@ -42,7 +42,13 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
       </div>
 
       <div className="flex-1 space-y-1">
-        <div className="font-medium dark:text-zinc-200">{lesson.title}</div>
+        <div className="font-medium dark:text-zinc-200">
+        {
+          lesson.title.includes('$')
+            ? lesson.title.replace('$', (lessonIndex + 1).toString())
+            : lesson.title
+        }
+        </div>
         {lesson.progress > 0 && lesson.progress < 100 && !lesson.is_completed && (
           <div className="flex items-center gap-2 pt-2">
             <Progress value={lesson.progress} className="h-2 flex-1" />
@@ -78,7 +84,7 @@ export function LessonItem({ lesson }: { lesson: LessonProps }) {
 }
 
 // ------------------- CourseModule -------------------
-export function CourseModule({ module }: { module: ModuleProps }) {
+export function CourseModule({ module, moduleIndex }: { module: ModuleProps, moduleIndex: number }) {
   const completedLessons = module.lessons.filter((lesson) => lesson.is_completed).length
   const totalLessons = module.lessons.length
   const moduleProgress = Math.round((completedLessons / totalLessons) * 100)
@@ -86,7 +92,13 @@ export function CourseModule({ module }: { module: ModuleProps }) {
   return (
     <Card className="mb-8 border-none shadow-md dark:bg-zinc-900">
       <CardHeader className="bg-zinc-900 text-white rounded-t-lg p-6 space-y-3 dark:bg-zinc-800">
-        <CardTitle className="text-xl font-bold">{module.title}</CardTitle>
+        <CardTitle className="text-xl font-bold">
+          {
+            module.title.includes('$')
+              ? module.title.replace('$', (moduleIndex + 1).toString())
+              : module.title
+          }
+        </CardTitle>
         <CardDescription className="text-zinc-300 text-base">
           {module.description}
         </CardDescription>
@@ -112,8 +124,8 @@ export function CourseModule({ module }: { module: ModuleProps }) {
       </CardHeader>
 
       <CardContent className="p-0 divide-y divide-border dark:divide-zinc-700">
-        {module.lessons.map((lesson) => (
-          <LessonItem key={lesson.uuid} lesson={lesson} />
+        {module.lessons.map((lesson, lessonIndex: number) => (
+          <LessonItem lessonIndex={lessonIndex} lesson={lesson} />
         ))}
       </CardContent>
     </Card>
@@ -145,7 +157,7 @@ export default function CourseGroups() {
                 key={module.id}
                 id={`module-${groupIndex}-${moduleIndex}`}
               >
-                <CourseModule module={module} />
+                <CourseModule module={module} moduleIndex={moduleIndex}/>
               </div>
             ))}
           </div>
