@@ -19,6 +19,7 @@ import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
 import DOMPurify from 'dompurify';
 import InputGptBlock from './InputGptBlock';
+import { useLessonProgress } from '@/reducers/LessonProgress';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -42,6 +43,7 @@ export default function CoursePage() {
   );
 
   const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
+  const { progress, setProgress } = useLessonProgress();
   const { refetch: fetchNext } = useFetchNextLessonData(lessonUUId);
 
   const handleContinue = async () => {
@@ -59,6 +61,7 @@ export default function CoursePage() {
     if (data) {
       dispatch(removeByTypes({types: ['loading', 'button_skeleton']}));
       dispatch(addBlocks(data.blocks));
+      setProgress(data.procent_progress);
     }
   };
 
@@ -72,6 +75,7 @@ export default function CoursePage() {
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
         dispatch(addBlocks(fetchedData.blocks));
+        setProgress(fetchedData.procent_progress);
     }
   }, [fetchedData, currentIndex, dispatch]);
 
