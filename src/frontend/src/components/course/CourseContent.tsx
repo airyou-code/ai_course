@@ -193,7 +193,7 @@ export default function CoursePage() {
           <div className="space-y-6 pb-10">
             <div className="pt-4 px-2 tinymce-content">
               <h1>
-                {fetchedData.title}
+                {fetchedData.title.replace(/^.*\$\.\s*/, "")}
               </h1>
             </div>
             {blocks.map((block, index) => renderBlock(block, index))}
