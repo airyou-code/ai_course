@@ -37,6 +37,7 @@ RUN chmod +x /start
 COPY ./src/backend /app/
 COPY ./src/frontend /app/frontend
 
+RUN rm -rf /app/frontend/.env
 RUN npm run build --prefix /app/frontend
 
 # Copy Nginx configuration file

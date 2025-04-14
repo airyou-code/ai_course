@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  backend:
+    image: airyou/prompthub:be
+    command: /start
+    ports:
+      - '8200:8200'
+    env_file:
+      - src/backend/.env
+    depends_on:
+      - db
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 3
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    networks:
+      - prompthub-network
+
+  frontend:
+    image: airyou/prompthub:fe
+    ports:
+      - "83:83"
+    networks:
+      - prompthub-network
+
+  db:
+    image: postgres:16
+    ports:
+      - '5434:5432'
+    env_file:
+      - src/backend/.env
+    volumes:
+      - ./data/postgres16:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prompthub-network
+
+  nginx:
+    image: airyou/prompthub:nginx
+    ports:
+      - "82:82"
+    depends_on:
+      - backend
+    networks:
+      - prompthub-network
+
+networks:
+  prompthub-network:

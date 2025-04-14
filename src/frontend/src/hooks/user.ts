@@ -41,8 +41,8 @@ export const useLogin = () => {
         }).then(({ data }) => {
             const { refresh, access } = data;
 
-            setCookie(ACCESS_TOKEN, access, 0.5);
-            setCookie(REFRESH_TOKEN, refresh, 0.5);
+            setCookie(ACCESS_TOKEN, access);
+            setCookie(REFRESH_TOKEN, refresh, 29);
             //   refetchUser();
         })
         .catch((error) => {
