@@ -8,6 +8,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from users.models import UserLessonProgress
 
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -71,9 +74,11 @@ class GetTokensAPIView(generics.GenericAPIView):
         })
 
 
+@method_decorator(ratelimit(key='ip', rate='1/15s', method='POST', block=True), name='dispatch')
 class EmailRegistrationRequestView(generics.CreateAPIView):
     serializer_class = serializers.EmailRegistrationRequestSerializer
 
 
+@method_decorator(ratelimit(key='ip', rate='15/2m', method='POST', block=True), name='dispatch')
 class EmailRegistrationView(generics.CreateAPIView):
     serializer_class = serializers.EmailRegistration

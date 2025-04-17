@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik"
 import * as Yup from "yup"
 import { useNavigate } from "react-router-dom"
@@ -53,59 +53,72 @@ export default function RegistrationForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [countdown, setCountdown] = useState(0)
 
-  // Function to go back to the first step
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null
+
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prevCount) => prevCount - 1)
+      }, 1000)
+    }
+
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [countdown])
+
+  // Функция для запуска таймера
+  const startCountdown = () => {
+    setCountdown(20) // 20 секунд
+  }
+
+  // Функция возвращения к первому шагу
   const handleBackToFirstStep = () => {
     setStep(1)
     setIsCodeSent(false)
   }
 
-  // First step - request verification code
+  // Первый шаг – запрос кода подтверждения
   const handleRequestCode = async (
     values: EmailVerificationValues,
     { setSubmitting }: FormikHelpers<EmailVerificationValues>,
   ) => {
     try {
       setError(null)
-      // Placeholder for API call to request verification code
-      // Replace with actual API call
       console.log("Requesting verification code for:", values.email)
-
-      // Simulate API call
       await registerRequest(values.email)
 
       setEmail(values.email)
       setIsCodeSent(true)
       setStep(2)
+      startCountdown()
     } catch (err) {
-      setError("Ошибка при отправке кода подтверждения. Пожалуйста, попробуйте снова.")
+      if (err === "403 Forbidden")
+        setError("Слижком частые попытки запросить код подтверждения. Пожалуйста, попробуйте позже.")
+      else if (err === "400 Bad Request")
+        setError("Пользователь с таким email уже зарегистрирован.")
+      else
+        setError("Ошибка при отправке кода подтверждения. Пожалуйста, попробуйте снова.")
     } finally {
       setSubmitting(false)
     }
   }
 
-  // Second step - complete registration with verification code
+  // Второй шаг – завершение регистрации
   const handleRegister = async (values: RegistrationValues, { setSubmitting }: FormikHelpers<RegistrationValues>) => {
     try {
       setError(null)
-      // Placeholder for API call to register user with verification code
-      // Replace with actual API call
-      // console.log("Registering user with data:", values)
-
-      // Simulate API call
-      await register(
-        {
+      await register({
           email: values.email,
           username: values.username,
           code: values.verificationCode,
           password: values.password,
           first_name: values.name,
-          last_name: values.name.split(" ")[1]
-        }
-      )
-      navigate('/')
-
-      // Handle successful registration
+          last_name: values.name.split(" ")[1] || "",
+      })
+      window.location.href = '/';
       console.log("Registration successful!")
     } catch (err) {
       setError("Ошибка при регистрации. Пожалуйста, проверьте данные и попробуйте снова.")
@@ -120,13 +133,20 @@ export default function RegistrationForm() {
       setError(null)
       // Placeholder for API call to resend verification code
       console.log("Resending verification code to:", email)
+      startCountdown()
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await registerRequest(email)
 
       setIsCodeSent(true)
+      startCountdown()
     } catch (err) {
-      setError("Ошибка при повторной отправке кода. Пожалуйста, попробуйте снова.")
+      setCountdown(3)
+      if (err === "403 Forbidden")
+        setError("Слижком частые попытки запросить код подтверждения. Пожалуйста, попробуйте позже.")
+      else if (err === "400 Bad Request")
+        setError("Пользователь с таким email уже зарегистрирован.")
+      else
+        setError("Ошибка при повторной отправке кода. Пожалуйста, попробуйте снова.")
     }
   }
 
@@ -149,27 +169,41 @@ export default function RegistrationForm() {
         )}
 
         {step === 1 ? (
-          <Formik initialValues={{ email: "" }} validationSchema={emailVerificationSchema} onSubmit={handleRequestCode}>
+          <Formik
+            key="step1"
+            initialValues={{ email: email || "" }}
+            validationSchema={emailVerificationSchema}
+            onSubmit={handleRequestCode}
+          >
             {({ isSubmitting }) => (
               <Form className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Field as={Input} id="email" name="email" type="email" placeholder="example@mail.com" />
+                  <Field
+                    as={Input}
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="example@mail.com"
+                  />
                   <ErrorMessage name="email" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Отправка..." : "Получить код подтверждения"}
+                </Button>
+                <Button variant="secondary" className="w-full" onClick={() => {setStep(2)}}>
+                  {"У меня уже есть код подтверждения"}
                 </Button>
               </Form>
             )}
           </Formik>
         ) : (
           <Formik
+            key="step2"
             initialValues={{
               name: "",
               username: "",
-              email: email,
+              email: email || "",
               password: "",
               confirmPassword: "",
               verificationCode: "",
@@ -182,76 +216,75 @@ export default function RegistrationForm() {
               <Form className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Имя</Label>
-                  <Field as={Input} id="name" name="name" placeholder="Иван Иванов" required/>
+                  <Field as={Input} id="name" name="name" placeholder="Иван Иванов" required />
                   <ErrorMessage name="name" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="username">Логин</Label>
-                  <Field as={Input} id="username" name="username" placeholder="IvanIvanov" required/>
+                  <Field as={Input} id="username" name="username" placeholder="IvanIvanov" required />
                   <ErrorMessage name="username" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Field as={Input} id="email" name="email" type="email" disabled />
+                  <Field as={Input} id="email" name="email" type="email" disabled={Boolean(email)} />
                   <ErrorMessage name="email" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="password">Пароль</Label>
                   <div className="relative">
-                      <Field
-                        as={Input}
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Введите пароль"
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 flex items-center px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <Eye className="w-5 h-5 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
+                    <Field
+                      as={Input}
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Введите пароль"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <Eye className="w-5 h-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                   <ErrorMessage name="password" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Подтверждение пароля</Label>
                   <Field as={Input} id="confirmPassword" name="confirmPassword" type="password" placeholder="Подтвердите пароль" />
                   <ErrorMessage name="confirmPassword" component="div" className="text-sm text-red-500" />
                 </div>
-
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="verificationCode">Код подтверждения</Label>
-                    <button
-                      type="button"
-                      onClick={handleResendCode}
-                      className="text-sm text-gray-500 hover:text-gray-700"
-                    >
-                      Отправить код повторно
-                    </button>
+                    <div className="flex items-center">
+                      {countdown > 0 && <span className="text-sm text-gray-500 mr-2">{countdown} сек</span>}
+                      <button
+                        type="button"
+                        onClick={handleResendCode}
+                        disabled={countdown > 0}
+                        className={`text-sm ${
+                          countdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        Отправить код повторно
+                      </button>
+                    </div>
                   </div>
-                  <Field as={Input} id="verificationCode" name="verificationCode" placeholder="S4JS99" />
+                  <Field as={Input} id="verificationCode" name="verificationCode" placeholder="A1B2C3" />
                   <ErrorMessage name="verificationCode" component="div" className="text-sm text-red-500" />
                 </div>
-
                 {isCodeSent && (
                   <div className="flex items-center text-sm text-green-600">
                     <CheckCircle2 className="h-4 w-4 mr-1" />
                     <span>Код подтверждения отправлен на ваш email</span>
                   </div>
                 )}
-
                 <div className="flex gap-4 w-full">
                   <Button type="button" variant="outline" className="flex-1" onClick={handleBackToFirstStep}>
                     Назад
@@ -266,9 +299,17 @@ export default function RegistrationForm() {
         )}
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-gray-500">
-          {step === 1 ? "Уже есть аккаунт? Войдите" : "Шаг 2 из 2: Завершение регистрации"}
+        {step === 1 ? 
+          <p className="text-sm text-gray-500">
+            Уже есть аккаунт?
+            <a href="/auth" className="underline underline-offset-4">
+              Войдите
+            </a>
+          </p>
+        : <p className="text-sm text-gray-500">
+          Шаг 2 из 2: Завершение регистрации
         </p>
+        }
       </CardFooter>
     </Card>
   )

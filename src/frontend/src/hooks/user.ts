@@ -199,10 +199,12 @@ export const useRegisterRequest = () => {
     .catch((error) => {
         let errorMessage = 'An unknown error occurred';
         if (error.response) {
-        if (error.response.status === 401) {
-            errorMessage = 'Invalid username or password';
+        if (error.response.status === 400) {
+            errorMessage = '400 Bad Request';
         } else if (error.response.status === 404) {
             errorMessage = 'User not found';
+        } else if (error.response.status === 403 || error.response.status === 429) {
+            errorMessage = '403 Forbidden';
         } else {
             errorMessage = 'An unexpected error occurred';
             error.response.data?.message || 'An unexpected error occurred';

@@ -6,7 +6,7 @@ from users import utils
 from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, Throttled
 from mail.tasks import send_verify_email_task
 from mail.models import Mail
 from users import enums
@@ -65,13 +65,22 @@ class EmailRegistrationRequestSerializer(serializers.Serializer):
 
         # Check if the email is already sent
 
+        is_mail_sended = Mail.objects.filter(
+            email=email_candidate,
+            is_send=True,
+            created_at__gte=timezone.now() - timezone.timedelta(seconds=15),
+        ).exists()
+
+        if is_mail_sended:
+            raise Throttled(detail=_('Email already sent'))
+
         code = utils.generate_verification_code()
         utils.set_verification_code_for_registration(
             code, enums.UserSecurityCode.VERIFY_EMAIL,
             email_candidate
         )
-        print(f"CODE: {code}")
-        # send_verify_email_task(email=email_candidate, code=code)
+        # print(f"CODE: {code}")
+        send_verify_email_task(email=email_candidate, code=code)
         return validated_data
 
 
