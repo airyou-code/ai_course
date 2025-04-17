@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { getHeders } from '../utils/headers';
+import { getHeders, getFreeHeders } from '../utils/headers';
 import { useRefreshLogin } from './user';
 import { readCookie } from '../utils/cookie';
 import { REFRESH_TOKEN } from '../config/cookies';
@@ -22,7 +22,7 @@ export const useAuthRequest = () => {
     return axios({
       headers: {
         ...headers,
-        ...getHeders()
+        ...getFreeHeders()
       },
       url,
       data,

@@ -23,6 +23,7 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+PROJECT_NAME = config('PROJECT_NAME', default='PromptHub',)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -32,6 +33,11 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-c%@zyw#h$&@ga*+cbpqf5
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
+
+FRONTEND_URL = config(
+    'FRONTEND_URL',
+    default='http://localhost:5173',
+)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
@@ -88,11 +94,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_beat',
     'drf_spectacular',
     'django_filters',
+    'social_django',
+    'anymail',
 
     'openai_chats',
     'core',
+    'mail',
     'courses',
     'payments',
     'users'
@@ -101,8 +111,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 
-    # https://whitenoise.readthedocs.io/en/latest/
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -121,6 +130,11 @@ MIDDLEWARE = [
     # "cms.middleware.language.LanguageCookieMiddleware",
 
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 ROOT_URLCONF = 'webapp.urls'
 
@@ -153,13 +167,13 @@ TEMPLATES = [
         },
     },
 ]
-# https://whitenoise.readthedocs.io/en/latest/
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# # https://whitenoise.readthedocs.io/en/latest/
+# STORAGES = {
+#     # ...
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+# }
 
 WSGI_APPLICATION = 'webapp.wsgi.application'
 
@@ -214,6 +228,41 @@ DATABASES = {
     )
 }
 
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# Disabling asynchronous operation of tasks Celery if the parameter is True
+CELERY_TASK_ALWAYS_EAGER = config("CELERY_TASK_ALWAYS_EAGER", default=DEBUG, cast=bool)
+# celery setup
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="amqp://localhost")
+CELERY_RESULT_BACKEND = config(
+    "CELERY_RESULT_BACKEND", default="redis://localhost:6379"
+)
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TASK_RETRY_BACKOFF = 60  # seconds
+CELERY_TASK_MAX_RETRIES = 3
+
+REDIS_PORT = config('REDIS_PORT')
+REDIS_PASSWORD = config('REDIS_PASSWORD')
+REDIS_SERVER = config('REDIS_SERVER')
+REDIS_APP_DB = config('REDIS_APP_DB')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config("CACHES_REDIS_LOCATION", default="redis://redis:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+# ------------- CELERY TASKS -------------- #
+CELERY_TASK_ROUTES = {
+    'send_verify_email': {'queue': 'main-queue'},
+    # 'send_password_reset_request_email': {'queue': 'main-queue'},
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -309,3 +358,19 @@ OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
 OPENAI_URL = config("OPENAI_URL", default="https://openrouter.ai/api/v1")
 OPENAI_LIMIT_WORDS = config("OPENAI_LIMIT_WORDS", default=400, cast=int)
 OPENAI_LIMIT_MESSAGES = config("OPENAI_LIMIT_MESSAGES", default=20, cast=int)
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY', default='262614767197-4vs5rl145jj8pchpetngr9hqcjph6ctc.apps.googleusercontent.com')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET', default='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')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+REDIRECT_FIELD_NAME = 'next'
+
+SENDGRID_KEY = config('SENDGRID_KEY')
+DEFAULT_EMAIL_FROM = config('DEFAULT_EMAIL_FROM', "info@prompthub.study")
+ANYMAIL = {
+    'SENDGRID_API_KEY': config('SENDGRID_KEY'),
+}
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+RESET_CODE_EXPIRE = 3600   # 1 hour
+FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + '/verify-email'

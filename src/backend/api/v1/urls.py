@@ -8,6 +8,7 @@ from drf_spectacular.views import (
     SpectacularRedocView
 )
 from ..views import CustomSpectacularAPIView
+from core.views import healthcheck, healthcheck_migrations
 
 app_name = "v1"
 
@@ -32,4 +33,7 @@ urlpatterns = [
         name='redoc'
     ),
     path('schema/', CustomSpectacularAPIView.as_view(api_version="v1"), name='schema'),
+
+    path("live/healthcheck/", healthcheck),
+    path("live/healthcheck/migrations/", healthcheck_migrations),
 ]

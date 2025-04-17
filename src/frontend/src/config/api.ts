@@ -1,6 +1,8 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 const API = {
   // users
+  USER_REGISTRATION_REQUEST: `${BASE_URL}/email/register/request/`,
+  USER_REGISTRATION: `${BASE_URL}/email/register/`,
   USER_DATA: `${BASE_URL}/profile/`,
   USERS_UPDATE_DATA: `${BASE_URL}/profile/`,
   USER_LOGIN: `${BASE_URL}/token/`,

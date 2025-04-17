@@ -182,3 +182,85 @@ export const useSaveUserData = () => {
     }
   };
 };
+
+
+export const useRegisterRequest = () => {
+  const request = useAuthRequest();
+
+  return (email: string) => {
+    return request(API.USER_REGISTRATION_REQUEST, {
+        method: 'POST',
+        data: {
+          email: email,
+        }
+    }).then(() => {
+        return null
+    })
+    .catch((error) => {
+        let errorMessage = 'An unknown error occurred';
+        if (error.response) {
+        if (error.response.status === 401) {
+            errorMessage = 'Invalid username or password';
+        } else if (error.response.status === 404) {
+            errorMessage = 'User not found';
+        } else {
+            errorMessage = 'An unexpected error occurred';
+            error.response.data?.message || 'An unexpected error occurred';
+        }
+        } else {
+        errorMessage = error.message || 'Network error';
+        }
+        console.error('Login failed:', errorMessage);
+        return Promise.reject(errorMessage);
+    });
+  };
+};
+
+
+interface EmailRegister {
+  email: string, code: string,
+  username: string,
+  password: string,
+  first_name: string,
+  last_name: string
+}
+
+export const useRegister = () => {
+  const request = useAuthRequest();
+
+  return ({email, username, code, password, first_name, last_name}:EmailRegister) => {
+    return request(API.USER_REGISTRATION, {
+        method: 'POST',
+        data: {
+          email: email,
+          username: username,
+          code_candidate: code,
+          password: password,
+          first_name: first_name,
+          last_name: last_name,
+        },
+    }).then(({ data }) => {
+      const { refresh, access } = data;
+
+      setCookie(ACCESS_TOKEN, access);
+      setCookie(REFRESH_TOKEN, refresh, 29);
+    })
+    .catch((error) => {
+        let errorMessage = 'An unknown error occurred';
+        if (error.response) {
+        if (error.response.status === 401) {
+            errorMessage = 'Invalid username or password';
+        } else if (error.response.status === 404) {
+            errorMessage = 'User not found';
+        } else {
+            errorMessage = 'An unexpected error occurred';
+            error.response.data?.message || 'An unexpected error occurred';
+        }
+        } else {
+        errorMessage = error.message || 'Network error';
+        }
+        console.error('Login failed:', errorMessage);
+        return Promise.reject(errorMessage);
+    });
+  };
+}

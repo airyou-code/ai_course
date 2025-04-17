@@ -9,3 +9,11 @@ export function getHeders() {
         'Authorization': `Bearer ${readCookie(ACCESS_TOKEN, '')}`
     }
 }
+
+export function getFreeHeders() {
+    return {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': readCookie(CSRF_TOKEN, '')
+    }
+}
+

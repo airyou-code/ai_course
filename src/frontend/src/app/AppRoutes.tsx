@@ -12,6 +12,8 @@ import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 import CoursePage from '../pages/courses/CoursePage';
 import LessonPage from '@/pages/courses/LessonPage';
+import path from 'path';
+import RegistrationPage from '@/pages/users/RegistrationPage';
 
 const routesForAuthenticatedOnly = [
   {
@@ -46,6 +48,10 @@ const routesForNotAuthenticatedOnly = [
   {
     path: ROUTES.LOGIN,
     element: <AuthPage />,
+  },
+  {
+    path: "/register",
+    element: <RegistrationPage />,
   },
   {
     path: '*',

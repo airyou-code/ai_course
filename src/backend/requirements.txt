@@ -6,9 +6,15 @@ attrs==24.3.0
 babel==2.16.0
 certifi==2024.12.14
 charset-normalizer==3.4.0
-crontab==1.0.1
 dj-database-url==1.2.0
+
+celery==5.5.1
+redis==5.2.1
+django-anymail[sendgrid]==10.0
+
 Django==5.1.4
+django-celery-beat==2.8.0
+django-redis==5.4.0
 django-admin-rangefilter==0.10.0
 django-cors-headers==4.6.0
 django-filter==22.1
@@ -61,3 +67,5 @@ django_json_widget==2.0.1
 markdown==3.7
 
 openai==1.61.1
+
+social-auth-app-django==5.4.3
