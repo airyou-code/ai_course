@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react"
 import { useRegisterRequest, useRegister } from "@/hooks/user"
+import { set } from "date-fns"
 
 // Types for our form values
 interface EmailVerificationValues {
@@ -18,11 +19,16 @@ interface EmailVerificationValues {
 }
 
 interface RegistrationValues extends EmailVerificationValues {
-  name: string
-  username: string
+  // name: string
+  // username: string
   password: string
   confirmPassword: string
   verificationCode: string
+}
+
+interface ErrorsState {
+  fieldErrors: Record<string, string[]>;
+  nonFieldErrors: string[];
 }
 
 // Validation schemas
@@ -31,8 +37,8 @@ const emailVerificationSchema = Yup.object({
 })
 
 const registrationSchema = Yup.object({
-  name: Yup.string().required("Имя обязательно"),
-  username: Yup.string().required("Логин обязателен"),
+  // name: Yup.string().required("Имя обязательно"),
+  // username: Yup.string().required("Логин обязателен"),
   email: Yup.string().email("Неверный формат email").required("Email обязателен"),
   password: Yup.string().min(8, "Пароль должен содержать минимум 8 символов").required("Пароль обязателен"),
   confirmPassword: Yup.string()
@@ -54,6 +60,10 @@ export default function RegistrationForm() {
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [countdown, setCountdown] = useState(0)
+  const [errors, setErrors] = useState<ErrorsState>({
+    fieldErrors: {},
+    nonFieldErrors: [],
+  })
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null
@@ -74,6 +84,13 @@ export default function RegistrationForm() {
     setCountdown(20) // 20 секунд
   }
 
+  const resetErrors = () => {
+    setErrors({
+      fieldErrors: {},
+      nonFieldErrors: [],
+    });
+  };
+
   // Функция возвращения к первому шагу
   const handleBackToFirstStep = () => {
     setStep(1)
@@ -86,7 +103,7 @@ export default function RegistrationForm() {
     { setSubmitting }: FormikHelpers<EmailVerificationValues>,
   ) => {
     try {
-      setError(null)
+      resetErrors();
       console.log("Requesting verification code for:", values.email)
       await registerRequest(values.email)
 
@@ -94,13 +111,14 @@ export default function RegistrationForm() {
       setIsCodeSent(true)
       setStep(2)
       startCountdown()
-    } catch (err) {
-      if (err === "403 Forbidden")
-        setError("Слижком частые попытки запросить код подтверждения. Пожалуйста, попробуйте позже.")
-      else if (err === "400 Bad Request")
-        setError("Пользователь с таким email уже зарегистрирован.")
-      else
-        setError("Ошибка при отправке кода подтверждения. Пожалуйста, попробуйте снова.")
+    } catch (error: any) {
+      const { status, fieldErrors, nonFieldErrors }: {
+        status: number;
+        fieldErrors: Record<string, string[]>;
+        nonFieldErrors: string[];
+      } = error;
+      setErrors({ fieldErrors, nonFieldErrors });
+      console.log(error)
     } finally {
       setSubmitting(false)
     }
@@ -109,19 +127,25 @@ export default function RegistrationForm() {
   // Второй шаг – завершение регистрации
   const handleRegister = async (values: RegistrationValues, { setSubmitting }: FormikHelpers<RegistrationValues>) => {
     try {
-      setError(null)
+      resetErrors();
       await register({
           email: values.email,
-          username: values.username,
+          username: values.email,
           code: values.verificationCode,
           password: values.password,
-          first_name: values.name,
-          last_name: values.name.split(" ")[1] || "",
+          first_name: "",
+          last_name: ""
       })
       window.location.href = '/';
       console.log("Registration successful!")
-    } catch (err) {
-      setError("Ошибка при регистрации. Пожалуйста, проверьте данные и попробуйте снова.")
+    } catch (error: any) {
+      const { status, fieldErrors, nonFieldErrors }: {
+        status: number;
+        fieldErrors: Record<string, string[]>;
+        nonFieldErrors: string[];
+      } = error;
+      setErrors({ fieldErrors, nonFieldErrors });
+      console.log(error)
     } finally {
       setSubmitting(false)
     }
@@ -130,7 +154,7 @@ export default function RegistrationForm() {
   // Request new verification code
   const handleResendCode = async () => {
     try {
-      setError(null)
+      resetErrors();
       // Placeholder for API call to resend verification code
       console.log("Resending verification code to:", email)
       startCountdown()
@@ -139,14 +163,14 @@ export default function RegistrationForm() {
 
       setIsCodeSent(true)
       startCountdown()
-    } catch (err) {
-      setCountdown(3)
-      if (err === "403 Forbidden")
-        setError("Слижком частые попытки запросить код подтверждения. Пожалуйста, попробуйте позже.")
-      else if (err === "400 Bad Request")
-        setError("Пользователь с таким email уже зарегистрирован.")
-      else
-        setError("Ошибка при повторной отправке кода. Пожалуйста, попробуйте снова.")
+    } catch (error: any) {
+      const { status, fieldErrors, nonFieldErrors }: {
+        status: number;
+        fieldErrors: Record<string, string[]>;
+        nonFieldErrors: string[];
+      } = error;
+      setErrors({ fieldErrors, nonFieldErrors });
+      console.log(error)
     }
   }
 
@@ -161,12 +185,14 @@ export default function RegistrationForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        {errors.nonFieldErrors.length > 0 &&
+          errors.nonFieldErrors.map((msg, idx) => (
+            <Alert key={idx} variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{msg}</AlertDescription>
+            </Alert>
+          ))
+        }
 
         {step === 1 ? (
           <Formik
@@ -201,8 +227,8 @@ export default function RegistrationForm() {
           <Formik
             key="step2"
             initialValues={{
-              name: "",
-              username: "",
+              // name: "",
+              // username: "",
               email: email || "",
               password: "",
               confirmPassword: "",
@@ -214,16 +240,16 @@ export default function RegistrationForm() {
           >
             {({ isSubmitting }) => (
               <Form className="space-y-4">
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="name">Имя</Label>
                   <Field as={Input} id="name" name="name" placeholder="Иван Иванов" required />
                   <ErrorMessage name="name" component="div" className="text-sm text-red-500" />
-                </div>
-                <div className="space-y-2">
+                </div> */}
+                {/* <div className="space-y-2">
                   <Label htmlFor="username">Логин</Label>
                   <Field as={Input} id="username" name="username" placeholder="IvanIvanov" required />
                   <ErrorMessage name="username" component="div" className="text-sm text-red-500" />
-                </div>
+                </div> */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Field as={Input} id="email" name="email" type="email" disabled={Boolean(email)} />

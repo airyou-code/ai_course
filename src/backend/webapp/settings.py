@@ -121,14 +121,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # #cms
-    # "django.middleware.locale.LocaleMiddleware",
-
-    # "cms.middleware.user.CurrentUserMiddleware",
-    # "cms.middleware.page.CurrentPageMiddleware",
-    # "cms.middleware.toolbar.ToolbarMiddleware",
-    # "cms.middleware.language.LanguageCookieMiddleware",
-
+    "django.middleware.locale.LocaleMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -190,6 +183,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
 }
 
 SIMPLE_JWT = {
@@ -366,11 +360,31 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.ema
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
 REDIRECT_FIELD_NAME = 'next'
 
-SENDGRID_KEY = config('SENDGRID_KEY')
+SENDGRID_KEY = config('SENDGRID_KEY', "")
 DEFAULT_EMAIL_FROM = config('DEFAULT_EMAIL_FROM', "info@prompthub.study")
 ANYMAIL = {
-    'SENDGRID_API_KEY': config('SENDGRID_KEY'),
+    'SENDGRID_API_KEY': config('SENDGRID_KEY', ""),
 }
+FAKE_SEND_EMAIL = config('FAKE_SEND_EMAIL', default=False, cast=bool)
 EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 RESET_CODE_EXPIRE = 3600   # 1 hour
 FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + '/verify-email'
+
+
+USE_I18N = True
+USE_L10N = True
+
+# Язык по умолчанию
+LANGUAGE_CODE = 'en-us'
+
+# Три языка: английский, русский, чешский
+LANGUAGES = [
+    ('en', 'English'),
+    ('ru', 'Русский'),
+    ('cs', 'Čeština'),
+]
+
+# Папка для файлов перевода
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]

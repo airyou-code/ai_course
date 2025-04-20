@@ -1,0 +1,158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-20 12:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: core/models.py:12
+msgid "creation time"
+msgstr ""
+
+#: core/models.py:17
+msgid "update time"
+msgstr ""
+
+#: core/models.py:21
+msgid "deleted time"
+msgstr ""
+
+#: core/models.py:26
+msgid "created by user"
+msgstr ""
+
+#: core/models.py:31
+msgid "updated by user"
+msgstr ""
+
+#: core/models.py:36
+msgid "deleted by user"
+msgstr ""
+
+#: courses/admin.py:24
+msgid "Groups"
+msgstr ""
+
+#: courses/admin.py:46 courses/admin.py:88 courses/admin.py:135
+#: courses/admin.py:211 courses/admin.py:307
+msgid "General"
+msgstr ""
+
+#: courses/admin.py:64
+msgid "Modules"
+msgstr ""
+
+#: courses/admin.py:110
+msgid "Lessons"
+msgstr ""
+
+#: courses/admin.py:159
+msgid "Content"
+msgstr ""
+
+#: courses/api/v1/views.py:107 courses/api/v1/views.py:211
+msgid "Continue"
+msgstr ""
+
+#: courses/templates/custom_admin/content_editor.html:17
+#: courses/templates/custom_admin/content_editor.html:67
+msgid "Change"
+msgstr ""
+
+#: courses/templates/custom_admin/content_editor.html:19
+#: courses/templates/custom_admin/modules_stacked.html:34
+msgid "View on site"
+msgstr ""
+
+#: courses/templates/custom_admin/modules_stacked.html:30
+msgid "New"
+msgstr ""
+
+#: mail/models.py:11 users/models.py:11
+msgid "User"
+msgstr ""
+
+#: mail/models.py:18
+msgid "Subject"
+msgstr ""
+
+#: mail/models.py:22
+msgid "Created at"
+msgstr ""
+
+#: payments/models.py:19
+msgid "Number of months"
+msgstr ""
+
+#: payments/models.py:32
+msgid "Subscription Type"
+msgstr ""
+
+#: payments/models.py:33
+msgid "Subscription Types"
+msgstr ""
+
+#: payments/models.py:71
+msgid "Subscription"
+msgstr ""
+
+#: payments/models.py:72
+msgid "Subscriptions"
+msgstr ""
+
+#: users/admin.py:17
+msgid "Personal info"
+msgstr ""
+
+#: users/admin.py:19
+msgid "Permissions"
+msgstr ""
+
+#: users/admin.py:30
+msgid "Important dates"
+msgstr ""
+
+#: users/api/v1/serializers.py:42
+msgid "Old password is incorrect"
+msgstr ""
+
+#: users/api/v1/serializers.py:80 users/api/v1/serializers.py:118
+msgid "User already registered"
+msgstr ""
+
+#: users/api/v1/serializers.py:95 users/api/v1/serializers.py:133
+msgid "Email already sent"
+msgstr ""
+
+#: users/api/v1/serializers.py:180
+msgid "Wrong code"
+msgstr ""
+
+#: users/api/v1/serializers.py:187
+msgid "Registration error"
+msgstr ""
+
+#: users/api/v1/views.py:126
+msgid "Too many attempts to register. Try again in 30 sec."
+msgstr ""
+
+#: users/models.py:12
+msgid "Users"
+msgstr ""
+
+#: users/utils.py:21
+msgid "Password must be at least 8 symbols"
+msgstr ""

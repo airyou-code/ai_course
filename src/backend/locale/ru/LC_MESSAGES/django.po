@@ -1,0 +1,160 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-20 12:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: core/models.py:12
+msgid "creation time"
+msgstr "время создания"
+
+#: core/models.py:17
+msgid "update time"
+msgstr "время обновления"
+
+#: core/models.py:21
+msgid "deleted time"
+msgstr "время удаления"
+
+#: core/models.py:26
+msgid "created by user"
+msgstr "создано пользователем"
+
+#: core/models.py:31
+msgid "updated by user"
+msgstr "обновлено пользователем"
+
+#: core/models.py:36
+msgid "deleted by user"
+msgstr "удалено пользователем"
+
+#: courses/admin.py:24
+msgid "Groups"
+msgstr "Группы"
+
+#: courses/admin.py:46 courses/admin.py:88 courses/admin.py:135
+#: courses/admin.py:211 courses/admin.py:307
+msgid "General"
+msgstr "Основное"
+
+#: courses/admin.py:64
+msgid "Modules"
+msgstr "Модули"
+
+#: courses/admin.py:110
+msgid "Lessons"
+msgstr "Уроки"
+
+#: courses/admin.py:159
+msgid "Content"
+msgstr "Содержание"
+
+#: courses/api/v1/views.py:107 courses/api/v1/views.py:211
+msgid "Continue"
+msgstr "Продолжить"
+
+#: courses/templates/custom_admin/content_editor.html:17
+#: courses/templates/custom_admin/content_editor.html:67
+msgid "Change"
+msgstr "Изменить"
+
+#: courses/templates/custom_admin/content_editor.html:19
+#: courses/templates/custom_admin/modules_stacked.html:34
+msgid "View on site"
+msgstr "Посмотреть на сайте"
+
+#: courses/templates/custom_admin/modules_stacked.html:30
+msgid "New"
+msgstr "Новый"
+
+#: mail/models.py:11 users/models.py:11
+msgid "User"
+msgstr "Пользователь"
+
+#: mail/models.py:18
+msgid "Subject"
+msgstr "Тема"
+
+#: mail/models.py:22
+msgid "Created at"
+msgstr "Создано в"
+
+#: payments/models.py:19
+msgid "Number of months"
+msgstr "Количество месяцев"
+
+#: payments/models.py:32
+msgid "Subscription Type"
+msgstr "Тип подписки"
+
+#: payments/models.py:33
+msgid "Subscription Types"
+msgstr "Типы подписок"
+
+#: payments/models.py:71
+msgid "Subscription"
+msgstr "Подписка"
+
+#: payments/models.py:72
+msgid "Subscriptions"
+msgstr "Подписки"
+
+#: users/admin.py:17
+msgid "Personal info"
+msgstr "Личная информация"
+
+#: users/admin.py:19
+msgid "Permissions"
+msgstr "Права доступа"
+
+#: users/admin.py:30
+msgid "Important dates"
+msgstr "Важные даты"
+
+#: users/api/v1/serializers.py:42
+msgid "Old password is incorrect"
+msgstr "Старый пароль неверен"
+
+#: users/api/v1/serializers.py:80 users/api/v1/serializers.py:118
+msgid "User already registered"
+msgstr "Пользователь уже зарегистрирован"
+
+#: users/api/v1/serializers.py:95 users/api/v1/serializers.py:133
+msgid "Email already sent"
+msgstr "Электронное письмо уже отправлено"
+
+#: users/api/v1/serializers.py:180
+msgid "Wrong code"
+msgstr "Неверный код"
+
+#: users/api/v1/serializers.py:187
+msgid "Registration error"
+msgstr "Ошибка регистрации"
+
+#: users/api/v1/views.py:126
+msgid "Too many attempts to register. Try again in 30 sec."
+msgstr "Слишком частые попытки регистрации. Попробуйте через 30 секунд"
+
+#: users/models.py:12
+msgid "Users"
+msgstr "Пользователи"
+
+#: users/utils.py:21
+msgid "Password must be at least 8 symbols"
+msgstr "Пароль должен содержать не менее 8 символов"

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from users.models import CourseUser
 from rest_framework import serializers
 from users.models import UserLessonProgress
@@ -5,7 +6,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users import utils
 from django.utils import timezone
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError, Throttled
 from mail.tasks import send_verify_email_task
 from mail.models import Mail
@@ -26,11 +26,31 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id',
-            'username',
             'email',
             'is_active',
             'date_joined'
         ]
+
+
+class UserPasswordChangeSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        if not user.check_password(attrs['old_password']):
+            raise ValidationError(_('Old password is incorrect'))
+        utils.is_valid_password(attrs['new_password'])
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])
+        instance.save()
+        return instance
+
+    class Meta:
+        model = CourseUser
+        fields = ['old_password', 'new_password']
 
 
 class UserLessonProgressSerializer(serializers.ModelSerializer):
@@ -79,9 +99,74 @@ class EmailRegistrationRequestSerializer(serializers.Serializer):
             code, enums.UserSecurityCode.VERIFY_EMAIL,
             email_candidate
         )
-        # print(f"CODE: {code}")
-        send_verify_email_task(email=email_candidate, code=code)
+        if settings.FAKE_SEND_EMAIL:
+            print(f"CODE: {code}")
+        else:
+            send_verify_email_task(email=email_candidate, code=code)
         return validated_data
+
+
+class EmailChangeRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+
+    def validate(self, attrs):
+        user = CourseUser.objects.filter(
+            email__iexact=attrs['email'].lower()
+        ).first()
+        if user:
+            raise ValidationError(_('User already registered'))
+        return attrs
+
+    def create(self, validated_data):
+        email_candidate = validated_data.get('email').lower()
+
+        # Check if the email is already sent
+
+        is_mail_sended = Mail.objects.filter(
+            email=email_candidate,
+            is_send=True,
+            created_at__gte=timezone.now() - timezone.timedelta(seconds=15),
+        ).exists()
+
+        if is_mail_sended:
+            raise Throttled(detail=_('Email already sent'))
+
+        code = utils.generate_verification_code()
+        utils.set_verification_code_for_registration(
+            code, enums.UserSecurityCode.VERIFY_EMAIL,
+            email_candidate
+        )
+        if settings.FAKE_SEND_EMAIL:
+            print(f"CODE: {code}")
+        else:
+            send_verify_email_task(email=email_candidate, code=code)
+        return validated_data
+
+
+class EmailChangeSerializer(serializers.Serializer):
+    code_candidate = serializers.CharField(write_only=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    def validate(self, attrs):
+        code_candidate = attrs['code_candidate']
+
+        if not code_candidate:
+            raise ValidationError('not_all_fields_are_filled_correctly')
+
+        attrs["email"] = utils.get_verification_code(
+            code_candidate, enums.UserSecurityCode.VERIFY_EMAIL
+        )
+
+        if not attrs["email"]:
+            raise ValidationError(_('Wrong code'))
+
+        return attrs
+
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        user.email = validated_data['email']
+        user.save()
+        return user
 
 
 class EmailRegistration(serializers.ModelSerializer):
@@ -117,7 +202,7 @@ class EmailRegistration(serializers.ModelSerializer):
         )
 
         if not validated_data["email"]:
-            raise ValidationError(_('wrong_code'))
+            raise ValidationError(_('Wrong code'))
 
         user = CourseUser(**validated_data)
         user.set_password(password_candidate)

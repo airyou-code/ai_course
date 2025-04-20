@@ -6,6 +6,7 @@ import { useRequest, useAuthRequest } from './request';
 import { readCookie, setCookie } from '../utils/cookie';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CSRF_TOKEN } from '../config/cookies';
+import { parseDRFErrors } from '@/utils/error';
 
 import { useContext } from 'react';
 import { AxiosError } from 'axios';
@@ -144,7 +145,7 @@ export const useFetchUserData = () => {
       try {
         const { data } = await request(API.USER_DATA);
         if (data) {
-          dispatch(setUser(data[0] as User));
+          dispatch(setUser(data as User));
         }
         return data as User;
       } catch (error) {
@@ -192,28 +193,35 @@ export const useRegisterRequest = () => {
         method: 'POST',
         data: {
           email: email,
-        }
+        },  
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
     }).then(() => {
         return null
     })
     .catch((error) => {
-        let errorMessage = 'An unknown error occurred';
-        if (error.response) {
-        if (error.response.status === 400) {
-            errorMessage = '400 Bad Request';
-        } else if (error.response.status === 404) {
-            errorMessage = 'User not found';
-        } else if (error.response.status === 403 || error.response.status === 429) {
-            errorMessage = '403 Forbidden';
-        } else {
-            errorMessage = 'An unexpected error occurred';
-            error.response.data?.message || 'An unexpected error occurred';
-        }
-        } else {
-        errorMessage = error.message || 'Network error';
-        }
-        console.error('Login failed:', errorMessage);
-        return Promise.reject(errorMessage);
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
     });
   };
 };
@@ -241,6 +249,9 @@ export const useRegister = () => {
           first_name: first_name,
           last_name: last_name,
         },
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
     }).then(({ data }) => {
       const { refresh, access } = data;
 
@@ -248,21 +259,217 @@ export const useRegister = () => {
       setCookie(REFRESH_TOKEN, refresh, 29);
     })
     .catch((error) => {
-        let errorMessage = 'An unknown error occurred';
-        if (error.response) {
-        if (error.response.status === 401) {
-            errorMessage = 'Invalid username or password';
-        } else if (error.response.status === 404) {
-            errorMessage = 'User not found';
-        } else {
-            errorMessage = 'An unexpected error occurred';
-            error.response.data?.message || 'An unexpected error occurred';
-        }
-        } else {
-        errorMessage = error.message || 'Network error';
-        }
-        console.error('Login failed:', errorMessage);
-        return Promise.reject(errorMessage);
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
+    });
+  };
+}
+
+
+interface ChangePassword {
+  old_password: string,
+  new_password: string,
+}
+
+export const useChangePassword = () => {
+  const request = useRequest();
+
+  return ({old_password, new_password}:ChangePassword) => {
+    return request(API.USER_CHANGE_PASSWORD, {
+        method: 'PATCH',
+        data: {
+          old_password: old_password,
+          new_password: new_password,
+        },
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
+    }).then(() => {
+      return null
+    })
+    .catch((error) => {
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
+    });
+  };
+}
+
+
+interface ChangeUserData {
+  username: string,
+  first_name: string,
+  last_name: string,
+}
+
+
+export const useChangeUserData = () => {
+  const request = useRequest();
+
+  return ({username, first_name, last_name}:ChangeUserData) => {
+    return request(API.USER_CHANGE_DATA, {
+        method: 'PATCH',
+        data: {
+          username: username,
+          first_name: first_name,
+          last_name: last_name,
+        },
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
+    }).then(() => {
+      return null
+    })
+    .catch((error) => {
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
+    });
+  };
+}
+
+
+export const useEmailChangeRequest = () => {
+  const request = useRequest();
+
+  return (email: string) => {
+    return request(API.USER_EMAIL_CHANGE_REQUEST, {
+        method: 'POST',
+        data: {
+          email: email,
+        },  
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
+    }).then(() => {
+        return null
+    })
+    .catch((error) => {
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
+    });
+  };
+};
+
+
+interface EmailChange {
+  code: string,
+}
+
+export const useEmailChange = () => {
+  const request = useRequest();
+
+  return ({code}:EmailChange) => {
+    return request(API.USER_EMAIL_CHANGE, {
+        method: 'POST',
+        data: {
+          code_candidate: code,
+        },
+        headers: {
+          "Accept-Language": "ru-RU",
+        },
+    }).then(({ data }) => {
+      const { refresh, access } = data;
+
+      setCookie(ACCESS_TOKEN, access);
+      setCookie(REFRESH_TOKEN, refresh, 29);
+    })
+    .catch((error) => {
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
     });
   };
 }
