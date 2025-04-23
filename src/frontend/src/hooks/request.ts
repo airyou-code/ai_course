@@ -3,8 +3,12 @@ import { getHeders, getFreeHeders } from '../utils/headers';
 import { useRefreshLogin } from './user';
 import { readCookie } from '../utils/cookie';
 import { REFRESH_TOKEN } from '../config/cookies';
+import { useError } from '@/app/WithErrorProvider';
+import { useToast } from "@/hooks/use-toast"
 
 export const useAuthRequest = () => {
+  const { toast } = useToast()
+
   return async (
     url: string,
     {
@@ -28,7 +32,19 @@ export const useAuthRequest = () => {
       data,
       params,
       method,
-    }).catch((error: AxiosError) => {
+    }).catch((error: any) => {
+      if (error?.response?.status >= 500) {
+        toast({
+          variant: "destructive",
+          title: "Ошибка!",
+          description: error?.response?.data?.message || error.message,
+        })
+        toast({
+          variant: "destructive",
+          title: "Ошибка!",
+          description: error?.response?.data?.message || error.message,
+        })
+      }
       throw error;
     });
   };
@@ -36,6 +52,7 @@ export const useAuthRequest = () => {
 
 export const useRequest = () => {
   const refreshLogin = useRefreshLogin();
+  const { toast } = useToast()
   let isRefreshing = false;
 
   return async (
@@ -83,12 +100,22 @@ export const useRequest = () => {
             params,
             method,
           });
-        } catch (refreshError) {
+        } catch (refreshError: any) {
+          toast({
+            variant: "destructive",
+            title: "Ошибка!",
+            description: error?.response?.data?.message || error.message,
+          })
           throw refreshError;
         } finally {
           isRefreshing = false;
         }
       }
+      toast({
+        variant: "destructive",
+        title: "Ошибка!",
+        description: error?.response?.data?.message || error.message,
+      })
       throw error;
     }
   };

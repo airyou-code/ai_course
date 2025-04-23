@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { getHeders } from '@/utils/headers';
 import { useRefreshLogin } from './user';
-import { endProcBlock, updateProcBlock } from '@/store/slices/blocksSlice';
+import { endProcBlock, setProcBlockError, updateProcBlock } from '@/store/slices/blocksSlice';
 import { AppDispatch } from '@/store';
 
 export const useFetchChatHistory = (content_block_uuid: string) => {
@@ -21,43 +21,77 @@ export const useFetchChatHistory = (content_block_uuid: string) => {
     });
   };
 
-export async function streamChat(content_block_uuid: string, message: string, dispatch: AppDispatch, refreshLogin: () => Promise<void>) {
+export async function streamChat(
+    content_block_uuid: string,
+    message: string,
+    dispatch: AppDispatch,
+    refreshLogin: () => Promise<void>,
+    toastFn: (opts: any) => void
+  ) {
     if (!content_block_uuid || !message) return;
-
-    await refreshLogin();
+    
+    try {
+      await refreshLogin();
+    }
+    catch (error: any) {
+      console.error("Error refreshing login:", error);
+      dispatch(setProcBlockError(error.message ?? "Stream error"));
+      toastFn({
+        variant: "destructive",
+        title: "Ошибка!",
+        description: error.message ?? "Stream error",
+      });
+      return;
+    }
   
     const controller = new AbortController();
     const url = API.OPENAI_CHAT_STREAM(content_block_uuid);
-
     let batchContent = "";
   
     fetchEventSource(url, {
-      method: 'POST',
+      method: "POST",
       // @ts-ignore
       headers: { ...getHeders() },
       body: JSON.stringify({ content: message }),
       signal: controller.signal,
   
       onmessage(ev) {
-        if (ev.data === '[DONE]') {
-            console.log('Stream done');
-            dispatch(endProcBlock());
-            controller.abort();
-            return;
+        let parsed;
+        try {
+          parsed = JSON.parse(ev.data);
+        } catch {
+          // если не JSON — игнорируем
+          return;
         }
-        if (ev.data.startsWith('[ERROR]')) {
-            console.error('Backend error:', ev.data);
-            dispatch(endProcBlock());
-            controller.abort();
-            return;
+  
+        if (parsed.error) {
+          // сервер сообщил об ошибке в теле SSE
+          dispatch(setProcBlockError(parsed.message));
+          controller.abort();
+          return;
         }
-        batchContent += ev.data.replace(/\\n/g, '\n\n');
+  
+        if (parsed.done) {
+          // конец стрима
+          dispatch(endProcBlock());
+          controller.abort();
+          return;
+        }
+  
+        // обычный кусок ответа
+        batchContent += parsed.content.replace(/\n/g, "\n\n");
         dispatch(updateProcBlock({ content: batchContent }));
       },
   
       onerror(err) {
-        console.error('Stream error:', err);
-        dispatch(endProcBlock());
+        // сетевые / HTTP ошибки (например, 502)
+        console.error("Stream error:", err);
+        toastFn({
+          variant: "destructive",
+          title: "Ошибка!",
+          description: err.message ?? "Stream error",
+        });
+        dispatch(setProcBlockError(err.message ?? "Stream error"));
         controller.abort();
       },
     });

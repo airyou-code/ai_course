@@ -137,6 +137,7 @@ class EmailChangeRequestSerializer(serializers.Serializer):
             email_candidate
         )
         if settings.FAKE_SEND_EMAIL:
+            print("FAKE_SEND_EMAIL", settings.FAKE_SEND_EMAIL)
             print(f"CODE: {code}")
         else:
             send_verify_email_task(email=email_candidate, code=code)

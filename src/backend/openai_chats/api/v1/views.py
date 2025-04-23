@@ -284,51 +284,75 @@ class OpenRouterStreamView(views.APIView):
             buffer = ""
             assistant_content = ""
 
+            # делаем запрос один раз
             with requests.post(url, headers=headers, json=payload, stream=True) as resp:
                 resp.encoding = 'utf-8'
+                # если OpenRouter вернул не 200 — сразу отдаём JSON-ошибку и закрываем стрим
                 if resp.status_code != 200:
-                    yield f"data: [ERROR] OpenRouter responded with status {resp.status_code}\n\n"
+                    err = {
+                        "error": True,
+                        "message": f"OpenRouter responded with status {resp.status_code}"
+                    }
+                    yield f"data: {json.dumps(err)}\n\n"
                     return
 
                 for chunk in resp.iter_content(chunk_size=1024, decode_unicode=True):
                     buffer += chunk
                     while True:
-                        try:
-                            line_end = buffer.find('\n')
-                            if line_end == -1:
-                                break
-
-                            line = buffer[:line_end]
-                            buffer = buffer[line_end + 1:]
-                            if line.startswith('data: '):
-                                data = line[6:].rstrip()
-                                if data == '[DONE]':
-                                    yield "data: [DONE]\n\n"
-                                    break
-                                try:
-                                    data_obj = json.loads(data)
-                                    choices = data_obj.get("choices")
-                                    if not choices:
-                                        error_msg = data_obj.get("error", "Unknown error")
-                                        print("ERROR: ", error_msg)
-                                        yield f"data: [ERROR] Provider returned error\n\n"
-                                        break
-                                    content = choices[0]["delta"].get("content")
-                                    if content:
-                                        assistant_content += content
-                                        escaped_content = content.replace('\n', '\\n')
-                                        yield f"data: {escaped_content}\n\n"
-                                except json.JSONDecodeError:
-                                    continue
-                        except Exception as e:
-                            yield f"data: [ERROR] Unexpected error {str(e)}\n\n"
+                        line_end = buffer.find('\n')
+                        if line_end == -1:
                             break
 
-            # Log the user input and assistant content
+                        line = buffer[:line_end]
+                        buffer = buffer[line_end + 1:]
+                        if not line.startswith('data: '):
+                            continue
+
+                        data = line[6:].rstrip()
+                        # конец потока
+                        if data == '[DONE]':
+                            done_msg = { "done": True }
+                            yield f"data: {json.dumps(done_msg)}\n\n"
+                            break
+
+                        # парсим JSON-ответ от провайдера
+                        try:
+                            data_obj = json.loads(data)
+                        except json.JSONDecodeError:
+                            continue
+
+                        # если провайдер сообщил об ошибке
+                        if data_obj.get("error"):
+                            err = {
+                                "error": True,
+                                "message": data_obj.get("error", "Provider returned error")
+                            }
+                            yield f"data: {json.dumps(err)}\n\n"
+                            return
+
+                        # нормальная часть ответа
+                        choices = data_obj.get("choices")
+                        if not choices:
+                            err = {
+                                "error": True,
+                                "message": "Empty choices from provider"
+                            }
+                            yield f"data: {json.dumps(err)}\n\n"
+                            return
+
+                        content = choices[0]["delta"].get("content")
+                        if content:
+                            assistant_content += content
+                            part = {
+                                "error": False,
+                                "content": content
+                            }
+                            yield f"data: {json.dumps(part)}\n\n"
+
+            # после завершения стрима — логируем и сохраняем в базу
             logger.info(f"User input: {user_input}")
             logger.info(f"Assistant content: {assistant_content}")
 
-            # Save the user's message
             try:
                 if block.content_text:
                     ChatMessage.objects.create(
@@ -341,7 +365,6 @@ class OpenRouterStreamView(views.APIView):
             except Exception as e:
                 logger.error(f"Error saving user message: {e}")
 
-            # Save the assistant's response
             try:
                 ChatMessage.objects.create(
                     chat=user_chat, role="assistant", content=assistant_content
@@ -350,7 +373,10 @@ class OpenRouterStreamView(views.APIView):
             except Exception as e:
                 logger.error(f"Error saving assistant message: {e}")
 
-        response = StreamingHttpResponse(sse_stream(), content_type='text/event-stream')
+        response = StreamingHttpResponse(
+            sse_stream(),
+            content_type='text/event-stream'
+        )
         response['Cache-Control'] = 'no-cache'
         response['X-Accel-Buffering'] = 'no'
         return response

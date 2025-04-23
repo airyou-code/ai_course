@@ -8,17 +8,20 @@ import WithQueryClient from './app/WithQueryClient';
 import WithInitialData from './app/WithInitialData';
 import WithProviders from './app/WithProviders';
 import { ThemeProvider } from './app/WithThemeProvider';
+import { ErrorProvider } from './app/WithErrorProvider';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
     <WithQueryClient>
-      <WithProviders>
-        <WithInitialData>
-          <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-            <AppRoutes />
-          </ThemeProvider>
-        </WithInitialData>
-      </WithProviders>
+      <ErrorProvider>
+        <WithProviders>
+          <WithInitialData>
+            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+              <AppRoutes />
+            </ThemeProvider>
+          </WithInitialData>
+        </WithProviders>
+      </ErrorProvider>
     </WithQueryClient>
   // </React.StrictMode>
 );

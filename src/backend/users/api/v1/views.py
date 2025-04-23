@@ -98,21 +98,20 @@ class GetTokensAPIView(generics.GenericAPIView):
         })
 
 
-@method_decorator(ratelimit(key='ip', rate='1/15s', method='POST', block=False), name='dispatch')
 class EmailRegistrationRequestView(generics.CreateAPIView):
     serializer_class = serializers.EmailRegistrationRequestSerializer
 
-    def dispatch(self, request, *args, **kwargs):
+    @method_decorator(ratelimit(key='ip', rate='1/1m', method='POST', block=False))
+    def post(self, request, *args, **kwargs):
+        # Если лимит достигнут, бросаем Throttled — DRF поймает его и отработает через exception_handler
         if getattr(request, 'limited', False):
-            return Response(
-                {
-                    [
-                        'Слишком часто пытаетесь сменить пароль. Попробуйте через 15 секунд.'
-                    ]
-                },
-                status=429
+            # raise Exception("LOL")
+            raise Throttled(
+                detail=_("Too many attempts to register. Try again in 30 sec.")
+                # wait=60
             )
-        return super().dispatch(request, *args, **kwargs)
+        # Иначе продолжаем обычную логику CreateAPIView.post()
+        return super().post(request, *args, **kwargs)
 
 
 class EmailRegistrationView(generics.CreateAPIView):

@@ -100,7 +100,7 @@ export default function NavBreadcrumb() {
     <Breadcrumb>
       <BreadcrumbList className="flex-wrap font-breadcrumbs">
         <BreadcrumbItem>
-          <BreadcrumbLink>
+          <BreadcrumbLink asChild>
             <Link to="/">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -110,7 +110,7 @@ export default function NavBreadcrumb() {
             {!isMobile && (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbLink>
+                  <BreadcrumbLink asChild>
                     <Link 
                       to={`/?g=${foundGroupIndex}&m=0`}
                       title={courseTitle}
@@ -122,7 +122,7 @@ export default function NavBreadcrumb() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink>
+                  <BreadcrumbLink asChild>
                     <Link 
                       to={`/?g=${foundGroupIndex}&m=${foundModuleIndex}`}
                       title={moduleTitle}

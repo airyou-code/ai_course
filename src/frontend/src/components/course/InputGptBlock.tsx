@@ -4,6 +4,7 @@ import { removeByTypes, addBlocksAfterBlock, addBlocks } from '../../store/slice
 import { ChatInput } from './content/chat-input';
 import { useFetchChatHistory } from '@/hooks/openai';
 import { streamChat } from '@/hooks/openai';
+import { useToast } from '@/hooks/use-toast';
 import { useRefreshLogin } from '@/hooks/user';
 
 
@@ -12,6 +13,7 @@ const InputGptBlock = ({ block }) => {
   // Всегда вызываем хуки, даже если block не определён
   const dispatch = useDispatch();
   const refreshLogin = useRefreshLogin();
+  const { toast } = useToast();
 
   // Если block отсутствует, используем дефолтные значения
   const blockUuid = block?.uuid || '';
@@ -69,13 +71,13 @@ const InputGptBlock = ({ block }) => {
           addBlocks(
             [
               { parent_uuid: blockParentId, type: 'input_dialog', content: message },
-              { parent_uuid: blockParentId, type: 'output_dialog', content: 'request processing...', is_processing: true, is_md: true },
+              { parent_uuid: blockParentId, type: 'output_dialog', content: '', is_processing: true, is_init: true, is_md: true },
               { parent_uuid: blockParentId, type: 'input_gpt', content: '', post_uuid: blockId },
               { parent_uuid: blockParentId, type: 'button_continue', content: 'Continue' },
             ]
           )
         );
-        streamChat(blockId, message, dispatch, refreshLogin);
+        streamChat(blockId, message, dispatch, refreshLogin, toast);
       }} placeholder={block.content || ''} />
     </>
   );

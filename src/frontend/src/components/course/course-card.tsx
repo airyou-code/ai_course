@@ -125,7 +125,9 @@ export function CourseModule({ module, moduleIndex }: { module: ModuleProps, mod
 
       <CardContent className="p-0 divide-y divide-border dark:divide-zinc-700">
         {module.lessons.map((lesson, lessonIndex: number) => (
-          <LessonItem lessonIndex={lessonIndex} lesson={lesson} />
+          <div key={`lesson-${moduleIndex}-${lessonIndex}`} id={`lesson-${moduleIndex}-${lessonIndex}`}>
+            <LessonItem lessonIndex={lessonIndex} lesson={lesson} />
+          </div>
         ))}
       </CardContent>
     </Card>
@@ -141,25 +143,30 @@ export default function CourseGroups() {
   return (
     <div className="min-h-screen dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       {lessonGroups.map((group: GroupProps, groupIndex: number) => (
-        <div className="max-w-4xl mx-auto my-1" key={groupIndex}>
-          <div className="mb-10">
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-4">
-              {group.title}
-            </h1>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              {group.description}
-            </p>
-          </div>
+        <div
+          key={group.title || `group-${groupIndex}`}  // ← можно использовать уникальное поле
+          id={`group-${groupIndex}`}
+        >
+          <div className="max-w-4xl mx-auto my-1" key={`group-${groupIndex}`} id={`group-${groupIndex}`}>
+            <div className="mb-10">
+              <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mb-4">
+                {group.title}
+              </h1>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400">
+                {group.description}
+              </p>
+            </div>
 
-          <div className="space-y-8">
-            {group.modules.map((module: ModuleProps, moduleIndex: number) => (
-              <div
-                key={module.id}
-                id={`module-${groupIndex}-${moduleIndex}`}
-              >
-                <CourseModule module={module} moduleIndex={moduleIndex}/>
-              </div>
-            ))}
+            <div className="space-y-8">
+              {group.modules.map((module: ModuleProps, moduleIndex: number) => (
+                <div
+                  key={`module-${groupIndex}-${moduleIndex}`}
+                  id={`module-${groupIndex}-${moduleIndex}`}
+                >
+                  <CourseModule module={module} moduleIndex={moduleIndex}/>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ))}

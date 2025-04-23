@@ -96,6 +96,9 @@ export default function CoursePage() {
             <DialogBox
               content={block.content as string}
               is_md={block.is_md || false}
+              is_init={block.is_init || false}
+              is_error={block.is_error || false}
+              error_msg={block.error_msg || ""}
               isInput={block.type === 'input_dialog'}
             />
           </div>

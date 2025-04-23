@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 import { Provider } from 'react-redux';
 import {store} from '../store';
+import { Toaster } from "@/components/ui/toaster"
 
 import {
   UserContext,
@@ -13,6 +14,7 @@ const WithProviders = ({ children }: React.PropsWithChildren) => {
 
   return (
     <Provider store={store}>
+      <Toaster />
       <UserContext.Provider value={{ state: userState, dispatch: userDispatch }}>
           {children}
       </UserContext.Provider>

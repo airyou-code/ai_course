@@ -3,9 +3,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface ContentBlock {
   type: string;
   content: string;
+  error_msg?: string;
   is_md?: boolean;
   block_id?: string;
   is_processing?: boolean;
+  is_error?: boolean;
+  is_init?: boolean;
   post_uuid?: string;
   uuid?: string;
   parent_uuid?: string;
@@ -163,6 +166,7 @@ export const blocksSlice = createSlice({
       const block = state.blocks.find(block => block.block_id === block_id);
       if (block) {
         block.content = content;
+        block.is_init = false;
       }
     },
     updateBlockId: (state, action: PayloadAction<{ block_id: string, content: string }>) => {
@@ -170,6 +174,7 @@ export const blocksSlice = createSlice({
       const block = state.blocks.find(block => block.block_id === block_id);
       if (block) {
         block.content = content;
+        block.is_init = false;
       }
     },
     updateProcBlock: (state, action: PayloadAction<{ content: string }>) => {
@@ -177,12 +182,23 @@ export const blocksSlice = createSlice({
       const block = state.blocks.find(block => block.is_processing === true);
       if (block) {
         block.content = content;
+        block.is_init = false;
       }
     },
     endProcBlock: (state) => {
       const block = state.blocks.find(block => block.is_processing === true);
       if (block) {
         block.is_processing = false;
+      }
+    },
+    setProcBlockError: (state, action: PayloadAction<string>) => {
+      const errorMessage = action.payload;
+      const block = state.blocks.find(block => block.is_processing === true);
+      if (block) {
+        block.error_msg = errorMessage;
+        block.is_processing = false;
+        block.is_error = true;
+        block.is_init = false;
       }
     }
   },
@@ -203,6 +219,7 @@ export const {
   updateProcBlock,
   endProcBlock,
   showSeenBlocks,
+  setProcBlockError,
 } = blocksSlice.actions;
 
 export default blocksSlice.reducer;
