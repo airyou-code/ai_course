@@ -101,7 +101,7 @@ class GetTokensAPIView(generics.GenericAPIView):
 class EmailRegistrationRequestView(generics.CreateAPIView):
     serializer_class = serializers.EmailRegistrationRequestSerializer
 
-    @method_decorator(ratelimit(key='ip', rate='1/1m', method='POST', block=False))
+    @method_decorator(ratelimit(key='ip', rate='1/15s', method='POST', block=False))
     def post(self, request, *args, **kwargs):
         # Если лимит достигнут, бросаем Throttled — DRF поймает его и отработает через exception_handler
         if getattr(request, 'limited', False):
@@ -117,7 +117,7 @@ class EmailRegistrationRequestView(generics.CreateAPIView):
 class EmailRegistrationView(generics.CreateAPIView):
     serializer_class = serializers.EmailRegistration
 
-    @method_decorator(ratelimit(key='ip', rate='1/1m', method='POST', block=False))
+    @method_decorator(ratelimit(key='ip', rate='1/15s', method='POST', block=False))
     def post(self, request, *args, **kwargs):
         # Если лимит достигнут, бросаем Throttled — DRF поймает его и отработает через exception_handler
         if getattr(request, 'limited', False):

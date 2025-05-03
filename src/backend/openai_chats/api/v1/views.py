@@ -18,7 +18,8 @@ from django.utils.decorators import method_decorator
 from rest_framework.renderers import BaseRenderer
 from rest_framework import views
 
-from openai_chats.models import ContentBlock, ChatMessage, Chat, Option
+from openai_chats.models import ChatMessage, Chat, Option
+from courses.models import Lesson, ContentBlock
 from .serializers import ChatMessageSerializer
 
 from drf_spectacular.utils import extend_schema
@@ -30,6 +31,9 @@ from drf_spectacular.utils import extend_schema
 # )
 
 logger = logging.getLogger(__name__)
+client = OpenAI(
+    api_key=settings.OPENAI_API_KEY
+)
 
 
 @extend_schema(exclude=True)
@@ -196,11 +200,12 @@ class OpenRouterStreamView(views.APIView):
     @method_decorator(csrf_exempt)
     def post(self, request, content_block_uuid=None):
         """
-        POST: Stream data from OpenRouter API and save messages to the database.
+        POST: Stream data from OpenAI ChatCompletion API and save messages to the database.
         """
-        block = get_object_or_404(
+        block: ContentBlock = get_object_or_404(
             ContentBlock, uuid=content_block_uuid, block_type="input_gpt"
         )
+        lesson: Lesson = block.lesson
         user_input = request.data.get("content", "").strip()
         user = request.user
 
@@ -218,15 +223,8 @@ class OpenRouterStreamView(views.APIView):
                 status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             )
 
-        user_chat, _ = Chat.objects.get_or_create(
-            user=user, content_block=block
-        )
-
-        # --- 1. Check limits ---
-        user_message_count: int = (
-            ChatMessage.objects.filter(chat=user_chat).count()
-        )
-
+        user_chat, _ = Chat.objects.get_or_create(user=user, content_block=block)
+        user_message_count = ChatMessage.objects.filter(chat=user_chat).count()
         if user_message_count >= settings.OPENAI_LIMIT_MESSAGES:
             return Response(
                 {
@@ -236,120 +234,57 @@ class OpenRouterStreamView(views.APIView):
             )
 
         # --- 2. Build context for OpenAI ---
-        conversation_queryset = ChatMessage.objects.filter(chat=user_chat).order_by(
-            "created_at"
-        )
-
-        conversation: list = []
-        if block.content_text:
-            conversation.append(
-                {"role": "system", "content": block.content_text}
-            )
-        for msg in conversation_queryset:
+        conversation = []
+        if lesson.prompt:
+            conversation.append({"role": "system", "content": lesson.prompt})
+        for msg in ChatMessage.objects.filter(chat=user_chat).order_by("created_at"):
             if msg.content and msg.role != "system":
                 conversation.append({"role": msg.role, "content": msg.content})
-
         conversation.append({"role": "user", "content": user_input})
 
-        url = "https://openrouter.ai/api/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {settings.OPENAI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        # get options parameters from
-        option = Option.objects.all().first()
-        if option:
-            payload = {
-                **option.parameters,
-                "messages": conversation,
-                "stream": True
-            }
-        else:
-            payload = {
-                "model": "qwen/qwen-vl-plus:free",
-                # "model": "meta-llama/llama-3.3-70b-instruct:free",
-                "messages": conversation,
+        # --- параметры из Option или дефолтные ---
+        params = Option.get_params(
+            default={
+                "model": "gpt-4.1-nano",
                 "max_tokens": 500,
-                "top_p": 1,
                 "temperature": 1,
+                "top_p": 1,
                 "frequency_penalty": 0,
                 "presence_penalty": 0,
-                "repetition_penalty": 1,
-                "top_k": 0,
-                "stream": True
             }
+        )
+        # обязательные поля
+        params.update({
+            "messages": conversation,
+            "stream": True
+        })
 
         def sse_stream():
             buffer = ""
             assistant_content = ""
 
-            # делаем запрос один раз
-            with requests.post(url, headers=headers, json=payload, stream=True) as resp:
-                resp.encoding = 'utf-8'
-                # если OpenRouter вернул не 200 — сразу отдаём JSON-ошибку и закрываем стрим
-                if resp.status_code != 200:
-                    err = {
-                        "error": True,
-                        "message": f"OpenRouter responded with status {resp.status_code}"
-                    }
-                    yield f"data: {json.dumps(err)}\n\n"
-                    return
+            try:
+                # стримим из OpenAI SDK
+                stream = client.chat.completions.create(**params)
+                for chunk in stream:
+                    # SSE-условие: будем отправлять каждый кусочек текста
+                    choice = chunk.choices[0]
+                    delta = choice.delta
+                    content = getattr(delta, "content", None)
+                    if content:
+                        assistant_content += content
+                        part = {"error": False, "content": content}
+                        yield f"data: {json.dumps(part)}\n\n"
+            except Exception as e:
+                err = {"error": True, "message": str(e)}
+                yield f"data: {json.dumps(err)}\n\n"
+                return
 
-                for chunk in resp.iter_content(chunk_size=1024, decode_unicode=True):
-                    buffer += chunk
-                    while True:
-                        line_end = buffer.find('\n')
-                        if line_end == -1:
-                            break
+            # сигнал окончания стрима
+            done_msg = {"done": True}
+            yield f"data: {json.dumps(done_msg)}\n\n"
 
-                        line = buffer[:line_end]
-                        buffer = buffer[line_end + 1:]
-                        if not line.startswith('data: '):
-                            continue
-
-                        data = line[6:].rstrip()
-                        # конец потока
-                        if data == '[DONE]':
-                            done_msg = { "done": True }
-                            yield f"data: {json.dumps(done_msg)}\n\n"
-                            break
-
-                        # парсим JSON-ответ от провайдера
-                        try:
-                            data_obj = json.loads(data)
-                        except json.JSONDecodeError:
-                            continue
-
-                        # если провайдер сообщил об ошибке
-                        if data_obj.get("error"):
-                            err = {
-                                "error": True,
-                                "message": data_obj.get("error", "Provider returned error")
-                            }
-                            yield f"data: {json.dumps(err)}\n\n"
-                            return
-
-                        # нормальная часть ответа
-                        choices = data_obj.get("choices")
-                        if not choices:
-                            err = {
-                                "error": True,
-                                "message": "Empty choices from provider"
-                            }
-                            yield f"data: {json.dumps(err)}\n\n"
-                            return
-
-                        content = choices[0]["delta"].get("content")
-                        if content:
-                            assistant_content += content
-                            part = {
-                                "error": False,
-                                "content": content
-                            }
-                            yield f"data: {json.dumps(part)}\n\n"
-
-            # после завершения стрима — логируем и сохраняем в базу
+            # После завершения стрима — логируем и сохраняем в базу
             logger.info(f"User input: {user_input}")
             logger.info(f"Assistant content: {assistant_content}")
 
@@ -375,8 +310,8 @@ class OpenRouterStreamView(views.APIView):
 
         response = StreamingHttpResponse(
             sse_stream(),
-            content_type='text/event-stream'
+            content_type="text/event-stream"
         )
-        response['Cache-Control'] = 'no-cache'
-        response['X-Accel-Buffering'] = 'no'
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
         return response

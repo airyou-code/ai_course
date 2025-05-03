@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+asyncpg
+openai
+pydantic
+pydantic-settings
+python-dotenv
+jose==1.0.0

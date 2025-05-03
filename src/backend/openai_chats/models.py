@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from courses.models import ContentBlock
+from django.core.cache import cache
 
 class Chat(models.Model):
     """This model stores chats."""
@@ -36,4 +37,24 @@ class ChatMessage(models.Model):
 class Option(models.Model):
     """This model stores options for a chat message."""
 
+    CACHE_KEY = "chat_options"
+
     parameters = models.JSONField(default=dict, blank=True)
+
+    def save(self, *args, **kwargs):
+        cache.delete(self.CACHE_KEY)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_params(cls, default=None):
+        """Get default options."""
+        cache_key = cls.CACHE_KEY
+        params: dict = cache.get(cache_key)
+        if params is None:
+            option = cls.objects.first()
+            if option:
+                params = option.parameters
+            else:
+                params = default or {}
+            cache.set(cache_key, params)
+        return params

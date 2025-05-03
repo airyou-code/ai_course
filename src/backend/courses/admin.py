@@ -102,6 +102,7 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
     fields = [
         "title",
         "description",
+        "prompt",
         "is_locked",
         "is_free",
         "duration",
@@ -216,6 +217,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "is_locked",
                     "is_free",
                     "duration",
+                    "prompt",
                     "description",
                     "uuid",
                     "content_blocks_gen",

@@ -53,6 +53,11 @@ class Lesson(CoreModel, SortableMixin):
     duration = models.CharField(
         max_length=50, blank=True, null=True, default="15 min"
     )
+    prompt = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Prompt for ChatGPT. If empty, the lesson will be without a prompt.",
+    )
     is_free = models.BooleanField(default=False)
     is_locked = models.BooleanField(default=True)
     order = models.PositiveIntegerField(

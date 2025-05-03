@@ -54,6 +54,21 @@ export async function streamChat(
       headers: { ...getHeders() },
       body: JSON.stringify({ content: message }),
       signal: controller.signal,
+
+      // @ts-ignore
+      onopen(response) {
+        if (response.status !== 200) {
+          // если не 200, то ошибка
+          console.error("Stream error:", response);
+          toastFn({
+            variant: "destructive",
+            title: "Ошибка!",
+            description: response.statusText,
+          });
+          dispatch(setProcBlockError(response.statusText));
+          controller.abort();
+        }
+      },
   
       onmessage(ev) {
         let parsed;
@@ -68,14 +83,14 @@ export async function streamChat(
           // сервер сообщил об ошибке в теле SSE
           dispatch(setProcBlockError(parsed.message));
           controller.abort();
-          return;
+          // return 0;
         }
   
         if (parsed.done) {
           // конец стрима
           dispatch(endProcBlock());
           controller.abort();
-          return;
+          // return 0;
         }
   
         // обычный кусок ответа
