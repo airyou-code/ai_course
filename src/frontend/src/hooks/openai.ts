@@ -54,19 +54,21 @@ export async function streamChat(
       headers: { ...getHeders() },
       body: JSON.stringify({ content: message }),
       signal: controller.signal,
+      retry: 0,
 
       // @ts-ignore
       onopen(response) {
         if (response.status !== 200) {
           // если не 200, то ошибка
-          console.error("Stream error:", response);
+          const err = new Error(response.statusText);
+          dispatch(setProcBlockError(response.statusText));
           toastFn({
             variant: "destructive",
             title: "Ошибка!",
             description: response.statusText,
           });
-          dispatch(setProcBlockError(response.statusText));
           controller.abort();
+          throw err; 
         }
       },
   
@@ -83,14 +85,14 @@ export async function streamChat(
           // сервер сообщил об ошибке в теле SSE
           dispatch(setProcBlockError(parsed.message));
           controller.abort();
-          // return 0;
+          return 0;
         }
   
         if (parsed.done) {
           // конец стрима
           dispatch(endProcBlock());
           controller.abort();
-          // return 0;
+          return 0;
         }
   
         // обычный кусок ответа
@@ -101,13 +103,14 @@ export async function streamChat(
       onerror(err) {
         // сетевые / HTTP ошибки (например, 502)
         console.error("Stream error:", err);
+        dispatch(setProcBlockError(err.message ?? "Stream error"));
         toastFn({
           variant: "destructive",
           title: "Ошибка!",
           description: err.message ?? "Stream error",
         });
-        dispatch(setProcBlockError(err.message ?? "Stream error"));
         controller.abort();
+        throw err;
       },
     });
   }

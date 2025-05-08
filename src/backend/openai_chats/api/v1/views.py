@@ -1,22 +1,24 @@
-import os
+import asyncio
+from asgiref.sync import sync_to_async
 from openai import OpenAI
 from time import sleep
 import requests
 import logging
 import json
 import markdown
+from django.views import View
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from django.http import StreamingHttpResponse, HttpResponseNotAllowed
+from django.http import StreamingHttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.renderers import BaseRenderer
 from rest_framework import views
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from openai_chats.models import ChatMessage, Chat, Option
 from courses.models import Lesson, ContentBlock
@@ -192,124 +194,145 @@ class EventStreamRenderer(BaseRenderer):
         return data
 
 
-@extend_schema(exclude=True)
-class OpenRouterStreamView(views.APIView):
-    permission_classes = [IsAuthenticated]
-    renderer_classes = [EventStreamRenderer]
+@method_decorator(csrf_exempt, name="dispatch")
+class OpenRouterStreamView(View):
+    """
+    POST: Async stream data from OpenAI ChatCompletion API and save messages to the database.
+    """
 
-    @method_decorator(csrf_exempt)
-    def post(self, request, content_block_uuid=None):
-        """
-        POST: Stream data from OpenAI ChatCompletion API and save messages to the database.
-        """
-        block: ContentBlock = get_object_or_404(
-            ContentBlock, uuid=content_block_uuid, block_type="input_gpt"
-        )
-        lesson: Lesson = block.lesson
-        user_input = request.data.get("content", "").strip()
-        user = request.user
+    async def dispatch(self, request, *args, **kwargs):
+        # 1) Аутентификация через JWT
+        jwt_auth = JWTAuthentication()
+        try:
+            auth_result = await sync_to_async(jwt_auth.authenticate)(request)
+        except Exception as e:
+            return JsonResponse(
+                {"detail": "Invalid token."}, status=401
+            )
+        if auth_result is None:
+            return JsonResponse(
+                {"detail": "Authentication credentials were not provided or invalid."},
+                status=401
+            )
+        request.user, request.auth = auth_result
 
+        # 2) Передаём управление дальше
+        return await super().dispatch(request, *args, **kwargs)
+
+    async def post(self, request, content_block_uuid=None):
+        # 3) Парсим JSON-тело
+        try:
+            body = request.body
+            payload = json.loads(body)
+            user_input = payload.get("content", "").strip()
+        except json.JSONDecodeError:
+            return JsonResponse({"detail": "Invalid JSON payload."}, status=400)
+
+        # 4) Валидация
         if not user_input:
-            return Response(
-                {"detail": "Message content is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+            return JsonResponse({"detail": "Message content is required."}, status=400)
         if len(user_input.split()) > settings.OPENAI_LIMIT_WORDS:
-            return Response(
-                {
-                    "detail": f"Your message is too long. Please keep it under {settings.OPENAI_LIMIT_WORDS} words."
-                },
-                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            return JsonResponse(
+                {"detail": f"Your message is too long. Please keep it under {settings.OPENAI_LIMIT_WORDS} words."},
+                status=413
             )
 
-        user_chat, _ = Chat.objects.get_or_create(user=user, content_block=block)
-        user_message_count = ChatMessage.objects.filter(chat=user_chat).count()
-        if user_message_count >= settings.OPENAI_LIMIT_MESSAGES:
-            return Response(
-                {
-                    "detail": f"You have reached the limit of messages ({settings.OPENAI_LIMIT_MESSAGES}) for this content block."
-                },
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
+        # 5) Получаем ContentBlock или 404
+        try:
+            block = await ContentBlock.objects.select_related("lesson").aget(
+                uuid=content_block_uuid, block_type="input_gpt"
+            )
+        except ContentBlock.DoesNotExist:
+            return JsonResponse({"detail": "Not found."}, status=404)
+
+        # 6) Получаем или создаём Chat
+        user = request.user
+        qs = Chat.objects.filter(user=user, content_block=block)
+        if await qs.aexists():
+            user_chat = await qs.afirst()
+        else:
+            user_chat = await Chat.objects.acreate(user=user, content_block=block)
+
+        # 7) Проверяем лимит сообщений
+        count = await ChatMessage.objects.filter(chat=user_chat).acount()
+        if count >= settings.OPENAI_LIMIT_MESSAGES:
+            return JsonResponse(
+                {"detail": f"You have reached the limit of messages ({settings.OPENAI_LIMIT_MESSAGES})."},
+                status=429
             )
 
-        # --- 2. Build context for OpenAI ---
+        # 8) Строим контекст переписки
         conversation = []
+        lesson = block.lesson
         if lesson.prompt:
             conversation.append({"role": "system", "content": lesson.prompt})
-        for msg in ChatMessage.objects.filter(chat=user_chat).order_by("created_at"):
+        async for msg in ChatMessage.objects.filter(chat=user_chat).order_by("created_at"):
             if msg.content and msg.role != "system":
                 conversation.append({"role": msg.role, "content": msg.content})
         conversation.append({"role": "user", "content": user_input})
 
-        # --- параметры из Option или дефолтные ---
-        params = Option.get_params(
-            default={
-                "model": "gpt-4.1-nano",
-                "max_tokens": 500,
-                "temperature": 1,
-                "top_p": 1,
-                "frequency_penalty": 0,
-                "presence_penalty": 0,
-            }
-        )
-        # обязательные поля
-        params.update({
-            "messages": conversation,
-            "stream": True
+        # 9) Параметры для OpenAI
+        params = await sync_to_async(Option.get_params)(default={
+            "model": "gpt-4.1-nano",
+            "max_tokens": 500,
+            "temperature": 1,
+            "top_p": 1,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
         })
+        params.update({"messages": conversation, "stream": True})
 
-        def sse_stream():
-            buffer = ""
+        # 10) Асинхронный SSE-генератор
+        async def event_stream():
             assistant_content = ""
+            chunk_iter = client.chat.completions.create(**params)
+
+            async def get_next_chunk():
+                """
+                Попытаться получить следующий элемент из синхронного генератора chunk_iter
+                в ThreadPool, вернуть None, если он исчерпан.
+                """
+                def _next():
+                    try:
+                        return next(chunk_iter)
+                    except StopIteration:
+                        return None
+
+                return await asyncio.to_thread(_next)
 
             try:
-                # стримим из OpenAI SDK
-                stream = client.chat.completions.create(**params)
-                for chunk in stream:
-                    # SSE-условие: будем отправлять каждый кусочек текста
-                    choice = chunk.choices[0]
-                    delta = choice.delta
-                    content = getattr(delta, "content", None)
+                while True:
+                    chunk = await get_next_chunk()
+                    if chunk is None:
+                        break
+
+                    content = getattr(chunk.choices[0].delta, "content", None)
                     if content:
                         assistant_content += content
                         part = {"error": False, "content": content}
                         yield f"data: {json.dumps(part)}\n\n"
             except Exception as e:
-                err = {"error": True, "message": str(e)}
-                yield f"data: {json.dumps(err)}\n\n"
+                yield f"data: {json.dumps({'error': True, 'message': str(e)})}\n\n"
                 return
 
-            # сигнал окончания стрима
-            done_msg = {"done": True}
-            yield f"data: {json.dumps(done_msg)}\n\n"
+            # конец стрима
+            yield f"data: {json.dumps({'done': True})}\n\n"
 
-            # После завершения стрима — логируем и сохраняем в базу
-            logger.info(f"User input: {user_input}")
-            logger.info(f"Assistant content: {assistant_content}")
-
-            try:
-                if block.content_text:
-                    ChatMessage.objects.create(
-                        chat=user_chat, role="system", content=block.content_text
-                    )
-                ChatMessage.objects.create(
-                    chat=user_chat, role="user", content=user_input
+            # сохраняем в БД
+            if block.content_text:
+                await ChatMessage.objects.acreate(
+                    chat=user_chat, role="system", content=block.content_text
                 )
-                logger.info("User message saved successfully.")
-            except Exception as e:
-                logger.error(f"Error saving user message: {e}")
+            await ChatMessage.objects.acreate(
+                chat=user_chat, role="user", content=user_input
+            )
+            await ChatMessage.objects.acreate(
+                chat=user_chat, role="assistant", content=assistant_content
+            )
 
-            try:
-                ChatMessage.objects.create(
-                    chat=user_chat, role="assistant", content=assistant_content
-                )
-                logger.info("Assistant message saved successfully.")
-            except Exception as e:
-                logger.error(f"Error saving assistant message: {e}")
-
+        # 12) Возвращаем StreamingHttpResponse
         response = StreamingHttpResponse(
-            sse_stream(),
+            event_stream(),
             content_type="text/event-stream"
         )
         response["Cache-Control"] = "no-cache"
