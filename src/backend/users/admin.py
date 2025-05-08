@@ -14,7 +14,16 @@ class CourseUserAdmin(UserAdmin):
         "is_staff",
     )
     fieldsets = (
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (
+            _("Personal info"), {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "language",
+                )
+            }
+        ),
         (
             _("Permissions"),
             {

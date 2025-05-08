@@ -32,11 +32,11 @@ export const useLogin = () => {
     // const refetchUser = useRefetchUser();
     // const displayResponseMessage = useDisplayResponseMessage();
 
-    return ({ username, password }: { username: string; password: string }) => {
+    return ({ email, password }: { email: string; password: string }) => {
         return request(API.USER_LOGIN, {
             method: 'POST',
             data: {
-                username: username,
+                email: email,
                 password: password,
             }
         }).then(({ data }) => {

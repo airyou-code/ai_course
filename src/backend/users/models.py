@@ -4,8 +4,29 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from datetime import datetime
 
+
 class CourseUser(AbstractUser):
-    REQUIRED_FIELDS = ["email"]
+    LANGUAGE_CHOICES = (
+        ('ru', _('Russian')),
+        ('en', _('English')),
+        ('cz', _('Czech')),
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    email = models.EmailField(
+        _('email address'),
+        unique=True,
+        help_text=_('User email address, used as login and must be unique')
+    )
+
+    language = models.CharField(
+        max_length=2,
+        choices=LANGUAGE_CHOICES,
+        default='ru',
+        verbose_name=_('Preferred Language')
+    )
 
     class Meta:
         verbose_name = _("User")

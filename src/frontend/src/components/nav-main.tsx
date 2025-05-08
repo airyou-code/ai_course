@@ -25,7 +25,6 @@ interface Lesson {
   title: string
   duration: string
   description: string
-  is_free: boolean
   is_locked: boolean
   uuid: string
   is_completed?: boolean

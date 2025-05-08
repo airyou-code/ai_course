@@ -39,11 +39,6 @@ export const useAuthRequest = () => {
           title: "Ошибка!",
           description: error?.response?.data?.message || error.message,
         })
-        toast({
-          variant: "destructive",
-          title: "Ошибка!",
-          description: error?.response?.data?.message || error.message,
-        })
       }
       throw error;
     });
@@ -111,11 +106,11 @@ export const useRequest = () => {
           isRefreshing = false;
         }
       }
-      toast({
-        variant: "destructive",
-        title: "Ошибка!",
-        description: error?.response?.data?.message || error.message,
-      })
+      // toast({
+      //   variant: "destructive",
+      //   title: "Ошибка!",
+      //   description: error?.response?.data?.message || error.message,
+      // })
       throw error;
     }
   };

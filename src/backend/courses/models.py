@@ -58,8 +58,10 @@ class Lesson(CoreModel, SortableMixin):
         null=True,
         help_text="Prompt for ChatGPT. If empty, the lesson will be without a prompt.",
     )
-    is_free = models.BooleanField(default=False)
-    is_locked = models.BooleanField(default=True)
+    is_free = models.BooleanField(
+        default=False,
+        help_text="If True, the lesson will be available for free.",
+    )
     order = models.PositiveIntegerField(
         default=0, editable=False, db_index=True
     )
@@ -143,3 +145,39 @@ class ContentBlock(CoreModel, SortableMixin):
             elif self.block_type == 'choices_field':
                 self.content_json = self.CHOICES_FIELD_TEMPLATE
         super().save(*args, **kwargs)
+
+
+class Access(models.Model):
+    """
+    A named bundle of lessons that can be granted as a unit.
+    """
+    name = models.CharField(
+        max_length=255,
+        help_text="Название пакета доступа"
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Описание того, что входит в пакет"
+    )
+    lessons = models.ManyToManyField(
+        'Lesson',
+        related_name='access_bundles',
+        help_text="Какие уроки включает этот пакет"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        help_text="Когда пакет был создан"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Когда пакет был в последний раз обновлён"
+    )
+
+    class Meta:
+        verbose_name = 'Access Bundle'
+        verbose_name_plural = 'Access Bundles'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name

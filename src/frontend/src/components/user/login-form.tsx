@@ -20,12 +20,12 @@ import { useLogin, useFetchUserData } from "@/hooks/user"
 
 // Схема валидации, аналогичная старому коду (заменяем email -> username)
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required("This field is required!"),
+  email: Yup.string().email("Неверный формат email").required("Email обязателен"),
   password: Yup.string().required("This field is required!"),
 })
 
 interface LoginFormValues {
-  username: string
+  email: string
   password: string
 }
 
@@ -55,7 +55,7 @@ export function LoginForm({
     try {
       // Вызов авторизации
       await login({
-        username: values.username,
+        email: values.email,
         password: values.password,
       })
       // Получение данных пользователя
@@ -90,26 +90,26 @@ export function LoginForm({
         </CardHeader>
         <CardContent>
           <Formik<LoginFormValues>
-            initialValues={{ username: "", password: "" }}
+            initialValues={{ email: "", password: "" }}
             validationSchema={validationSchema}
             onSubmit={handleLogin}
           >
             {() => (
               <Form>
                 <div className="flex flex-col gap-6">
-                  {/* Username */}
+                  {/* Email */}
                   <div className="grid gap-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username">Email</Label>
                     <Field
                       as={Input}
-                      id="username"
-                      name="username"
-                      type="text"
-                      placeholder="Enter your username"
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
                       required
                     />
                     <ErrorMessage
-                      name="username"
+                      name="email"
                       component="div"
                       className="text-sm text-red-500"
                     />

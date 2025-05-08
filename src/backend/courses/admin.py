@@ -10,7 +10,7 @@ from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
 from .utils import process_lesson_to_json
 
-from courses.models import Course, ContentBlock, Lesson, Module, Group
+from courses.models import Course, ContentBlock, Lesson, Module, Group, Access
 from core.admin import CoreAdmin
 
 
@@ -331,3 +331,31 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
     def course(self, obj):
         return obj.lesson.module.group.course if obj.lesson and obj.lesson.module and obj.lesson.module.group else None
     course.short_description = 'Course'
+
+
+@admin.register(Access)
+class AccessAdmin(admin.ModelAdmin):
+    """
+    Admin for Access bundles.
+    """
+    list_display = (
+        'name',
+        'description',
+        'created_at',
+        'updated_at',
+    )
+    search_fields = (
+        'name',
+        'description',
+    )
+    list_filter = (
+        'created_at',
+        'updated_at',
+    )
+    filter_horizontal = (
+        'lessons',
+    )
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+    )

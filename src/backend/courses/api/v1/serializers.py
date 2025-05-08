@@ -5,23 +5,26 @@ from courses.models import Lesson, Group, Module, ContentBlock
 class LessonSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     is_completed = serializers.SerializerMethodField()
+    is_locked = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
-        fields = ['title', 'duration', 'description', 'progress', 'is_completed', 'is_locked', "is_free", "uuid"]
+        fields = ['title', 'duration', 'description', 'progress', 'is_completed', 'is_locked', "uuid"]
 
     def get_progress(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.get_progress(request.user)
         return None
-    
+
     def get_is_completed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.is_completed(request.user)
         return False
 
+    def get_is_locked(self, obj):
+        return False
 
 class ModuleSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')
