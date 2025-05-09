@@ -29,11 +29,14 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
+import { useTranslation } from "react-i18next"
+
 import {
   SkeletonLoader
 } from '../ui/loader';
 
 export default function CoursePage() {
+  const { t } = useTranslation()
   const { lessonUUId } = useParams<{ lessonUUId: string }>();
   if (!lessonUUId) {
     return <div>Error: lessonUUId is undefined</div>;
@@ -164,7 +167,7 @@ export default function CoursePage() {
             />
           ) : <NextLessonButton
             key={index}
-            content="Select the next module"
+            content={t('course.nextLesson')}
             url={'/'}
           />;
       case "loading":

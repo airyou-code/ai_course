@@ -7,34 +7,28 @@ import { Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { useCreateUserReview } from "@/hooks/user"
+import { useTranslation } from "react-i18next"
 
 interface ErrorsState {
   fieldErrors: Record<string, string[]>;
   nonFieldErrors: string[];
 }
 
-
-// Mock API call
-const submitToBackend = async (values: { interestingRating: number; usefulRating: number; comment: string }) => {
-  return new Promise((resolve) => {
-    // Simulate network delay
-    setTimeout(() => {
-      console.log("Submitted to backend:", values)
-      resolve(values)
-    }, 1500)
-  })
-}
-
-// Validation schema
-const ratingSchema = Yup.object().shape({
-  interestingRating: Yup.number().min(1, "Оценка обязательна").required("Оценка обязательна"),
-  usefulRating: Yup.number().min(1, "Оценка обязательна").required("Оценка обязательна"),
-  comment: Yup.string(),
-})
+// Функция для получения схемы валидации с локализованными сообщениями
 
 export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
-  const createUserReview  = useCreateUserReview()
-
+  const { t } = useTranslation()
+  const createUserReview = useCreateUserReview()
+  
+  const getRatingSchema = Yup.object().shape({
+    interestingRating: Yup.number()
+      .min(1, t("lessonReview.ratingRequired"))
+      .required(t("lessonReview.ratingRequired")),
+    usefulRating: Yup.number()
+      .min(1, t("lessonReview.ratingRequired"))
+      .required(t("lessonReview.ratingRequired")),
+    comment: Yup.string(),
+  });
   const { toast } = useToast()
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [hoveredInterestingRating, setHoveredInterestingRating] = useState<number>(0)
@@ -57,8 +51,8 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
 
       setSubmitted(true)
       toast({
-        title: "Отзыв отправлен",
-        description: "Спасибо за вашу оценку курса!",
+        title: t("lessonReview.reviewSentTitle"),
+        description: t("lessonReview.reviewSentDescription"),
       })
     } catch (error: any) {
       const { fieldErrors, nonFieldErrors } = error
@@ -73,7 +67,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
       if (fieldErrorMessages) {
         toast({
           variant: "destructive",
-          title: "Errors in fields",
+          title: t("lessonReview.fieldErrorsTitle"),
           description: fieldErrorMessages,
         });
       }
@@ -81,7 +75,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
       if (nonFieldErrorMessages) {
         toast({
           variant: "destructive",
-          title: "General Errors",
+          title: t("lessonReview.generalErrorsTitle"),
           description: nonFieldErrorMessages,
         });
       }
@@ -93,30 +87,29 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
   if (submitted) {
     return (
       <div className="w-full max-w-2xl mx-auto border-2 border-black p-8">
-        <h2 className="text-2xl font-normal mb-2">Спасибо за вашу оценку!</h2>
-        <p>Ваш отзыв очень важен для нас.</p>
+        <h2 className="text-2xl font-normal mb-2">{t("lessonReview.thankYou")}</h2>
+        <p>{t("lessonReview.feedbackImportance")}</p>
       </div>
     )
   }
 
-
   return (
     <Formik
       initialValues={{ interestingRating: 0, usefulRating: 0, comment: "" }}
-      validationSchema={ratingSchema}
+      validationSchema={getRatingSchema}
       onSubmit={handleSubmit}
     >
       {({ values, setFieldValue, isSubmitting, errors, touched }) => (
         <Form>
           <div className="w-full max-w-2xl mx-auto border-2 border-black p-8">
-            <h2 className="text-2xl font-normal mb-1">Это конец этого урока.</h2>
-            <p className="text-2xl font-normal mb-8">Пожалуйста, оцените ее, чтобы продолжить</p>
+            <h2 className="text-2xl font-normal mb-1">{t("lessonReview.endOfLesson")}</h2>
+            <p className="text-2xl font-normal mb-8">{t("lessonReview.pleaseContinue")}</p>
 
             {/* Rating Sections - Stacked on mobile, side by side on larger screens */}
             <div className="flex flex-col md:flex-row md:space-x-12 md:justify-between mb-6">
               {/* Interesting Rating */}
               <div className="mb-6 md:mb-0 md:flex-1">
-                <p className="mb-2">Интересный</p>
+                <p className="mb-2">{t("lessonReview.interesting")}</p>
                 <div className="flex space-x-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -134,13 +127,13 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                   ))}
                 </div>
                 {errors.interestingRating && (
-                  <div className="text-red-500 text-sm mt-1">{errors.interestingRating}</div>
+                  <div className="text-red-500 text-sm mt-1">{t(errors.interestingRating as string)}</div>
                 )}
               </div>
 
               {/* Useful Rating */}
               <div className="md:flex-1">
-                <p className="mb-2">Полезный</p>
+                <p className="mb-2">{t("lessonReview.useful")}</p>
                 <div className="flex space-x-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -156,7 +149,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                   ))}
                 </div>
                 {errors.usefulRating && (
-                  <div className="text-red-500 text-sm mt-1">{errors.usefulRating}</div>
+                  <div className="text-red-500 text-sm mt-1">{t(errors.usefulRating as string)}</div>
                 )}
               </div>
             </div>
@@ -167,14 +160,14 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                 <Field
                   name="comment"
                   className="w-full py-2 focus:outline-none bg-transparent"
-                  placeholder="Комментарий (необязательно)"
+                  placeholder={t("lessonReview.commentPlaceholder")}
                 />
               </div>
             </div>
 
             {/* Note */}
             <div>
-              <p className="text-sm text-gray-600 mb-4">Оценка глав с использованием звезд обязательна.</p>
+              <p className="text-sm text-gray-600 mb-4">{t("lessonReview.ratingNote")}</p>
               <button
                 type="submit"
                 className="w-full py-2 px-4 border-2 border-black bg-white hover:bg-gray-100 transition-colors"
@@ -183,10 +176,10 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 inline animate-spin" />
-                    Отправка...
+                    {t("lessonReview.sending")}
                   </>
                 ) : (
-                  "Отправить отзыв"
+                  t("lessonReview.submitReview")
                 )}
               </button>
             </div>
