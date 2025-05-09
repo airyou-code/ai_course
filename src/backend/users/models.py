@@ -68,7 +68,7 @@ class UserLessonProgress(models.Model):
 class UserReview(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE)
-    text = models.TextField()
+    text = models.TextField(blank=True, null=True, default="")
     useful = models.SmallIntegerField(default=0)
     interesting = models.SmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -5,6 +5,7 @@ const API = {
   USER_REGISTRATION: `${BASE_URL}/email/register/`,
   USER_CHANGE_PASSWORD: `${BASE_URL}/profile/password/change/`,
   USER_CHANGE_DATA: `${BASE_URL}/profile/`,
+  USER_ADD_REVIEW: `${BASE_URL}/lessons/review/`,
   USER_EMAIL_CHANGE: `${BASE_URL}/email/change/`,
   USER_EMAIL_CHANGE_REQUEST: `${BASE_URL}/email/change/request/`,
   USER_DATA: `${BASE_URL}/profile/`,

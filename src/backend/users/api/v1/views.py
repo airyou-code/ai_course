@@ -1,5 +1,5 @@
 from django.utils.translation import gettext_lazy as _
-from users.models import CourseUser
+from users.models import CourseUser, UserReview
 from rest_framework import viewsets, permissions, generics, status
 from .serializers import UserSerializer, UserPasswordChangeSerializer, UserLessonProgressSerializer, BlockUUIDSerializer
 from users.api.v1 import serializers
@@ -134,7 +134,7 @@ class UserEmailChangeRequestAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [
         JWTAuthentication,
-        SessionAuthentication
+        # SessionAuthentication
     ]
 
 
@@ -143,5 +143,17 @@ class UserEmailChangeAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [
         JWTAuthentication,
+        # SessionAuthentication
+    ]
+
+
+class UserReviewAPIView(generics.CreateAPIView):
+    serializer_class = serializers.UserReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [
+        JWTAuthentication,
         SessionAuthentication
     ]
+
+    def get_queryset(self):
+        return UserReview.objects.filter(user=self.request.user)

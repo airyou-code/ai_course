@@ -367,10 +367,7 @@ export const useChangeUserData = () => {
           username: username,
           first_name: first_name,
           last_name: last_name,
-        },
-        headers: {
-          "Accept-Language": "ru-RU",
-        },
+        }
     }).then(() => {
       return null
     })
@@ -452,15 +449,62 @@ export const useEmailChange = () => {
         method: 'POST',
         data: {
           code_candidate: code,
-        },
-        headers: {
-          "Accept-Language": "ru-RU",
-        },
+        }
     }).then(({ data }) => {
       const { refresh, access } = data;
 
       setCookie(ACCESS_TOKEN, access);
       setCookie(REFRESH_TOKEN, refresh, 29);
+    })
+    .catch((error) => {
+      if (!error.response) {
+        return Promise.reject({
+          status: null,
+          fieldErrors: {},
+          nonFieldErrors: ['Network error or server not responding'],
+        });
+      }
+  
+      const { status, data } = error.response;
+      // Внутренняя ошибка сервера
+      if (status >= 500) {
+        return Promise.reject({
+          status,
+          fieldErrors: {},
+          nonFieldErrors: ['There was an internal server error'],
+        });
+      }
+  
+      // Парсим ошибки DRF
+      const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+      return Promise.reject({ status, fieldErrors, nonFieldErrors });
+    });
+  };
+}
+
+
+interface UserReviewData {
+  lesson: string,
+  text: string,
+  interesting: number,
+  useful: number,
+}
+
+
+export const useCreateUserReview = () => {
+  const request = useRequest();
+
+  return ({lesson, text, interesting, useful}:UserReviewData) => {
+    return request(API.USER_ADD_REVIEW, {
+        method: 'POST',
+        data: {
+          lesson: lesson,
+          text: text,
+          interesting: interesting,
+          useful: useful,
+        }
+    }).then(() => {
+      return null
     })
     .catch((error) => {
       if (!error.response) {

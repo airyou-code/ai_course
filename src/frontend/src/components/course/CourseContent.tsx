@@ -142,8 +142,8 @@ export default function CoursePage() {
         );
       case 'lesson_review':
         return (
-          <div key={index} className="pb-4" ref={blockRef}>
-            <LessonReview/>
+          <div key={index} className="pb-5" ref={blockRef}>
+            <LessonReview lessonUUId={lessonUUId} />
           </div>
         );
       case 'button_continue':

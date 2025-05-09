@@ -1,7 +1,8 @@
 from django.utils.translation import gettext_lazy as _
-from users.models import CourseUser
+from users.models import CourseUser, UserReview
 from rest_framework import serializers
 from users.models import UserLessonProgress
+from courses.models import Lesson
 from rest_framework_simplejwt.tokens import RefreshToken
 from users import utils
 from django.utils import timezone
@@ -235,3 +236,35 @@ class EmailRegistration(serializers.ModelSerializer):
             "first_name",
             "last_name",
         )
+
+
+class UserReviewSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+    lesson = serializers.UUIDField(required=True)
+
+    class Meta:
+        model = UserReview
+        fields = [
+            'user',
+            'lesson',
+            'text',
+            'interesting',
+            'useful',
+            'created_at',
+        ]
+        read_only_fields = [
+            'created_at',
+        ]
+
+    def create(self, validated_data):
+        lesson_uuid = validated_data.pop('lesson')
+
+        try:
+            lesson = Lesson.objects.get(uuid=lesson_uuid)
+        except Lesson.DoesNotExist:
+            raise serializers.ValidationError(_("Invalid lesson uuid"))
+
+        review = UserReview.objects.create(lesson=lesson, **validated_data)
+        return review

@@ -6,6 +6,13 @@ import * as Yup from "yup"
 import { Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { useCreateUserReview } from "@/hooks/user"
+
+interface ErrorsState {
+  fieldErrors: Record<string, string[]>;
+  nonFieldErrors: string[];
+}
+
 
 // Mock API call
 const submitToBackend = async (values: { interestingRating: number; usefulRating: number; comment: string }) => {
@@ -25,31 +32,61 @@ const ratingSchema = Yup.object().shape({
   comment: Yup.string(),
 })
 
-export default function CourseRating() {
+export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
+  const createUserReview  = useCreateUserReview()
+
   const { toast } = useToast()
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [hoveredInterestingRating, setHoveredInterestingRating] = useState<number>(0)
   const [hoveredUsefulRating, setHoveredUsefulRating] = useState<number>(0)
+
+  const [reviewErrors, setReviewErrors] = useState<ErrorsState>({ fieldErrors: {}, nonFieldErrors: [] })
 
   const handleSubmit = async (
     values: { interestingRating: number; usefulRating: number; comment: string },
     { setSubmitting }: any,
   ) => {
     try {
-      await submitToBackend(values)
+      setReviewErrors({ fieldErrors: {}, nonFieldErrors: [] })
+      await createUserReview({
+        interesting: values.interestingRating,
+        useful: values.usefulRating,
+        text: values.comment || "",
+        lesson: lessonUUId,
+      })
+
       setSubmitted(true)
       toast({
         title: "Отзыв отправлен",
         description: "Спасибо за вашу оценку курса!",
       })
-    } catch (error) {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось отправить отзыв. Пожалуйста, попробуйте еще раз.",
-        variant: "destructive",
-      })
-    } finally {
-      setSubmitting(false)
+    } catch (error: any) {
+      const { fieldErrors, nonFieldErrors } = error
+      setReviewErrors({ fieldErrors, nonFieldErrors })
+      const fieldErrorMessages = Object.keys(fieldErrors)
+        .map(key => `${key}: ${fieldErrors[key].join(", ")}`)
+        .join("; ");
+      
+      // Собираем общие ошибки
+      const nonFieldErrorMessages = nonFieldErrors.join("; ");
+
+      if (fieldErrorMessages) {
+        toast({
+          variant: "destructive",
+          title: "Errors in fields",
+          description: fieldErrorMessages,
+        });
+      }
+
+      if (nonFieldErrorMessages) {
+        toast({
+          variant: "destructive",
+          title: "General Errors",
+          description: nonFieldErrorMessages,
+        });
+      }
+      console.log(error)
+      setSubmitted(false)
     }
   }
 

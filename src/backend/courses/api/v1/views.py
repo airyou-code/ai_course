@@ -10,7 +10,7 @@ from .serializers import (
     ContentBlockListSerializer,
 )
 from rest_framework.authentication import SessionAuthentication
-from users.models import UserLessonProgress
+from users.models import UserLessonProgress, UserReview
 from openai_chats.utils import get_chat_messages
 
 
@@ -94,15 +94,19 @@ class LessonContentBlocksViewSet(
                 )
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
-
-                # Добавляем блок "lesson_review" перед кнопкой "button_next"
-                blocks.append(
-                    {
-                        "type": "lesson_review",
-                        "content": "",
-                        "uuid": "lesson_review",
-                    }
-                )
+                
+                is_has_review = UserReview.objects.filter(
+                    lesson=lesson, user=user
+                ).exists()
+                if not is_has_review:
+                    # Добавляем блок "lesson_review" перед кнопкой "button_next"
+                    blocks.append(
+                        {
+                            "type": "lesson_review",
+                            "content": "",
+                            "uuid": "lesson_review",
+                        }
+                    )
 
                 progress.is_completed = True
                 progress.procent_progress = 100
@@ -206,14 +210,18 @@ class LessonNextContentBlocksViewSet(
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
 
-                # Добавляем блок "lesson_review" перед кнопкой "button_next"
-                blocks.append(
-                    {
-                        "type": "lesson_review",
-                        "content": "",
-                        "uuid": "lesson_review",
-                    }
-                )
+                is_has_review = UserReview.objects.filter(
+                    lesson=lesson, user=user
+                ).exists()
+                if not is_has_review:
+                    # Добавляем блок "lesson_review" перед кнопкой "button_next"
+                    blocks.append(
+                        {
+                            "type": "lesson_review",
+                            "content": "",
+                            "uuid": "lesson_review",
+                        }
+                    )
 
                 progress.is_completed = True
                 progress.procent_progress = 100
