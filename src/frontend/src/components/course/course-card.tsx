@@ -58,7 +58,12 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lesso
       </div>
 
       <div className="flex items-center gap-2">
-        {lesson.is_completed ? (
+        {lesson.is_locked ? (
+          <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
+            <Lock className="h-5 w-5" />
+            <span className="sr-only">Locked</span>
+          </Button>
+        ) : lesson.is_completed ? (
           <Link to={`/lesson/${lesson.uuid}`}>
             <Button
             variant="outline"
@@ -68,11 +73,6 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lesso
               <span className="sr-only">Completed</span>
             </Button>
           </Link>
-        ) : lesson.is_locked ? (
-          <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
-            <Lock className="h-5 w-5" />
-            <span className="sr-only">Locked</span>
-          </Button>
         ) : (
           <Link to={`/lesson/${lesson.uuid}`}>
             <Button className="font-medium px-6">Start</Button>

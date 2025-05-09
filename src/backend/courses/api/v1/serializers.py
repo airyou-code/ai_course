@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from courses.models import Lesson, Group, Module, ContentBlock
+from users.models import CourseUser
 
 
 class LessonSerializer(serializers.ModelSerializer):
@@ -24,7 +25,16 @@ class LessonSerializer(serializers.ModelSerializer):
         return False
 
     def get_is_locked(self, obj):
-        return False
+        if obj.is_free:
+            return False
+
+        request = self.context.get('request')
+        user: CourseUser = request.user if request and request.user.is_authenticated else None
+        if user:
+            # Check if the user has access to the lesson
+            return not user.is_has_access(obj)
+
+        return True
 
 class ModuleSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True, source='lesson_set')

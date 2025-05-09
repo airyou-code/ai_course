@@ -17,7 +17,11 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
   const lessonProgressContext = useContext(LessonProgressContext)
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={{
+        "--sidebar-width": "20rem"
+      }}
+    >
       <div className="fixed inset-0 flex">
         <AppSidebar className="fixed left-0 top-0 h-full" />
         <SidebarInset className="flex-1 overflow-hidden">

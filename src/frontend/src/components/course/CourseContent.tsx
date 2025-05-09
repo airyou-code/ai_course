@@ -10,13 +10,17 @@ import {
   clearBlocks,
   setCurrentLessonUUId,
 } from '../../store/slices/blocksSlice';
+
 import { useFetchLessonData, useFetchLessonHistory } from '../../hooks/courses';
 import { useFetchNextLessonData } from "@/hooks/courses";
+
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';
 import { ContinueButton } from './content/continue-button';
 import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
+import LessonReview from './content/lesson-review';
+
 import DOMPurify from 'dompurify';
 import InputGptBlock from './InputGptBlock';
 import { useLessonProgress } from '@/reducers/LessonProgress';
@@ -92,7 +96,7 @@ export default function CoursePage() {
     switch (block.type) {
       case 'output_dialog':
         return (
-          <div key={index} ref={blockRef}>
+          <div key={index}>
             <DialogBox
               content={block.content as string}
               is_md={block.is_md || false}
@@ -134,6 +138,12 @@ export default function CoursePage() {
             <InputGptBlock
               block={block}
             />
+          </div>
+        );
+      case 'lesson_review':
+        return (
+          <div key={index} className="pb-4" ref={blockRef}>
+            <LessonReview/>
           </div>
         );
       case 'button_continue':

@@ -8,12 +8,15 @@ import WithQueryClient from './app/WithQueryClient';
 import WithInitialData from './app/WithInitialData';
 import WithProviders from './app/WithProviders';
 import { ThemeProvider } from './app/WithThemeProvider';
-import { ErrorProvider } from './app/WithErrorProvider';
+// Импорт вашего файла конфигурации i18n
+import i18n from './i18n';
+// Провайдер из react-i18next
+import { I18nextProvider } from 'react-i18next';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   // <React.StrictMode>
     <WithQueryClient>
-      <ErrorProvider>
+      <I18nextProvider i18n={i18n}>
         <WithProviders>
           <WithInitialData>
             <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
@@ -21,7 +24,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
             </ThemeProvider>
           </WithInitialData>
         </WithProviders>
-      </ErrorProvider>
+      </I18nextProvider>
     </WithQueryClient>
   // </React.StrictMode>
 );

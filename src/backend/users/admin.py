@@ -13,6 +13,9 @@ class CourseUserAdmin(UserAdmin):
         "type_subscription",
         "is_staff",
     )
+    filter_horizontal = (
+        'access',
+    )
     fieldsets = (
         (
             _("Personal info"), {
@@ -21,6 +24,7 @@ class CourseUserAdmin(UserAdmin):
                     "last_name",
                     "email",
                     "language",
+                    "access",
                 )
             }
         ),

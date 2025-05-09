@@ -1,5 +1,5 @@
 import API from '../config/api';
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
+import { REFRESH_TOKEN, ACCESS_TOKEN, LANGUAGE } from '../config/cookies';
 import QUERY_KEYS from '../config/queries';
 import { getHeders } from '../utils/headers';
 import { useRequest, useAuthRequest } from './request';
@@ -7,6 +7,7 @@ import { readCookie, setCookie } from '../utils/cookie';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CSRF_TOKEN } from '../config/cookies';
 import { parseDRFErrors } from '@/utils/error';
+import { useTranslation } from 'react-i18next';
 
 import { useContext } from 'react';
 import { AxiosError } from 'axios';
@@ -15,9 +16,28 @@ import { UserContext, setUser } from '../reducers/user';
 declare type User = {
   username: string;
   email: string;
+  language?: string;
   first_name?: string;
   last_name?: string;
   date_joined?: string;
+};
+
+export const useUserState = () => {
+  const { state } = useContext(UserContext);
+  return state;
+};
+
+export const useUserDispatch = () => {
+  const { dispatch } = useContext(UserContext);
+  return dispatch;
+};
+
+export const useUser = () => {
+  return useUserState().user as User;
+};
+
+export const useUserLanguage = () => {
+  return useUserState().language || 'en';
 };
 
 export const useRefetchUser = () => {
@@ -47,21 +67,27 @@ export const useLogin = () => {
             //   refetchUser();
         })
         .catch((error) => {
-            let errorMessage = 'An unknown error occurred';
-            if (error.response) {
-            if (error.response.status === 401) {
-                errorMessage = 'Invalid username or password';
-            } else if (error.response.status === 404) {
-                errorMessage = 'User not found';
-            } else {
-                errorMessage = 'An unexpected error occurred';
-                error.response.data?.message || 'An unexpected error occurred';
-            }
-            } else {
-            errorMessage = error.message || 'Network error';
-            }
-            console.error('Login failed:', errorMessage);
-            return Promise.reject(errorMessage);
+          if (!error.response) {
+            return Promise.reject({
+              status: null,
+              fieldErrors: {},
+              nonFieldErrors: ['Network error or server not responding'],
+            });
+          }
+      
+          const { status, data } = error.response;
+          // Внутренняя ошибка сервера
+          if (status >= 500) {
+            return Promise.reject({
+              status,
+              fieldErrors: {},
+              nonFieldErrors: ['There was an internal server error'],
+            });
+          }
+      
+          // Парсим ошибки DRF
+          const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+          return Promise.reject({ status, fieldErrors, nonFieldErrors });
         });
     };
 };
@@ -102,20 +128,6 @@ export const useRefreshLogin = () => {
     };
 };
 
-export const useUserState = () => {
-  const { state } = useContext(UserContext);
-  return state;
-};
-
-export const useUserDispatch = () => {
-  const { dispatch } = useContext(UserContext);
-  return dispatch;
-};
-
-export const useUser = () => {
-  return useUserState().user as User;
-};
-
 export const useLogout = () => {
   // const request = useRequest();
   const refetchUser = useRefetchUser();
@@ -138,6 +150,7 @@ export const useLogout = () => {
 export const useFetchUserData = () => {
   const request = useRequest();
   const dispatch = useUserDispatch();
+  const { i18n } = useTranslation()
 
   const { refetch } = useQuery({
     queryKey: [QUERY_KEYS.USER_DATA],
@@ -145,6 +158,10 @@ export const useFetchUserData = () => {
       try {
         const { data } = await request(API.USER_DATA);
         if (data) {
+          const language = data?.language || 'en'
+          setCookie(LANGUAGE, language, 365);
+          i18n.changeLanguage(language)
+
           dispatch(setUser(data as User));
         }
         return data as User;
@@ -392,9 +409,6 @@ export const useEmailChangeRequest = () => {
         method: 'POST',
         data: {
           email: email,
-        },  
-        headers: {
-          "Accept-Language": "ru-RU",
         },
     }).then(() => {
         return null

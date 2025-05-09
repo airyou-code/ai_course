@@ -1,4 +1,6 @@
 import uuid
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 from django.db import models
 from core.models import CoreModel
 from tinymce.models import HTMLField
@@ -9,6 +11,12 @@ from users.models import UserLessonProgress
 class Course(CoreModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    language = models.CharField(
+        max_length=6,
+        choices=settings.LANGUAGES,
+        default='ru',
+        help_text="Language of the course"
+    )
 
     def __str__(self):
         return self.title
@@ -25,6 +33,10 @@ class Group(CoreModel, SortableMixin):
     def __str__(self):
         return self.title
 
+    @property
+    def language(self) -> str:
+        return self.course.language
+
     class Meta:
         ordering = ['order']
 
@@ -40,6 +52,10 @@ class Module(CoreModel, SortableMixin):
 
     def __str__(self):
         return self.title
+
+    @property
+    def language(self) -> str:
+        return self.group.language
 
     class Meta:
         ordering = ['order']
@@ -69,6 +85,10 @@ class Lesson(CoreModel, SortableMixin):
     def __str__(self):
         return self.title
 
+    @property
+    def language(self) -> str:
+        return self.module.language
+
     class Meta:
         ordering = ['order']
 
@@ -79,7 +99,7 @@ class Lesson(CoreModel, SortableMixin):
         if not progress:
             return 0
         return progress.procent_progress
-    
+
     def is_completed(self, user):
         is_completed = UserLessonProgress.objects.filter(
             user=user, lesson=self, is_completed=True

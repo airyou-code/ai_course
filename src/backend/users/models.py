@@ -6,11 +6,7 @@ from datetime import datetime
 
 
 class CourseUser(AbstractUser):
-    LANGUAGE_CHOICES = (
-        ('ru', _('Russian')),
-        ('en', _('English')),
-        ('cz', _('Czech')),
-    )
+    LANGUAGE_CHOICES = settings.LANGUAGES
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -20,9 +16,15 @@ class CourseUser(AbstractUser):
         unique=True,
         help_text=_('User email address, used as login and must be unique')
     )
+    access = models.ManyToManyField(
+        'courses.Access',
+        blank=True,
+        related_name='users',
+        help_text=_('Access to lessons')
+    )
 
     language = models.CharField(
-        max_length=2,
+        max_length=6,
         choices=LANGUAGE_CHOICES,
         default='ru',
         verbose_name=_('Preferred Language')
@@ -44,6 +46,12 @@ class CourseUser(AbstractUser):
             end_date__gte=datetime.now()
         ).first()
 
+    def is_has_access(self, lesson) -> bool:
+        """
+        Check if the user has access to a specific lesson.
+        """
+        return self.access.filter(lessons=lesson).exists()
+
 
 class UserLessonProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -55,3 +63,17 @@ class UserLessonProgress(models.Model):
 
     class Meta:
         unique_together = ('user', 'lesson')
+
+
+class UserReview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE)
+    text = models.TextField()
+    useful = models.SmallIntegerField(default=0)
+    interesting = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
+        verbose_name = _("User Review")
+        verbose_name_plural = _("User Reviews")

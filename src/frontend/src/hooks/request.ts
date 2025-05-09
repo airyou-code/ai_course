@@ -5,9 +5,12 @@ import { readCookie } from '../utils/cookie';
 import { REFRESH_TOKEN } from '../config/cookies';
 import { useError } from '@/app/WithErrorProvider';
 import { useToast } from "@/hooks/use-toast"
+import { useUserLanguage } from './user';
 
 export const useAuthRequest = () => {
   const { toast } = useToast()
+  const language = useUserLanguage();
+  console.log('language', language)
 
   return async (
     url: string,
@@ -26,7 +29,8 @@ export const useAuthRequest = () => {
     return axios({
       headers: {
         ...headers,
-        ...getFreeHeders()
+        ...getFreeHeders(),
+        'Accept-Language': language,
       },
       url,
       data,
@@ -48,6 +52,7 @@ export const useAuthRequest = () => {
 export const useRequest = () => {
   const refreshLogin = useRefreshLogin();
   const { toast } = useToast()
+  const language = useUserLanguage();
   let isRefreshing = false;
 
   return async (
@@ -68,7 +73,8 @@ export const useRequest = () => {
       return await axios({
         headers: {
           ...headers,
-          ...getHeders()
+          ...getHeders(),
+          'Accept-Language': language,
         },
         url,
         data,

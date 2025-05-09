@@ -12,6 +12,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react"
 import { useRegisterRequest, useRegister } from "@/hooks/user"
 import { set } from "date-fns"
+import { Trans, useTranslation } from 'react-i18next'
+import { setCookie } from "@/utils/cookie"
+import { LANGUAGE } from "@/config/cookies"
 
 // Types for our form values
 interface EmailVerificationValues {
@@ -31,25 +34,9 @@ interface ErrorsState {
   nonFieldErrors: string[];
 }
 
-// Validation schemas
-const emailVerificationSchema = Yup.object({
-  email: Yup.string().email("Неверный формат email").required("Email обязателен"),
-})
-
-const registrationSchema = Yup.object({
-  // name: Yup.string().required("Имя обязательно"),
-  // username: Yup.string().required("Логин обязателен"),
-  email: Yup.string().email("Неверный формат email").required("Email обязателен"),
-  password: Yup.string().min(8, "Пароль должен содержать минимум 8 символов").required("Пароль обязателен"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Пароли должны совпадать")
-    .required("Подтверждение пароля обязательно"),
-  verificationCode: Yup.string()
-    .length(6, "Код подтверждения должен содержать 6 символов")
-    .required("Код подтверждения обязателен"),
-})
-
 export default function RegistrationForm() {
+  const { t } = useTranslation();
+  const { i18n } = useTranslation()
   const navigate = useNavigate()
   const registerRequest = useRegisterRequest()
   const register = useRegister()
@@ -63,6 +50,28 @@ export default function RegistrationForm() {
   const [errors, setErrors] = useState<ErrorsState>({
     fieldErrors: {},
     nonFieldErrors: [],
+  })
+
+  // Создаем схемы валидации внутри компонента с использованием t
+  const emailVerificationSchema = Yup.object({
+    email: Yup.string()
+      .email(t("errorEmailFormat"))
+      .required(t("errorEmailRequired")),
+  })
+
+  const registrationSchema = Yup.object({
+    email: Yup.string()
+      .email(t("errorEmailFormat"))
+      .required(t("errorEmailRequired")),
+    password: Yup.string()
+      .min(8, t("errorPasswordMin"))
+      .required(t("errorPasswordRequired")),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], t("errorPasswordsMatch"))
+      .required(t("errorConfirmPasswordRequired")),
+    verificationCode: Yup.string()
+      .length(6, t("errorCodeLength"))
+      .required(t("errorCodeRequired")),
   })
 
   useEffect(() => {
@@ -104,7 +113,7 @@ export default function RegistrationForm() {
   ) => {
     try {
       resetErrors();
-      console.log("Requesting verification code for:", values.email)
+      console.log(t("registration.requestCode", { email: values.email }))
       await registerRequest(values.email)
 
       setEmail(values.email)
@@ -137,7 +146,7 @@ export default function RegistrationForm() {
           last_name: ""
       })
       window.location.href = '/';
-      console.log("Registration successful!")
+      console.log(t("registration.success"))
     } catch (error: any) {
       const { status, fieldErrors, nonFieldErrors }: {
         status: number;
@@ -155,8 +164,7 @@ export default function RegistrationForm() {
   const handleResendCode = async () => {
     try {
       resetErrors();
-      // Placeholder for API call to resend verification code
-      console.log("Resending verification code to:", email)
+      console.log(t("registration.resendCode", { email }))
       startCountdown()
 
       await registerRequest(email)
@@ -177,11 +185,11 @@ export default function RegistrationForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Регистрация</CardTitle>
+        <CardTitle>{t("registration.title")}</CardTitle>
         <CardDescription>
           {step === 1
-            ? "Введите ваш email для получения кода подтверждения"
-            : "Заполните данные для завершения регистрации"}
+            ? t("registration.step1Description")
+            : t("registration.step2Description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -204,21 +212,21 @@ export default function RegistrationForm() {
             {({ isSubmitting }) => (
               <Form className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("registration.emailLabel")}</Label>
                   <Field
                     as={Input}
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="example@mail.com"
+                    placeholder={t("registration.emailPlaceholder")}
                   />
                   <ErrorMessage name="email" component="div" className="text-sm text-red-500" />
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Отправка..." : "Получить код подтверждения"}
+                  {isSubmitting ? t("registration.sending") : t("registration.getCode")}
                 </Button>
                 <Button variant="secondary" className="w-full" onClick={() => {setStep(2)}}>
-                  {"У меня уже есть код подтверждения"}
+                  {t("registration.alreadyHaveCode")}
                 </Button>
               </Form>
             )}
@@ -240,30 +248,20 @@ export default function RegistrationForm() {
           >
             {({ isSubmitting }) => (
               <Form className="space-y-4">
-                {/* <div className="space-y-2">
-                  <Label htmlFor="name">Имя</Label>
-                  <Field as={Input} id="name" name="name" placeholder="Иван Иванов" required />
-                  <ErrorMessage name="name" component="div" className="text-sm text-red-500" />
-                </div> */}
-                {/* <div className="space-y-2">
-                  <Label htmlFor="username">Логин</Label>
-                  <Field as={Input} id="username" name="username" placeholder="IvanIvanov" required />
-                  <ErrorMessage name="username" component="div" className="text-sm text-red-500" />
-                </div> */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("registration.emailLabel")}</Label>
                   <Field as={Input} id="email" name="email" type="email" disabled={Boolean(email)} />
                   <ErrorMessage name="email" component="div" className="text-sm text-red-500" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Пароль</Label>
+                  <Label htmlFor="password">{t("registration.passwordLabel")}</Label>
                   <div className="relative">
                     <Field
                       as={Input}
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Введите пароль"
+                      placeholder={t("registration.passwordPlaceholder")}
                       required
                     />
                     <button
@@ -281,15 +279,15 @@ export default function RegistrationForm() {
                   <ErrorMessage name="password" component="div" className="text-sm text-red-500" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Подтверждение пароля</Label>
-                  <Field as={Input} id="confirmPassword" name="confirmPassword" type="password" placeholder="Подтвердите пароль" />
+                  <Label htmlFor="confirmPassword">{t("registration.confirmPasswordLabel")}</Label>
+                  <Field as={Input} id="confirmPassword" name="confirmPassword" type="password" placeholder={t("registration.confirmPasswordPlaceholder")} />
                   <ErrorMessage name="confirmPassword" component="div" className="text-sm text-red-500" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <Label htmlFor="verificationCode">Код подтверждения</Label>
+                    <Label htmlFor="verificationCode">{t("registration.verificationCodeLabel")}</Label>
                     <div className="flex items-center">
-                      {countdown > 0 && <span className="text-sm text-gray-500 mr-2">{countdown} сек</span>}
+                      {countdown > 0 && <span className="text-sm text-gray-500 mr-2">{countdown} {t("registration.seconds")}</span>}
                       <button
                         type="button"
                         onClick={handleResendCode}
@@ -298,25 +296,25 @@ export default function RegistrationForm() {
                           countdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-gray-500 hover:text-gray-700"
                         }`}
                       >
-                        Отправить код повторно
+                        {t("registration.resendCode")}
                       </button>
                     </div>
                   </div>
-                  <Field as={Input} id="verificationCode" name="verificationCode" placeholder="A1B2C3" />
+                  <Field as={Input} id="verificationCode" name="verificationCode" placeholder={t("registration.verificationCodePlaceholder")} />
                   <ErrorMessage name="verificationCode" component="div" className="text-sm text-red-500" />
                 </div>
                 {isCodeSent && (
                   <div className="flex items-center text-sm text-green-600">
                     <CheckCircle2 className="h-4 w-4 mr-1" />
-                    <span>Код подтверждения отправлен на ваш email</span>
+                    <span>{t("registration.codeSent")}</span>
                   </div>
                 )}
                 <div className="flex gap-4 w-full">
                   <Button type="button" variant="outline" className="flex-1" onClick={handleBackToFirstStep}>
-                    Назад
+                    {t("registration.back")}
                   </Button>
                   <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                    {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
+                    {isSubmitting ? t("registration.registering") : t("registration.register")}
                   </Button>
                 </div>
               </Form>
@@ -327,16 +325,40 @@ export default function RegistrationForm() {
       <CardFooter className="flex justify-center">
         {step === 1 ? 
           <p className="text-sm text-gray-500">
-            Уже есть аккаунт?
-            <a href="/auth" className="underline underline-offset-4">
-              Войдите
-            </a>
+            <Trans i18nKey="registration.alreadyAccount">
+              Уже есть аккаунт?
+              <a href="/auth" className="underline underline-offset-4">Войдите</a>
+            </Trans>
           </p>
         : <p className="text-sm text-gray-500">
-          Шаг 2 из 2: Завершение регистрации
+          {t("registration.step2Footer")}
         </p>
         }
       </CardFooter>
+      <div className="flex justify-center mb-4 space-x-2">
+        <Button
+          variant={i18n.language === "ru" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            i18n.changeLanguage("ru");
+            setCookie(LANGUAGE, "ru", 365);
+          }}
+          className="w-12"
+        >
+          RU
+        </Button>
+        <Button
+          variant={i18n.language === "en" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            i18n.changeLanguage("en");
+            setCookie(LANGUAGE, "en", 365);
+          }}
+          className="w-12"
+        >
+          EN
+        </Button>
+      </div>
     </Card>
   )
 }

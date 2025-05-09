@@ -36,9 +36,11 @@ class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
 class CourseAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
+        "language",
         "description",
     )
     search_fields = ("title",)
+    list_filter = ("language",)
     inlines = (GroupsInlain,)
 
     fieldsets = (
@@ -46,6 +48,7 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
             _("General"), {
                 "fields": (
                     "title",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -77,11 +80,13 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title",)
     list_filter = ("course",)
     inlines = (ModulesInlain,)
+    readonly_fields = ("language",)
 
     fieldsets = (
         (
@@ -89,6 +94,7 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "course",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -103,7 +109,6 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
         "title",
         "description",
         "prompt",
-        "is_locked",
         "is_free",
         "duration",
     ]
@@ -125,11 +130,13 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
         "title",
         "group",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title",)
     list_filter = ("group__course", "group")
     inlines = (LessonsInlain,)
+    readonly_fields = ("language",)
 
     fieldsets = (
         (
@@ -137,6 +144,7 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "group",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -196,6 +204,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "module",
         "group",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title", "uuid")
@@ -203,9 +212,10 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "module",
         "module__group",
         "module__group__course",
+        "module__group__course__language",
     )
     inlines = (ContenBlockInlain,)
-    readonly_fields = ("uuid", "get_lesson_link")
+    readonly_fields = ("uuid", "get_lesson_link", "language")
 
     fieldsets = (
         (
@@ -214,7 +224,6 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "title",
                     "module",
                     "get_lesson_link",
-                    "is_locked",
                     "is_free",
                     "duration",
                     "prompt",
