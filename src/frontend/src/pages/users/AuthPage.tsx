@@ -1,6 +1,5 @@
 import { LoginForm } from "@/components/user/login-form";
 import { Navigate } from "react-router-dom";
-import Layout from '../../components/layout/Layout'
 import { useUserState } from "@/hooks/user";
 
 export default function AuthPage() {

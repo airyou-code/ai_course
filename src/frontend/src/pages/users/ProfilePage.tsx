@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { User, AlertTriangle } from 'lucide-react';
-import Navbar from '../../components/layout/Navbar';
 import LayoutShadcn from '@/components/layout/LayoutShadcn';
 import UserProfile from '@/components/user/user-profile';
 

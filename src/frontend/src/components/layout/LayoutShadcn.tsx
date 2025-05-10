@@ -18,7 +18,8 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
 
   return (
     <SidebarProvider
-      style={{
+    style={{
+        // @ts-ignore
         "--sidebar-width": "20rem"
       }}
     >

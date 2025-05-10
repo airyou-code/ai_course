@@ -3,16 +3,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ROUTES from '../config/routes';
 
 import AllLessonsPage from '../pages/courses/AllLessonsPage';
-import MainPage from '../pages/courses/MainPage';
 
-import WithQueryClient from './WithQueryClient';
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
-import CoursePage from '../pages/courses/CoursePage';
 import LessonPage from '@/pages/courses/LessonPage';
-import path from 'path';
 import RegistrationPage from '@/pages/users/RegistrationPage';
 
 const routesForAuthenticatedOnly = [

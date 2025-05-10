@@ -1,5 +1,4 @@
 import RegistrationForm from '@/components/user/registration-form'
-import Layout from '../../components/layout/Layout'
 import { Navigate } from 'react-router-dom'
 import { useUserState } from '@/hooks/user'
 

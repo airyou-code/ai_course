@@ -319,9 +319,9 @@ class OpenRouterStreamView(View):
             yield f"data: {json.dumps({'done': True})}\n\n"
 
             # сохраняем в БД
-            if block.content_text:
+            if lesson.prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="system", content=block.content_text
+                    chat=user_chat, role="system", content=lesson.prompt
                 )
             await ChatMessage.objects.acreate(
                 chat=user_chat, role="user", content=user_input

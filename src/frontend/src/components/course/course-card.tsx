@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Link } from 'react-router-dom'
 import { useFetchModuleData } from '../../hooks/courses';
 import { CourseGroupsSkeleton } from "./course-skeleton"
+import { useTranslation } from "react-i18next"
 
 interface LessonProps {
   uuid: string
@@ -31,6 +32,8 @@ interface GroupProps {
 
 // ------------------- LessonItem -------------------
 export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lessonIndex: number }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-start gap-4 p-5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors rounded-md dark:hover:bg-zinc-800/50">
       <div className="mt-1">
@@ -61,7 +64,7 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lesso
         {lesson.is_locked ? (
           <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
             <Lock className="h-5 w-5" />
-            <span className="sr-only">Locked</span>
+            <span className="sr-only">{t('course.locked')}</span>
           </Button>
         ) : lesson.is_completed ? (
           <Link to={`/lesson/${lesson.uuid}`}>
@@ -70,12 +73,12 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lesso
             className="px-8 bg-green-50 border-green-200 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
             >
               <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <span className="sr-only">Completed</span>
+              <span className="sr-only">{t('course.completed')}</span>
             </Button>
           </Link>
         ) : (
           <Link to={`/lesson/${lesson.uuid}`}>
-            <Button className="font-medium px-6">Start</Button>
+            <Button className="font-medium px-6">{t('course.start')}</Button>
           </Link>
         )}
       </div>
@@ -85,6 +88,7 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lesso
 
 // ------------------- CourseModule -------------------
 export function CourseModule({ module, moduleIndex }: { module: ModuleProps, moduleIndex: number }) {
+  const { t } = useTranslation();
   const completedLessons = module.lessons.filter((lesson) => lesson.is_completed).length
   const totalLessons = module.lessons.length
   const moduleProgress = Math.round((completedLessons / totalLessons) * 100)
@@ -106,7 +110,7 @@ export function CourseModule({ module, moduleIndex }: { module: ModuleProps, mod
         <div className="pt-2 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-zinc-300">
-              Прогресс модуля
+              {t('course.moduleProgress')}
             </span>
             <span className="text-sm font-medium text-green-400">
               {moduleProgress}%
@@ -118,7 +122,7 @@ export function CourseModule({ module, moduleIndex }: { module: ModuleProps, mod
             indicatorClassName="bg-green-500"
           />
           <div className="text-sm text-zinc-400 pt-1">
-            {completedLessons} из {totalLessons} уроков завершено
+            {t('course.lessonsCompleted', { completed: completedLessons, total: totalLessons })}
           </div>
         </div>
       </CardHeader>
@@ -136,9 +140,11 @@ export function CourseModule({ module, moduleIndex }: { module: ModuleProps, mod
 
 // ------------------- CourseGroups -------------------
 export default function CourseGroups() {
+  const { t } = useTranslation();
   const { data: lessonGroups, isLoading, isError } = useFetchModuleData();
+  
   if (isLoading) return <CourseGroupsSkeleton />;
-  if (isError) return <div>Error loading data</div>;
+  if (isError) return <div>{t('course.errorLoading')}</div>;
 
   return (
     <div className="min-h-screen dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">

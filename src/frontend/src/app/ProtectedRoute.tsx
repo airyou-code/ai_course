@@ -1,8 +1,4 @@
-import React, {useEffect} from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from '../config/cookies';
-import { readCookie, setCookie } from '../utils/cookie';
-import LoginPage from '../pages/LoginPage';
 import ROUTES from '../config/routes';
 import { useUserState } from '../hooks/user';
 
