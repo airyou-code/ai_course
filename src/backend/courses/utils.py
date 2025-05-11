@@ -14,7 +14,7 @@ def process_lesson_to_json(text: str) -> dict:
 
     # Обновленные паттерны для кнопок и инпутов
     button_pattern = re.compile(
-        r".*кнопка:.*[“\"'(\[\{](.*?)[”\"'\)\]\}].*$",
+        r".*кнопка:.*[“\"'(\[\{«](.*?)[”\"'\)\]\}»].*$",
         re.IGNORECASE
     )
     input_prompt_pattern = re.compile(
