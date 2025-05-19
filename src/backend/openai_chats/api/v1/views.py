@@ -195,7 +195,7 @@ class EventStreamRenderer(BaseRenderer):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class OpenRouterStreamView(View):
+class LLMTokensReStreamView(View):
     """
     POST: Async stream data from OpenAI ChatCompletion API and save messages to the database.
     """
@@ -205,7 +205,7 @@ class OpenRouterStreamView(View):
         jwt_auth = JWTAuthentication()
         try:
             auth_result = await sync_to_async(jwt_auth.authenticate)(request)
-        except Exception as e:
+        except Exception:
             return JsonResponse(
                 {"detail": "Invalid token."}, status=401
             )
@@ -263,23 +263,20 @@ class OpenRouterStreamView(View):
 
         # 8) Строим контекст переписки
         conversation = []
-        lesson = block.lesson
-        if lesson.prompt:
-            conversation.append({"role": "system", "content": lesson.prompt})
+        lesson: Lesson = block.lesson
+        global_prompt: str = await Option.aget_global_prompt()
+        lesson_prompt: str = await lesson.aget_prompt(user=user)
+        if global_prompt:
+            conversation.append({"role": "system", "content": global_prompt})
+        if lesson_prompt:
+            conversation.append({"role": "developer", "content": lesson_prompt})
         async for msg in ChatMessage.objects.filter(chat=user_chat).order_by("created_at"):
             if msg.content and msg.role != "system":
                 conversation.append({"role": msg.role, "content": msg.content})
         conversation.append({"role": "user", "content": user_input})
 
         # 9) Параметры для OpenAI
-        params = await sync_to_async(Option.get_params)(default={
-            "model": "gpt-4.1-nano",
-            "max_tokens": 500,
-            "temperature": 1,
-            "top_p": 1,
-            "frequency_penalty": 0,
-            "presence_penalty": 0,
-        })
+        params = await Option.aget_params()
         params.update({"messages": conversation, "stream": True})
 
         # 10) Асинхронный SSE-генератор
@@ -319,9 +316,13 @@ class OpenRouterStreamView(View):
             yield f"data: {json.dumps({'done': True})}\n\n"
 
             # сохраняем в БД
-            if lesson.prompt:
+            if global_prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="system", content=lesson.prompt
+                    chat=user_chat, role="system", content=global_prompt
+                )
+            if lesson_prompt:
+                await ChatMessage.objects.acreate(
+                    chat=user_chat, role="developer", content=lesson_prompt
                 )
             await ChatMessage.objects.acreate(
                 chat=user_chat, role="user", content=user_input

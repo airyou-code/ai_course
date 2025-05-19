@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from courses.models import ContentBlock
-from django.core.cache import cache
+from django.core.cache import cache,  caches
 
 class Chat(models.Model):
     """This model stores chats."""
@@ -23,6 +23,7 @@ class ChatMessage(models.Model):
         ("user", "User"),
         ("assistant", "Assistant"),
         ("system", "System"),
+        ("developer", "Developer"),
     ]
 
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="messages")
@@ -38,11 +39,18 @@ class Option(models.Model):
     """This model stores options for a chat message."""
 
     CACHE_KEY = "chat_options"
+    CACHE_GLOBAL_PROMPT_KEY = "chat_global_prompt"
 
     parameters = models.JSONField(default=dict, blank=True)
+    global_prompt = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Global prompt for the chat. This will be used as a system message.",
+    )
 
     def save(self, *args, **kwargs):
         cache.delete(self.CACHE_KEY)
+        cache.delete(self.CACHE_GLOBAL_PROMPT_KEY)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -58,3 +66,51 @@ class Option(models.Model):
                 params = default or {}
             cache.set(cache_key, params)
         return params
+
+    @classmethod
+    def get_global_prompt(cls):
+        """Get global prompt."""
+        cache_key = cls.CACHE_GLOBAL_PROMPT_KEY
+        global_prompt: str = cache.get(cache_key)
+        if global_prompt is None:
+            option = cls.objects.first()
+            if option:
+                global_prompt = option.global_prompt
+            else:
+                global_prompt = ""
+            cache.set(cache_key, global_prompt)
+        return global_prompt
+
+    @classmethod
+    async def aget_params(cls, default=None):
+        """Asynchronously get default options, using cache and DB."""
+        cache_key = cls.CACHE_KEY
+
+        # пытаемся достать из кэша
+        params = await cache.aget(cache_key)
+        if params is None:
+            # пытаемся достать из кэша
+            option = await cls.objects.afirst()
+            if option:
+                params = option.parameters
+            else:
+                params = default or {}
+            cache.aset(cache_key, params)
+        return params
+
+    @classmethod
+    async def aget_global_prompt(cls):
+        """Asynchronously get global prompt, using cache and DB."""
+        cache_key = cls.CACHE_GLOBAL_PROMPT_KEY
+
+        # пытаемся достать из кэша
+        global_prompt = await cache.aget(cache_key)
+        if global_prompt is None:
+            # пытаемся достать из кэша
+            option = await cls.objects.afirst()
+            if option:
+                global_prompt = option.global_prompt
+            else:
+                global_prompt = ""
+            cache.aset(cache_key, global_prompt)
+        return global_prompt

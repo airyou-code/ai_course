@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'django_filters',
     'social_django',
     'anymail',
+    'admin_extra_buttons',
 
     'openai_chats',
     'core',

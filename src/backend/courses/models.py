@@ -1,4 +1,5 @@
 import uuid
+import json
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import models
@@ -6,6 +7,7 @@ from core.models import CoreModel
 from tinymce.models import HTMLField
 from adminsortable.models import SortableMixin
 from users.models import UserLessonProgress
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Course(CoreModel):
@@ -66,14 +68,21 @@ class Lesson(CoreModel, SortableMixin):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     title = models.CharField(max_length=255, help_text="the special character `$` will be replaced by a sequence number")
     description = models.TextField(blank=True, null=True)
+    lesson_en = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text="English version of the lesson. If empty, the lesson will be without a prompt.",
+    )
     duration = models.CharField(
         max_length=50, blank=True, null=True, default="15 min"
     )
-    prompt = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Prompt for ChatGPT. If empty, the lesson will be without a prompt.",
-    )
+    # prompt = models.TextField(
+    #     blank=True,
+    #     null=True,
+    #     help_text="Prompt for ChatGPT. If empty, the lesson will be without a prompt.",
+    # )
     is_free = models.BooleanField(
         default=False,
         help_text="If True, the lesson will be available for free.",
@@ -105,6 +114,59 @@ class Lesson(CoreModel, SortableMixin):
             user=user, lesson=self, is_completed=True
         ).exists()
         return is_completed
+
+    async def aget_prompt(self, user):
+        """
+        Return a JSON string with the user's lesson progress status,
+        including separate previous, current, and next content blocks.
+        """
+        # Асинхронно получаем все текстовые блоки этого урока в порядке
+        all_blocks = []
+        async for blk in ContentBlock.objects.filter(
+            lesson=self,
+            block_type='text'
+        ).order_by('order'):
+            all_blocks.append(blk)
+
+        # Определяем order текущего блока по прогрессу пользователя
+        try:
+            progress = await UserLessonProgress.objects \
+                .select_related('last_seen_block') \
+                .aget(user=user, lesson=self)
+            current_order = (
+                progress.last_seen_block.order
+                if progress.last_seen_block is not None
+                else (all_blocks[0].order if all_blocks else 0)
+            )
+        except UserLessonProgress.DoesNotExist:
+            current_order = all_blocks[0].order if all_blocks else 0
+
+        # Ищем индекс текущего блока в списке all_blocks
+        orders = [b.order for b in all_blocks]
+        try:
+            idx = orders.index(current_order)
+        except ValueError:
+            idx = 0
+
+        # Выбираем предыдущий, текущий и следующий блоки (или None)
+        prev_blk = all_blocks[idx-1] if idx-1 >= 0 else None
+        curr_blk = all_blocks[idx] if 0 <= idx < len(all_blocks) else None
+        next_blk = all_blocks[idx+1] if idx+1 < len(all_blocks) else None
+
+        # Формируем словарь с тремя блоками
+        result = {
+            "previous_block": {
+                "content_html": prev_blk.content_html or ""
+            } if prev_blk else None,
+            "current_block": {
+                "content_html": curr_blk.content_html or ""
+            } if curr_blk else None,
+            "next_block": {
+                "content_html": next_blk.content_html or ""
+            } if next_blk else None,
+        }
+
+        return json.dumps(result, ensure_ascii=False)
 
 
 class ContentBlock(CoreModel, SortableMixin):

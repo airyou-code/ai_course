@@ -4,11 +4,14 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db import models
 from core.widgets import JSONEditorWidget
+from admin_extra_buttons.decorators import button
+from admin_extra_buttons.mixins import ExtraButtonsMixin
 
 from nonrelated_inlines.admin import NonrelatedStackedInline
 from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
-from .utils import process_lesson_to_json
+from .utils import process_lesson_to_json, translate_lesson
+from googletrans import Translator
 
 from courses.models import Course, ContentBlock, Lesson, Module, Group, Access
 from core.admin import CoreAdmin
@@ -197,7 +200,7 @@ class LessonAdminForm(forms.ModelForm):
 
 
 @admin.register(Lesson)
-class LessonAdmin(SortableAdmin, CoreAdmin):
+class LessonAdmin(ExtraButtonsMixin, SortableAdmin, CoreAdmin):
     form = LessonAdminForm
     list_display = (
         "title",
@@ -235,6 +238,14 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
             }
         ),
     )
+
+    @button(
+        change_form=True,
+        html_attrs={"style": "background-color:#47BAC1;color:white"},
+        label=_("Translate to EN"),
+    )
+    def translate(self, request, pk):
+        print("translate")
 
     def get_lesson_link(self, obj):
         if obj.uuid:
