@@ -229,7 +229,6 @@ class LessonAdmin(ExtraButtonsMixin, SortableAdmin, CoreAdmin):
                     "get_lesson_link",
                     "is_free",
                     "duration",
-                    "prompt",
                     "description",
                     "uuid",
                     "content_blocks_gen",

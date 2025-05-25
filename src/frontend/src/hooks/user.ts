@@ -451,10 +451,6 @@ export const useEmailChange = () => {
           code_candidate: code,
         }
     }).then(({ data }) => {
-      const { refresh, access } = data;
-
-      setCookie(ACCESS_TOKEN, access);
-      setCookie(REFRESH_TOKEN, refresh, 29);
     })
     .catch((error) => {
       if (!error.response) {

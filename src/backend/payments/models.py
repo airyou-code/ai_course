@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.conf import settings
 from core.models import CoreModel
@@ -10,6 +11,12 @@ class Product(models.Model):
     """
     Represents a purchasable product that grants access to lessons.
     """
+    uuid = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True,
+        help_text="Unique identifier for the product"
+    )
     name = models.CharField(
         max_length=255,
         help_text="Human-readable title of the product"
@@ -22,6 +29,7 @@ class Product(models.Model):
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
+        default=999999.99,
         help_text="Product price"
     )
     currency = models.CharField(
@@ -55,20 +63,7 @@ class Product(models.Model):
         Grant the given user access to all non-free lessons
         belonging to the product's courses.
         """
-        from .models import Lesson, Access
-
-        # выбираем все уроки из связанных курсов, кроме бесплатных
-        lessons = Lesson.objects.filter(
-            module__group__course__in=self.courses.all(),
-            is_free=False
-        )
-        for lesson in lessons:
-            # создаём грант доступа, если его ещё нет
-            Access.objects.get_or_create(
-                user=user,
-                lesson=lesson,
-                defaults={'expires_at': None}
-            )
+        pass
 
 
 class CloudPaymentTransaction(models.Model):
@@ -160,6 +155,26 @@ class CloudPaymentTransaction(models.Model):
         Return True if the transaction has been confirmed.
         """
         return self.status == 'CONFIRMED'
+
+
+class CloudPaymentOptions(models.Model):
+    params = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Настройки CloudPayments, например, public_key, secret_key и т.д."
+    )
+
+    def get_params(self):
+        """
+        Returns the CloudPayments parameters as a dictionary.
+        """
+        return self.params
+
+    def get_product(self):
+        """
+        Returns the product associated with this CloudPaymentOptions.
+        """
+        return Product.objects.filter(is_active=True).first()
 
 
 class SubscriptionType(CoreModel):

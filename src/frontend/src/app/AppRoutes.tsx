@@ -6,6 +6,7 @@ import AllLessonsPage from '../pages/courses/AllLessonsPage';
 
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
+import PaymentPage from '@/pages/payments/PaymentPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 import LessonPage from '@/pages/courses/LessonPage';
@@ -35,6 +36,10 @@ const routesForAuthenticatedOnly = [
       {
         path: ROUTES.PROFILE,
         element: <ProfilePage />,
+      },
+      {
+        path: ROUTES.PAYMENT,
+        element: <PaymentPage />,
       },
     ],
   },

@@ -21,6 +21,9 @@ const API = {
   // openai_chat
   OPENAI_CHAT: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/messages/`,
   OPENAI_CHAT_STREAM: (content_block_uuid: string) => `${BASE_URL}/content-blocks/${content_block_uuid}/ai-chat/stream/`,
+  // Products
+  PAYMENTS_PARAMS: `${BASE_URL}/payments/params/`,
+  PRODUCT_DATA: `${BASE_URL}/payments/product/`
 };
 
 export default API;

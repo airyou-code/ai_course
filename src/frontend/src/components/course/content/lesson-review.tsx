@@ -101,7 +101,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
     >
       {({ values, setFieldValue, isSubmitting, errors, touched }) => (
         <Form>
-          <div className="w-full max-w-2xl mx-auto border-2 border-black p-8">
+          <div className="w-full mx-auto border border-black p-8">
             <h2 className="text-2xl font-normal mb-1">{t("lessonReview.endOfLesson")}</h2>
             <p className="text-2xl font-normal mb-8">{t("lessonReview.pleaseContinue")}</p>
 
@@ -115,6 +115,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                     <Star
                       key={`interesting-${star}`}
                       size={32}
+                      stroke-width={1}
                       className={`cursor-pointer ${
                         star <= (hoveredInterestingRating || values.interestingRating)
                           ? "fill-black text-black"
@@ -139,6 +140,7 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
                     <Star
                       key={`useful-${star}`}
                       size={32}
+                      stroke-width={1}
                       className={`cursor-pointer ${
                         star <= (hoveredUsefulRating || values.usefulRating) ? "fill-black text-black" : "text-black"
                       }`}
@@ -167,10 +169,9 @@ export default function LessonReview({ lessonUUId }: { lessonUUId: string }) {
 
             {/* Note */}
             <div>
-              <p className="text-sm text-gray-600 mb-4">{t("lessonReview.ratingNote")}</p>
               <button
                 type="submit"
-                className="w-full py-2 px-4 border-2 border-black bg-white hover:bg-gray-100 transition-colors"
+                className="w-full py-2 px-4 border border-black bg-white hover:bg-gray-100 transition-colors"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

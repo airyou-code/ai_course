@@ -1,4 +1,6 @@
-import React, { useRef } from "react"
+import React, { useState } from "react"
+import ROUTES from "@/config/routes"
+import { useNavigate } from "react-router-dom"
 import { CheckCircle, BookOpen, Lock } from "lucide-react"
 import { Progress } from "../ui/progress"
 import { Button } from "@/components/ui/button"
@@ -7,6 +9,14 @@ import { Link } from 'react-router-dom'
 import { useFetchModuleData } from '../../hooks/courses';
 import { CourseGroupsSkeleton } from "./course-skeleton"
 import { useTranslation } from "react-i18next"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface LessonProps {
   uuid: string
@@ -31,58 +41,117 @@ interface GroupProps {
 }
 
 // ------------------- LessonItem -------------------
-export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps, lessonIndex: number }) {
-  const { t } = useTranslation();
+export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lessonIndex: number }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate();
+
+  const [hovered, setHovered] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
+
+
+  const handleClick = () => {
+    if (lesson.is_locked) {
+      setOpenModal(true)
+    }
+    // иначе пусть <Link> обрабатывает переход по ссылке
+  }
 
   return (
-    <div className="flex items-start gap-4 p-5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors rounded-md dark:hover:bg-zinc-800/50">
-      <div className="mt-1">
-        {lesson.is_locked ? (
-          <Lock className="h-6 w-6 text-muted-foreground" />
-        ) : (
-          <BookOpen className="h-6 w-6 text-primary" />
-        )}
-      </div>
-
-      <div className="flex-1 space-y-1">
-        <div className="font-medium dark:text-zinc-200">
-        {
-          lesson.title.includes('$')
-            ? lesson.title.replace('$', (lessonIndex + 1).toString())
-            : lesson.title
-        }
+    <>
+      <div
+        className="relative flex items-start gap-4 p-5 border-b border-border last:border-0 transition-colors rounded-md dark:hover:bg-zinc-800/50"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={handleClick}
+      >
+        <div className="mt-1">
+          {lesson.is_locked ? (
+            <Lock className="h-6 w-6 text-muted-foreground" />
+          ) : (
+            <BookOpen className="h-6 w-6 text-primary" />
+          )}
         </div>
-        {lesson.progress > 0 && lesson.progress < 100 && !lesson.is_completed && (
-          <div className="flex items-center gap-2 pt-2">
-            <Progress value={lesson.progress} className="h-2 flex-1" />
-            <span className="text-sm text-muted-foreground whitespace-nowrap">{lesson.progress}%</span>
+
+        <div className="flex-1 space-y-1">
+          <div className="font-medium dark:text-zinc-200">
+            {lesson.title.includes('$')
+              ? lesson.title.replace('$', (lessonIndex + 1).toString())
+              : lesson.title}
+          </div>
+          {lesson.progress > 0 && lesson.progress < 100 && !lesson.is_completed && (
+            <div className="flex items-center gap-2 pt-2">
+              <Progress value={lesson.progress} className="h-2 flex-1" />
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                {lesson.progress}%
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {lesson.is_locked ? (
+            <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
+              <Lock className="h-5 w-5" />
+              <span className="sr-only">{t('course.locked')}</span>
+            </Button>
+          ) : lesson.is_completed ? (
+            <Link to={`/lesson/${lesson.uuid}`}>
+              <Button
+                variant="outline"
+                className="px-8 bg-green-50 border-green-200 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
+              >
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <span className="sr-only">{t('course.completed')}</span>
+              </Button>
+            </Link>
+          ) : (
+            <Link to={`/lesson/${lesson.uuid}`}>
+              <Button className="font-medium px-6">{t('course.start')}</Button>
+            </Link>
+          )}
+        </div>
+
+        {/* Hover overlay for locked lessons */}
+        {hovered && lesson.is_locked && (
+          <div className="cursor-pointer absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-[1px]">
+            <span className="text-sm cursor-pointer font-medium px-4 py-2 rounded-full bg-primary/10 text-primary">
+              Нажмите, чтобы узнать о полном доступе
+            </span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        {lesson.is_locked ? (
-          <Button variant="outline" className="rounded-full w-10 h-10 p-0" disabled>
-            <Lock className="h-5 w-5" />
-            <span className="sr-only">{t('course.locked')}</span>
-          </Button>
-        ) : lesson.is_completed ? (
-          <Link to={`/lesson/${lesson.uuid}`}>
-            <Button
-            variant="outline"
-            className="px-8 bg-green-50 border-green-200 hover:bg-green-100 dark:bg-green-900 dark:border-green-700 dark:hover:bg-green-800"
-            >
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <span className="sr-only">{t('course.completed')}</span>
+      {/* Modal dialog for purchase */}
+      <Dialog open={openModal} onOpenChange={setOpenModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Доступ закрыт</DialogTitle>
+            <DialogDescription>
+              Этот урок доступен только в полной версии курса. Приобретите полный доступ, чтобы разблокировать все уроки и материалы.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="rounded-lg bg-gray-100 p-4 dark:bg-gray-900">
+              <h3 className="font-medium mb-2">Что вы получите с полным доступом:</h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>Доступ ко всем урокам курса</li>
+                <li>Практические задания и примеры</li>
+                <li>Дополнительные материалы и шаблоны</li>
+                <li>Пожизненный доступ к обновлениям</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-between">
+            <Button variant="outline" onClick={() => setOpenModal(false)}>
+              Отмена
             </Button>
-          </Link>
-        ) : (
-          <Link to={`/lesson/${lesson.uuid}`}>
-            <Button className="font-medium px-6">{t('course.start')}</Button>
-          </Link>
-        )}
-      </div>
-    </div>
+            <Button onClick={() => window.location.assign(ROUTES.PAYMENT)}>
+              Купить полный доступ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

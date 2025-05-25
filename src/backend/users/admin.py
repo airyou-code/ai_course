@@ -9,7 +9,7 @@ class CourseUserAdmin(UserAdmin):
     list_display = (
         "username",
         "email",
-        "has_active_subscription",
+        "uuid",
         "type_subscription",
         "is_staff",
     )

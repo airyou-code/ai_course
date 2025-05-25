@@ -16,6 +16,7 @@ urlpatterns = [
     path('', include("users.api.v1.urls")),
     path('', include("courses.api.v1.urls")),
     path('', include("openai_chats.api.v1.urls")),
+    path('payments/', include("payments.api.v1.urls")),
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path(

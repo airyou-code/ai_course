@@ -1,8 +1,29 @@
 from django.contrib import admin
 from core.admin import CoreAdmin
-from .models import SubscriptionType, Subscription, Product, CloudPaymentTransaction
+from django.db import models
+from core.widgets import JSONEditorWidget
+from .models import SubscriptionType, Subscription, Product, CloudPaymentTransaction, CloudPaymentOptions
 from django.utils.translation import gettext_lazy as _
 
+
+
+@admin.register(CloudPaymentOptions)
+class CloudPaymentOptionsAdmin(admin.ModelAdmin):
+    """
+    Admin for CloudPaymentOptions model.
+    """
+    list_display = (
+        'id',
+        'params',
+    )
+
+    formfield_overrides = {
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                attrs={"style": "margin-bottom:30px;height:350px;width:100%;"}
+            )
+        },
+    }
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -10,6 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
     Admin for Product model.
     """
     list_display = (
+        'uuid',
         'name',
         'price',
         'currency',
@@ -19,7 +41,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ('is_active', 'currency')
     search_fields = ('name', 'description')
-    readonly_fields = ('created_at', 'updated_at',)
+    readonly_fields = ('created_at', 'updated_at', 'uuid',)
 
 
 @admin.register(CloudPaymentTransaction)

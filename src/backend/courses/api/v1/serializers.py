@@ -21,9 +21,9 @@ class LessonSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     is_completed = serializers.SerializerMethodField()
     is_locked = serializers.SerializerMethodField()
-    # content_blocks = ContentBlockSerializer(
-    #     many=True, read_only=True, source="contentblock_set"
-    # )
+    content_blocks = ContentBlockSerializer(
+        many=True, read_only=True, source="contentblock_set"
+    )
 
     class Meta:
         model = Lesson
@@ -35,7 +35,7 @@ class LessonSerializer(serializers.ModelSerializer):
             "is_completed",
             "is_locked",
             "uuid",
-            # "content_blocks",
+            "content_blocks",
         ]
 
     def get_progress(self, obj):
