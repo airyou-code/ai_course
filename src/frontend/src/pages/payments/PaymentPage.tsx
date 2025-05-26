@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import LayoutShadcn from '@/components/layout/LayoutShadcn';
 import PaymentForm from '@/components/user/payment-form';
 import { useFetchProductData } from "@/hooks/payments";
+import { useUser } from "@/hooks/user";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,12 @@ const courseData = {
 };
 
 export default function PaymentPage() {
+  const { is_has_full_access } = useUser();
+    
+    if (is_has_full_access) {
+      return <Navigate to={{ pathname: "/" }} />;
+    }
+
   const navigate = useNavigate();
   const [showPromoCode, setShowPromoCode] = useState(false);
   const [promoCode, setPromoCode] = useState("");

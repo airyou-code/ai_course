@@ -19,6 +19,7 @@ declare type User = {
   language?: string;
   first_name?: string;
   last_name?: string;
+  is_has_full_access?: boolean;
   date_joined?: string;
 };
 

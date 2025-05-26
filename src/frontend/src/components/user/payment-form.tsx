@@ -49,7 +49,9 @@ export default function PaymentForm() {
         document.body.appendChild(script)
 
         script.onload = () => {
+          // @ts-ignore
           if (window.cp) {
+            // @ts-ignore
             blocksApp = new window.cp.PaymentBlocks(config, {
               appearance: {
                 colors: {
@@ -71,7 +73,7 @@ export default function PaymentForm() {
               },
             })
             blocksApp.mount(blocksRef.current)
-            blocksApp.on("success", () => window.location.assign("/payment-success"))
+            blocksApp.on("success", () => navigate("/payment-success"))
           }
         }
       } catch (error) {

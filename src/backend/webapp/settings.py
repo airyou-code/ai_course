@@ -395,3 +395,7 @@ LANGUAGES = [
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
+
+
+CLOUDPAYMENTS_PUBLIC_ID = config('CLOUDPAYMENTS_PUBLIC_ID', default='your_public_id')
+CLOUDPAYMENTS_SECRET = config('CLOUDPAYMENTS_SECRET', default='your_secret_key')

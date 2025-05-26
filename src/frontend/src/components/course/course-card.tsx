@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import ROUTES from "@/config/routes"
 import { useNavigate } from "react-router-dom"
-import { CheckCircle, BookOpen, Lock } from "lucide-react"
+import { CheckCircle, BookOpen, Lock, LockIcon, CheckIcon } from "lucide-react"
 import { Progress } from "../ui/progress"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -54,6 +54,11 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lesso
       setOpenModal(true)
     }
     // иначе пусть <Link> обрабатывает переход по ссылке
+  }
+
+  const redirectToPayment = () => {
+    // Перенаправление на форму оплаты
+    window.location.href = ROUTES.PAYMENT;
   }
 
   return (
@@ -123,25 +128,59 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lesso
 
       {/* Modal dialog for purchase */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Доступ закрыт</DialogTitle>
-            <DialogDescription>
-              Этот урок доступен только в полной версии курса. Приобретите полный доступ, чтобы разблокировать все уроки и материалы.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="rounded-lg bg-gray-100 p-4 dark:bg-gray-900">
-              <h3 className="font-medium mb-2">Что вы получите с полным доступом:</h3>
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                <li>Доступ ко всем урокам курса</li>
-                <li>Практические задания и примеры</li>
-                <li>Дополнительные материалы и шаблоны</li>
-                <li>Пожизненный доступ к обновлениям</li>
-              </ul>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-2xl font-bold">Доступ закрыт</DialogTitle>
+              <DialogDescription className="text-base">
+                Этот урок доступен только в полной версии курса. Приобретите полный доступ, чтобы разблокировать все
+                уроки и материалы.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                  Что вы получите с полным доступом:
+                </h3>
+                <div className="grid gap-3">
+                  <div className="flex items-start space-x-3">
+                    <CheckIcon className="h-4 w-4 text-gray-600 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">4 подробных урока</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs">По генеративному ИИ</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <CheckIcon className="h-4 w-4 text-gray-600 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">Практические задания</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs">И готовые шаблоны</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <CheckIcon className="h-4 w-4 text-gray-600 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">Пожизненный доступ</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs">К материалам и обновлениям</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <CheckIcon className="h-4 w-4 text-gray-600 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">Сертификат</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-xs">О прохождении курса</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-black dark:bg-white text-white dark:text-black rounded-lg p-4 text-center">
+                <h3 className="text-xl font-bold mb-1">₽4,990</h3>
+                <p className="text-gray-300 dark:text-gray-700 text-sm">Единоразовый платеж • Пожизненный доступ</p>
+              </div>
             </div>
-          </div>
-          <DialogFooter className="sm:justify-between">
+
+            <DialogFooter className="sm:justify-between">
             <Button variant="outline" onClick={() => setOpenModal(false)}>
               Отмена
             </Button>
@@ -149,8 +188,8 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lesso
               Купить полный доступ
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
     </>
   )
 }

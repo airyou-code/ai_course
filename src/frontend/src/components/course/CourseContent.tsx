@@ -34,6 +34,8 @@ import { useTranslation } from "react-i18next"
 import {
   SkeletonLoader
 } from '../ui/loader';
+import AccessDeniedPage from './access-denied-page';
+
 
 export default function CoursePage() {
   const { t } = useTranslation()
@@ -49,7 +51,7 @@ export default function CoursePage() {
     (state: RootState) => state.blocks
   );
 
-  const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
+  const { data: fetchedData, isLoading, isError, isForbidden } = useFetchLessonData(lessonUUId);
   const { progress, setProgress } = useLessonProgress();
   const { refetch: fetchNext } = useFetchNextLessonData(lessonUUId);
 
@@ -200,6 +202,8 @@ export default function CoursePage() {
       </div>
     </main>
   );
+  if (isForbidden) return <AccessDeniedPage />;
+  
   if (isError) return <div>Error fetching data</div>;
 
   return (

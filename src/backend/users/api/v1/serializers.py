@@ -23,6 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'is_active',
+            'is_has_full_access',
             'language',
             'date_joined'
         ]
@@ -30,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'is_active',
+            'is_has_full_access',
             'date_joined'
         ]
 

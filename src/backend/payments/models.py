@@ -5,6 +5,8 @@ from core.models import CoreModel
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from datetime import timedelta, datetime
+from courses.models import Access
+from users.models import CourseUser
 
 
 class Product(models.Model):
@@ -58,12 +60,14 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    def apply(self, user):
+    def apply(self, user: CourseUser):
         """
         Grant the given user access to all non-free lessons
         belonging to the product's courses.
         """
-        pass
+        access = Access.objects.all().first()
+        user.access.add(access)
+        user.save()
 
 
 class CloudPaymentTransaction(models.Model):
@@ -72,6 +76,7 @@ class CloudPaymentTransaction(models.Model):
     """
     STATUS_CHOICES = [
         ('AUTHORIZED', 'Authorized'),
+        ('COMPLETED', 'Completed'),
         ('CONFIRMED', 'Confirmed'),
         ('DECLINED', 'Declined'),
         ('REFUNDED', 'Refunded'),
@@ -154,7 +159,7 @@ class CloudPaymentTransaction(models.Model):
         """
         Return True if the transaction has been confirmed.
         """
-        return self.status == 'CONFIRMED'
+        return self.status in ('COMPLETED', 'CONFIRMED', 'AUTHORIZED')
 
 
 class CloudPaymentOptions(models.Model):

@@ -48,11 +48,18 @@ class CourseUser(AbstractUser):
             end_date__gte=datetime.now()
         ).first()
 
-    def is_has_access(self, lesson) -> bool:
+    def is_has_access(self, lesson ) -> bool:
         """
         Check if the user has access to a specific lesson.
         """
-        return self.access.filter(lessons=lesson).exists()
+        return lesson.is_free or self.access.filter(lessons=lesson).exists()
+
+    @property
+    def is_has_full_access(self) -> bool:
+        """
+        Check if the user has full access to all lessons.
+        """
+        return self.access.exists()
 
 
 class UserLessonProgress(models.Model):

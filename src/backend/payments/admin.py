@@ -67,6 +67,15 @@ class CloudPaymentTransactionAdmin(admin.ModelAdmin):
         'user__email',
     )
     readonly_fields = (
+        'transaction_id',
+        'card_type',
+        'ip_address',
+        'user',
+        'product',
+        'invoice_id',
+        'amount',
+        'currency',
+        'status',
         'created_at',
         'updated_at',
         'raw_data',

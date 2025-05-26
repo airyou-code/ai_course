@@ -10,7 +10,7 @@ from .serializers import (
     ContentBlockListSerializer,
 )
 from rest_framework.authentication import SessionAuthentication
-from users.models import UserLessonProgress, UserReview
+from users.models import UserLessonProgress, UserReview, CourseUser
 from openai_chats.utils import get_chat_messages
 
 
@@ -58,10 +58,16 @@ class LessonContentBlocksViewSet(
         except Lesson.DoesNotExist:
             return Response({"error": _("Lesson not found")}, status=404)
 
+        user: CourseUser = request.user
+
+        if not user.is_has_access(lesson=lesson):
+            return Response(
+                {"error": _("You do not have access to this lesson")},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by("order")
         last_seen_block = content_blocks.first()
-
-        user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
             user=user,
@@ -174,11 +180,17 @@ class LessonNextContentBlocksViewSet(
         except Lesson.DoesNotExist:
             return Response({"error": _("Lesson not found")}, status=404)
 
+        user: CourseUser = request.user
+
+        if not user.is_has_access(lesson=lesson):
+            return Response(
+                {"error": _("You do not have access to this lesson")},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by("order")
         last_seen_block = content_blocks.first()
         blocks_count: int = content_blocks.count()
-
-        user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
             user=user, lesson=lesson, defaults={"last_seen_block": last_seen_block}

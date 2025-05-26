@@ -7,6 +7,7 @@ import AllLessonsPage from '../pages/courses/AllLessonsPage';
 import ProtectedRoute from './ProtectedRoute';
 import AuthPage from '../pages/users/AuthPage';
 import PaymentPage from '@/pages/payments/PaymentPage';
+import SuccessPage from '@/pages/payments/SuccessPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 import LessonPage from '@/pages/courses/LessonPage';
@@ -41,6 +42,10 @@ const routesForAuthenticatedOnly = [
         path: ROUTES.PAYMENT,
         element: <PaymentPage />,
       },
+      {
+        path: ROUTES.SUCCESS_PAYMENT,
+        element: <SuccessPage />,
+      }
     ],
   },
 ]
