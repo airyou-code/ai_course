@@ -13,6 +13,7 @@ import {
 
 import { useFetchLessonData, useFetchLessonHistory } from '../../hooks/courses';
 import { useFetchNextLessonData } from "@/hooks/courses";
+import { useStreamStatus } from '@/reducers/StreamStatus';
 
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';

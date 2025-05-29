@@ -10,7 +10,6 @@ import { useUserLanguage } from './user';
 export const useAuthRequest = () => {
   const { toast } = useToast()
   const language = useUserLanguage();
-  console.log('language', language)
 
   return async (
     url: string,

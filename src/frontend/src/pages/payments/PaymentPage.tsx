@@ -115,7 +115,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between text-xl font-semibold">
                   <span>Итого к оплате</span>
                   <span>
-                    {isLoading ? <Skeleton className="h-5 w-20" /> : `₽${finalPrice.toLocaleString()}`}
+                    {isLoading ? <Skeleton className="h-5 w-20" /> : `₽${productData.price.toLocaleString()}`}
                   </span>
                 </div>
               </div>

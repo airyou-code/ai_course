@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom'
 import { useFetchModuleData } from '../../hooks/courses';
 import { CourseGroupsSkeleton } from "./course-skeleton"
 import { useTranslation } from "react-i18next"
+import { useFetchProductData } from "@/hooks/payments"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Dialog,
   DialogContent,
@@ -40,10 +42,16 @@ interface GroupProps {
   modules: ModuleProps[]
 }
 
+
 // ------------------- LessonItem -------------------
 export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lessonIndex: number }) {
   const { t } = useTranslation()
   const navigate = useNavigate();
+  // NOTE: Это очень плохо инитить хук каждый урок, но в данном случае это нужно для получения данных о продукте
+  // В идеале нужно вынести получение данных о продукте на уровень выше, чтобы не делать лишних запросов
+  // Но для простоты и быстроты разработки оставим так
+  // В будущем можно будет оптимизировать
+  const { data: productData, isLoading, isError } = useFetchProductData();
 
   const [hovered, setHovered] = useState(false)
   const [openModal, setOpenModal] = useState(false)
@@ -175,7 +183,9 @@ export function LessonItem({ lesson, lessonIndex }: { lesson: LessonProps; lesso
               </div>
 
               <div className="bg-black dark:bg-white text-white dark:text-black rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold mb-1">₽4,990</h3>
+                <h3 className="text-xl font-bold mb-1">
+                {isLoading ? <Skeleton className="h-12 w-40" /> : `₽${productData.price.toLocaleString()}`}
+                </h3>
                 <p className="text-gray-300 dark:text-gray-700 text-sm">Единоразовый платеж • Пожизненный доступ</p>
               </div>
             </div>

@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from courses.models import ContentBlock
-from django.core.cache import cache,  caches
+from django.core.cache import cache
 
 class Chat(models.Model):
     """This model stores chats."""

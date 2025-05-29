@@ -8,6 +8,7 @@ import { useRefreshLogin } from './user';
 import { endProcBlock, setProcBlockError, updateProcBlock } from '@/store/slices/blocksSlice';
 import { AppDispatch } from '@/store';
 
+
 export const useFetchChatHistory = (content_block_uuid: string) => {
     const request = useRequest();
     return useQuery({
@@ -25,6 +26,7 @@ export async function streamChat(
     content_block_uuid: string,
     message: string,
     dispatch: AppDispatch,
+    setIsStreaming: (isStreaming: boolean) => void,
     refreshLogin: () => Promise<void>,
     toastFn: (opts: any) => void
   ) {
@@ -43,7 +45,7 @@ export async function streamChat(
       });
       return;
     }
-  
+
     const controller = new AbortController();
     const url = API.OPENAI_CHAT_STREAM(content_block_uuid);
     let batchContent = "";
@@ -67,6 +69,7 @@ export async function streamChat(
             title: "Ошибка!",
             description: response.statusText,
           });
+          setIsStreaming(false);
           controller.abort();
           throw err; 
         }
@@ -84,6 +87,7 @@ export async function streamChat(
         if (parsed.error) {
           // сервер сообщил об ошибке в теле SSE
           dispatch(setProcBlockError(parsed.message));
+          setIsStreaming(false);
           controller.abort();
           return 0;
         }
@@ -91,6 +95,7 @@ export async function streamChat(
         if (parsed.done) {
           // конец стрима
           dispatch(endProcBlock());
+          setIsStreaming(false);
           controller.abort();
           return 0;
         }
@@ -109,6 +114,7 @@ export async function streamChat(
           title: "Ошибка!",
           description: err.message ?? "Stream error",
         });
+        setIsStreaming(false);
         controller.abort();
         throw err;
       },

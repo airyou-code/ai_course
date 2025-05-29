@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button"
 import ROUTES from "@/config/routes"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock, Home, ShoppingCart, Star, Clock, Award } from "lucide-react"
+import { useFetchProductData } from "@/hooks/payments"
+import { Skeleton } from "@/components/ui/skeleton";
+
 
 export default function AccessDeniedPage() {
+  const { data: productData, isLoading, isError } = useFetchProductData();
   const handleGoHome = () => {
     // Переход на главную с перезагрузкой
     window.location.href = "/"
@@ -67,7 +71,9 @@ export default function AccessDeniedPage() {
           </div>
 
           <div className="bg-black dark:bg-white text-white dark:text-black rounded-lg p-6 text-center">
-            <h3 className="text-2xl font-bold mb-2">₽4,990</h3>
+            <h3 className="text-2xl font-bold mb-2">
+              {isLoading ? <Skeleton className="h-12 w-40" /> : `₽${productData.price.toLocaleString()}`}
+            </h3>
             <p className="text-gray-300 dark:text-gray-700 mb-4">Единоразовый платеж • Пожизненный доступ</p>
             <div className="flex items-center justify-center space-x-2 text-sm text-gray-400 dark:text-gray-600">
               <span>✓ Без подписки</span>
@@ -89,7 +95,6 @@ export default function AccessDeniedPage() {
             <Button
               onClick={handleBuyAccess}
               className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
-              size="lg"
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
               Купить полный доступ
@@ -98,7 +103,6 @@ export default function AccessDeniedPage() {
             <Button
               variant="outline"
               className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-              size="lg"
               onClick={handleGoHome}
             >
               <Home className="mr-2 h-5 w-5" />
