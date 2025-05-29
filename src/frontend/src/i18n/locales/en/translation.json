@@ -112,5 +112,7 @@
   "userProfile.confirmPassword": "Confirm Password",
   "userProfile.updatingPassword": "Updating password...",
   "userProfile.updatePassword": "Update Password",
-  "InputGptBlock.Continue": "Continue"
+  "InputGptBlock.Continue": "Continue",
+  "chat.waitingForResponse": "Waiting for response...",
+  "chat.askAnything": "Ask anything"
 }

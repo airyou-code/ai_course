@@ -8,6 +8,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 /**
  * Props for ChatInput
@@ -25,8 +26,8 @@ interface ChatInputProps {
 export function ChatInput({
   onSubmit,
   isStreaming = false,
-  placeholder = "Ask Anything",
 }: ChatInputProps) {
+  const {t} = useTranslation();
   const [message, setMessage] = useState("");
   const [hasTyped, setHasTyped] = useState(false);
   const [activeButton, setActiveButton] = useState<"none" | "add" | "deepSearch" | "think">("none");
@@ -123,7 +124,7 @@ export function ChatInput({
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            placeholder={isStreaming ? "Waiting for response..." : placeholder}
+            placeholder={isStreaming ? t("chat.waitingForResponse") : t("chat.askAnything")}
             className="min-h-[24px] max-h-[160px] w-full rounded-3xl border-0 bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-base focus-visible:ring-0 focus-visible:ring-offset-0 text-base pl-2 pr-4 pt-0 pb-0 resize-none overflow-y-auto leading-tight"
           />
         </div>
