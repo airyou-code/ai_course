@@ -111,5 +111,6 @@
   "userProfile.newPassword": "Новый пароль",
   "userProfile.confirmPassword": "Подтвердите пароль",
   "userProfile.updatingPassword": "Обновление пароля...",
-  "userProfile.updatePassword": "Обновить пароль"
+  "userProfile.updatePassword": "Обновить пароль",
+  "InputGptBlock.Continue": "Продолжить"
 }

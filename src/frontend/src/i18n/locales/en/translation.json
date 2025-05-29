@@ -111,5 +111,6 @@
   "userProfile.newPassword": "New Password",
   "userProfile.confirmPassword": "Confirm Password",
   "userProfile.updatingPassword": "Updating password...",
-  "userProfile.updatePassword": "Update Password"
+  "userProfile.updatePassword": "Update Password",
+  "InputGptBlock.Continue": "Continue"
 }

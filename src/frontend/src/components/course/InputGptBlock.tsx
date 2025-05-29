@@ -7,10 +7,12 @@ import { streamChat } from '@/hooks/openai';
 import { useToast } from '@/hooks/use-toast';
 import { useRefreshLogin } from '@/hooks/user';
 import { useStreamStatus } from '@/reducers/StreamStatus';
+import { useTranslation } from 'react-i18next';
 
 
 // @ts-ignore
 const InputGptBlock = ({ block }) => {
+  const { t } = useTranslation();
   // Всегда вызываем хуки, даже если block не определён
   const dispatch = useDispatch();
   const refreshLogin = useRefreshLogin();
@@ -38,7 +40,7 @@ const InputGptBlock = ({ block }) => {
               { parent_uuid: blockParentId, type: 'input_dialog', content: message },
               { parent_uuid: blockParentId, type: 'output_dialog', content: '', is_processing: true, is_init: true, is_md: true },
               { parent_uuid: blockParentId, type: 'input_gpt', content: '', post_uuid: blockId },
-              { parent_uuid: blockParentId, type: 'button_continue', content: 'Continue' },
+              { parent_uuid: blockParentId, type: 'button_continue', content: t("InputGptBlock.Continue") },
             ]
           )
         );
