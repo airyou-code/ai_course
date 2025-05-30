@@ -150,8 +150,8 @@ export function LoginForm({
                         </Trans>
                       </Label>
                       <a
-                        href="#"
-                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                        href="/forgot-password"
+                        className="ml-auto inline-block text-sm underline underline-offset-4 hover:underline"
                       >
                         <Trans i18nKey="login.forgotPassword">
                         Forgot Password?

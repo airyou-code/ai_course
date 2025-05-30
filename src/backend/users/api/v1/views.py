@@ -157,3 +157,20 @@ class UserReviewAPIView(generics.CreateAPIView):
 
     def get_queryset(self):
         return UserReview.objects.filter(user=self.request.user)
+
+
+class PasswordResetRequestView(generics.CreateAPIView):
+    serializer_class = serializers.PasswordResetRequestSerializer
+
+    @method_decorator(ratelimit(key='ip', rate='1/15s', method='POST', block=False))
+    def post(self, request, *args, **kwargs):
+        if getattr(request, 'limited', False):
+            raise Throttled(detail=_('Too many attempts to reset password. Try again in 30 sec.'))
+        return super().post(request, *args, **kwargs)
+
+
+class PasswordResetConfirmView(generics.CreateAPIView):
+    serializer_class = serializers.PasswordResetConfirmSerializer
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)

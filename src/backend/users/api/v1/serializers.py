@@ -8,9 +8,10 @@ from users import utils
 from django.utils import timezone
 from django.conf import settings
 from rest_framework.exceptions import ValidationError, Throttled
-from mail.tasks import send_verify_email_task
+from mail.tasks import send_verify_email_task, send_password_reset_link_email_task
 from mail.models import Mail
 from users import enums
+import uuid
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -270,3 +271,60 @@ class UserReviewSerializer(serializers.ModelSerializer):
 
         review = UserReview.objects.create(lesson=lesson, **validated_data)
         return review
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+
+    def validate(self, attrs):
+        user = CourseUser.objects.filter(email__iexact=attrs['email'].lower()).first()
+        if not user:
+            raise ValidationError(_('User with this email does not exist'))
+        attrs['user'] = user
+        return attrs
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        # Генерируем токен (uuid4)
+        token = str(uuid.uuid4())
+        # Сохраняем токен в redis
+        utils.set_verification_code(token, enums.UserSecurityCode.RESET_PASSWORD, str(user.uuid))
+        # Формируем ссылку
+        reset_link = f"{settings.FRONTEND_URL}/reset-password/{token}"
+        # Отправляем email
+        if settings.FAKE_SEND_EMAIL:
+            print("FAKE_SEND_EMAIL", settings.FAKE_SEND_EMAIL)
+            print(f"RESET_LINK: {reset_link}")
+        else:
+            send_password_reset_link_email_task.delay(user.email, reset_link)
+        return {"email": user.email}
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        token = attrs['token']
+        new_password = attrs['new_password']
+        # Проверяем токен
+        redis_user_uuid = utils.get_verification_code(token, enums.UserSecurityCode.RESET_PASSWORD)
+        if not redis_user_uuid:
+            raise ValidationError(_('Invalid or expired token'))
+
+        utils.is_valid_password(new_password)
+        attrs['user'] = CourseUser.objects.filter(uuid=redis_user_uuid).first()
+        if not attrs['user']:
+            raise ValidationError(_('User not found'))
+        return attrs
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        new_password = validated_data['new_password']
+        token = validated_data['token']
+        # Меняем пароль
+        user.set_password(new_password)
+        user.save()
+        # Удаляем токен
+        utils.delete_used_code(token, enums.UserSecurityCode.RESET_PASSWORD)
+        return user

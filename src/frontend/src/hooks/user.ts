@@ -528,3 +528,66 @@ export const useCreateUserReview = () => {
     });
   };
 }
+
+export const usePasswordResetRequest = () => {
+  const request = useAuthRequest();
+  return (email: string) => {
+    return request(API.PASSWORD_RESET_REQUEST, {
+      method: 'POST',
+      data: { email },
+    }).then(() => null)
+      .catch((error) => {
+        if (!error.response) {
+          return Promise.reject({
+            status: null,
+            fieldErrors: {},
+            nonFieldErrors: ['Network error or server not responding'],
+          });
+        }
+        const { status, data } = error.response;
+        if (status >= 500) {
+          return Promise.reject({
+            status,
+            fieldErrors: {},
+            nonFieldErrors: ['There was an internal server error'],
+          });
+        }
+        const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+        return Promise.reject({ status, fieldErrors, nonFieldErrors });
+      });
+  };
+};
+
+interface PasswordResetConfirm {
+  token: string;
+  new_password: string;
+}
+
+export const usePasswordResetConfirm = () => {
+  const request = useAuthRequest();
+  return ({ token, new_password }: PasswordResetConfirm) => {
+    return request(API.PASSWORD_RESET_CONFIRM, {
+      method: 'POST',
+      data: { token, new_password },
+    }).then(() => null)
+      .catch((error) => {
+        if (!error.response) {
+          return Promise.reject({
+            status: null,
+            fieldErrors: {},
+            nonFieldErrors: ['Network error or server not responding'],
+          });
+        }
+        const { status, data } = error.response;
+        if (status >= 500) {
+          return Promise.reject({
+            status,
+            fieldErrors: {},
+            nonFieldErrors: ['There was an internal server error'],
+          });
+        }
+        const { fieldErrors, nonFieldErrors } = parseDRFErrors(data);
+        return Promise.reject({ status, fieldErrors, nonFieldErrors });
+      });
+  };
+};

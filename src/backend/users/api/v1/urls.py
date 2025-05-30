@@ -12,4 +12,6 @@ urlpatterns = [
     path('email/register/', views.EmailRegistrationView.as_view(), name='email_register'),
     path('email/change/request/', views.UserEmailChangeRequestAPIView.as_view(), name='email_change_request'),
     path('email/change/', views.UserEmailChangeAPIView.as_view(), name='email_change'),
+    path('password-reset/request/', views.PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

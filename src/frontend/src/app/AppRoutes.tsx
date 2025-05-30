@@ -12,6 +12,8 @@ import NotFoundPage from '../pages/NotFoundPage';
 import ProfilePage from '../pages/users/ProfilePage';
 import LessonPage from '@/pages/courses/LessonPage';
 import RegistrationPage from '@/pages/users/RegistrationPage';
+import ForgotPasswordPage from '../pages/users/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/users/ResetPasswordPage';
 
 const routesForAuthenticatedOnly = [
   {
@@ -54,6 +56,14 @@ const routesForNotAuthenticatedOnly = [
   {
     path: ROUTES.LOGIN,
     element: <AuthPage />,
+  },
+  {
+    path: ROUTES.FORGOT_PASSWORD,
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPasswordPage />,
   },
   {
     path: "/register",

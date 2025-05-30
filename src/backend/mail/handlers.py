@@ -110,6 +110,35 @@ def verify_email_handler(email: str, code: str, url=f'{settings.FRONTEND_VERIFY_
         mail.save()
 
 
+def password_reset_link_handler(email: str, reset_link: str):
+    """
+       Send reset password link
+    """
+    SUBJECT = f'Reset your password for {settings.PROJECT_NAME}'
+    TEMPLATE_RELATIVE_PATH = os.path.join('mail', 'templates', 'reset_password.html')
+    TEMPLATE = os.path.join(settings.BASE_DIR, TEMPLATE_RELATIVE_PATH)
+
+    # Load the email template
+    with open(TEMPLATE, 'r') as f:
+        body = f.read()
+
+    # Variables for replace
+    variables = {
+        '{{url}}': reset_link,
+        '{{code}}': '',  # если нужно, можно добавить код
+    }
+
+    body = body_replace(body, variables)
+
+    mail = create_model(SUBJECT, body, email)
+
+    res = single_sender_wrapper(SUBJECT, body, email)
+
+    if res:
+        mail.is_send = True
+        mail.save()
+
+
 # def password_reset_request_handler(user: User, code: str, url=f'{settings.FRONTEND_VERIFY_EMAIL_URL}'):
 #     """
 #        Send verification code for reset password

@@ -114,5 +114,21 @@
   "userProfile.updatePassword": "Update Password",
   "InputGptBlock.Continue": "Continue",
   "chat.waitingForResponse": "Waiting for response...",
-  "chat.askAnything": "Ask anything"
+  "chat.askAnything": "Ask anything",
+  "forgot.title": "Forgot Password",
+  "forgot.step1Description": "Enter your email to receive a password reset link",
+  "forgot.step2Description": "An email with instructions has been sent to your email address.",
+  "forgot.sentMessage": "An email with instructions has been sent to your email address.",
+  "forgot.toMain": "To main screen",
+  "resetPassword.title": "Reset Password",
+  "resetPassword.success": "Password changed successfully!",
+  "resetPassword.toMain": "To main screen",
+  "resetPassword.invalidLink": "Invalid or expired link",
+  "resetPassword.error": "Failed to reset password. Please try again.",
+  "resetPassword.passwordLabel": "New Password",
+  "resetPassword.passwordPlaceholder": "Enter new password",
+  "resetPassword.confirmPasswordLabel": "Repeat Password",
+  "resetPassword.confirmPasswordPlaceholder": "Repeat new password",
+  "resetPassword.processing": "Processing...",
+  "resetPassword.submit": "Change Password"
 }
