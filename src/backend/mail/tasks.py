@@ -19,7 +19,6 @@ def send_verify_email_task(email: int, code: str):
 #     handlers.password_reset_request_handler(user, code)
 
 
-@shared_task(name="send_password_reset_link_email")
+@app.task
 def send_password_reset_link_email_task(email: str, reset_link: str):
-    from mail.handlers import password_reset_link_handler
-    password_reset_link_handler(email, reset_link)
+    handlers.password_reset_link_handler(email, reset_link)

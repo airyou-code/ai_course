@@ -33,6 +33,7 @@ services:
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
       - N8N_TRUST_PROXY=true
       - WEBHOOK_URL=https://n8n.prompthub.study
+      - N8N_WEBHOOK_URL=https://n8n.prompthub.study 
     ports:
       - 5678:5678
     links:

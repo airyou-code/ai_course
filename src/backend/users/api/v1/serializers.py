@@ -142,10 +142,9 @@ class EmailChangeRequestSerializer(serializers.Serializer):
             email_candidate
         )
         if settings.FAKE_SEND_EMAIL:
-            print("FAKE_SEND_EMAIL", settings.FAKE_SEND_EMAIL)
             print(f"CODE: {code}")
         else:
-            send_verify_email_task(email=email_candidate, code=code)
+            send_verify_email_task.delay(email=email_candidate, code=code)
         return validated_data
 
 
@@ -288,7 +287,9 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         # Генерируем токен (uuid4)
         token = str(uuid.uuid4())
         # Сохраняем токен в redis
-        utils.set_verification_code(token, enums.UserSecurityCode.RESET_PASSWORD, str(user.uuid))
+        utils.set_verification_code(
+            token, enums.UserSecurityCode.RESET_PASSWORD, str(user.uuid)
+        )
         # Формируем ссылку
         reset_link = f"{settings.FRONTEND_URL}/reset-password/{token}"
         # Отправляем email

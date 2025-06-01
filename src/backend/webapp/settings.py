@@ -236,7 +236,7 @@ CELERY_TASK_ALWAYS_EAGER = config("CELERY_TASK_ALWAYS_EAGER", default=DEBUG, cas
 # celery setup
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="amqp://localhost")
 CELERY_RESULT_BACKEND = config(
-    "CELERY_RESULT_BACKEND", default="redis://localhost:6379"
+    "CELERY_RESULT_BACKEND", default="redis://localhost:6379/0"
 )
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"

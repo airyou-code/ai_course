@@ -111,7 +111,6 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
     fields = [
         "title",
         "description",
-        "prompt",
         "is_free",
         "duration",
     ]
@@ -200,7 +199,7 @@ class LessonAdminForm(forms.ModelForm):
 
 
 @admin.register(Lesson)
-class LessonAdmin(ExtraButtonsMixin, SortableAdmin, CoreAdmin):
+class LessonAdmin(SortableAdmin, CoreAdmin):
     form = LessonAdminForm
     list_display = (
         "title",
