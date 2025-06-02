@@ -1,9 +1,10 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { User } from "lucide-react"
-import DOMPurify from "dompurify";
-import ReactMarkdown from 'react-markdown';
+import DOMPurify from "dompurify"
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
 
 interface DialogBoxProps {
   content: string
@@ -15,20 +16,25 @@ interface DialogBoxProps {
   is_init?: boolean
 }
 
-export function DialogBox({ content, error_msg = "", avatar, isInput = false, is_md = false, is_error = false, is_init = false }: DialogBoxProps) {
-
-  // Базовые классы
+export function DialogBox({
+  content,
+  error_msg = "",
+  avatar,
+  isInput = false,
+  is_md = false,
+  is_error = false,
+  is_init = false,
+}: DialogBoxProps) {
+  // Определяем класс контейнера (лево/право)
   const containerClass = isInput
     ? "flex gap-4 flex-row-reverse"
     : "flex gap-4 flex-row"
 
-  // Базовые классы для блока сообщения
-  // Добавляем dark: классы для тёмной темы
+  // Добавим общий padding и фон для блока сообщения
   const messageClass = isInput
-    ? "max-w-[80%] rounded-lg p-4 bg-muted/50"
-    : "max-w-[100%] rounded-lg p-4 bg-muted/50"
+    ? "max-w-[80%] rounded-lg bg-muted/50 p-6" // p-6 добавляет «воздуха» вокруг
+    : "max-w-[100%] rounded-lg bg-muted/50 p-6"
 
-  // Если инициализация: показываем индикатор загрузки
   if (is_init) {
     return (
       <div className={containerClass}>
@@ -39,37 +45,39 @@ export function DialogBox({ content, error_msg = "", avatar, isInput = false, is
     )
   }
 
-  // Если ошибка
   if (is_error) {
     return (
       <div className={containerClass}>
         <div className={messageClass + " text-red-600 dark:text-red-400"}>
-          {/* Два кейса: если есть контент, отображаем его с сообщением об ошибке; если нет — только ошибку */}
           {content ? (
             <>
               {is_md ? (
-                <ReactMarkdown>{content}</ReactMarkdown>
+                // Оборачиваем Markdown в контейнер с увеличенными отступами
+                <div className="prose prose-lg space-y-6 dark:prose-invert">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+                  >
+                    {content}
+                  </ReactMarkdown>
+                </div>
               ) : (
                 <div
-                  id="dangerouslySetInnerHTML"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(content),
+                  }}
                 ></div>
               )}
-              <div className="mt-2 font-semibold">
-                {error_msg}
-              </div>
+              <div className="mt-4 font-semibold">{error_msg}</div>
             </>
           ) : (
-            <div>
-              {error_msg}
-            </div>
+            <div>{error_msg}</div>
           )}
         </div>
       </div>
     )
   }
 
-  // Обычный режим отображения
   return (
     <div className={containerClass}>
       {isInput && (
@@ -80,10 +88,16 @@ export function DialogBox({ content, error_msg = "", avatar, isInput = false, is
 
       <div className={messageClass}>
         {is_md ? (
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <div className="prose prose-lg max-w-none dark:prose-invert">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+            >
+              {content}
+            </ReactMarkdown>
+          </div>
         ) : (
           <div
-            id="dangerouslySetInnerHTML"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(content),
             }}
@@ -91,5 +105,5 @@ export function DialogBox({ content, error_msg = "", avatar, isInput = false, is
         )}
       </div>
     </div>
-  );
+  )
 }
