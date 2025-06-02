@@ -115,7 +115,7 @@ class Lesson(CoreModel, SortableMixin):
         ).exists()
         return is_completed
 
-    async def aget_prompt(self, user):
+    async def aget_prompt(self, user) -> str:
         """
         Return a JSON string with the user's lesson progress status,
         including separate previous, current, and next content blocks.

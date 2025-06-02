@@ -17,7 +17,13 @@ class ChatMessageInline(admin.TabularInline):
 
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
-    list_display = ("content_block", "user", "created_at")
+    list_display = (
+        "content_block",
+        "user",
+        "total_token_input",
+        "total_token_output",
+        "created_at",
+    )
     list_filter = ("user", "created_at")
     search_fields = ("user__username", "content_block__uuid")
     readonly_fields = ("content_block", "user", "created_at")

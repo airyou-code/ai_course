@@ -108,7 +108,10 @@ class LLMTokensReStreamView(View):
         conversation = []
         lesson: Lesson = block.lesson
         global_prompt: str = await Option.aget_global_prompt()
-        lesson_prompt: str = await lesson.aget_prompt(user=user)
+        lesson_prompt: str = ""
+        is_active_lesson_context: bool = await Option.aget_is_active_lesson_context()
+        if is_active_lesson_context:
+            lesson_prompt = await lesson.aget_prompt(user=user)
         if global_prompt:
             conversation.append({"role": "system", "content": global_prompt})
         if lesson_prompt:
