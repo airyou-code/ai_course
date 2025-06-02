@@ -184,17 +184,17 @@ class LLMTokensReStreamView(View):
             # сохраняем в БД
             if global_prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="system", content=global_prompt
+                    chat=user_chat, role="system", content=global_prompt, model_used=params.get("model", "")
                 )
             if lesson_prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="developer", content=lesson_prompt
+                    chat=user_chat, role="developer", content=lesson_prompt, model_used=params.get("model", "")
                 )
             await ChatMessage.objects.acreate(
-                chat=user_chat, role="user", content=user_input
+                chat=user_chat, role="user", content=user_input, model_used=params.get("model", "")
             )
             await ChatMessage.objects.acreate(
-                chat=user_chat, role="assistant", content=assistant_content
+                chat=user_chat, role="assistant", content=assistant_content, model_used=params.get("model", "")
             )
             await cache.adelete(cache_key)
 

@@ -21,7 +21,7 @@ class ChatAdmin(admin.ModelAdmin):
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    list_display = ("id", "chat", "role", "short_content", "created_at")
+    list_display = ("id", "chat", "role", "token_count", "model_used", "short_content", "created_at")
     list_filter = ("role", "chat__user", "created_at")
     search_fields = ("chat__user__username", "content")
     date_hierarchy = "created_at"

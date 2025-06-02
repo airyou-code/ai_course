@@ -2,13 +2,23 @@ from django.db import models
 from django.conf import settings
 from courses.models import ContentBlock
 from django.core.cache import cache
+from openai_chats.utils import count_tokens
+
 
 class Chat(models.Model):
     """This model stores chats."""
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="chats")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="chats"
+    )
     content_block = models.ForeignKey(
         ContentBlock, on_delete=models.CASCADE, related_name="chats"
+    )
+    token_input = models.PositiveIntegerField(
+        default=0, help_text="Number of tokens used in the input messages"
+    )
+    token_output = models.PositiveIntegerField(
+        default=0, help_text="Number of tokens used in the output messages"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -29,10 +39,25 @@ class ChatMessage(models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="messages")
     role = models.CharField(max_length=50, choices=ROLE_CHOICES)
     content = models.TextField()
+    token_count = models.PositiveIntegerField(
+        default=0, help_text="Number of tokens used in this message"
+    )
+    model_used = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Model used for generating this message",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.get_role_display()} | {self.content[:30]}"
+    
+    def save(self, *args, **kwargs):
+        if not self.token_count:
+            # Calculate token count based on content
+            self.token_count = count_tokens(self.content, model_name=self.model_used)
+        super().save(*args, **kwargs)
 
 
 class Option(models.Model):

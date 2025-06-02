@@ -11,7 +11,7 @@ from .serializers import (
 )
 from rest_framework.authentication import SessionAuthentication
 from users.models import UserLessonProgress, UserReview, CourseUser
-from openai_chats.utils import get_chat_messages
+from courses.utils import get_chat_messages
 
 
 class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
