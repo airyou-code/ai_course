@@ -52,7 +52,7 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"{self.get_role_display()} | {self.content[:30]}"
-    
+
     def save(self, *args, **kwargs):
         if not self.token_count:
             # Calculate token count based on content

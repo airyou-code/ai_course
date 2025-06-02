@@ -3,11 +3,17 @@ from django.db import models
 from core.widgets import JSONEditorWidget
 from .models import Chat, ChatMessage, Option
 
+
 class ChatMessageInline(admin.TabularInline):
     model = ChatMessage
     fields = ("role", "content", "created_at")
-    readonly_fields = ("role", "content", "created_at",)
+    readonly_fields = (
+        "role",
+        "content",
+        "created_at",
+    )
     extra = 0
+
 
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
@@ -19,9 +25,18 @@ class ChatAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     ordering = ("-created_at",)
 
+
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    list_display = ("id", "chat", "role", "token_count", "model_used", "short_content", "created_at")
+    list_display = (
+        "id",
+        "chat",
+        "role",
+        "token_count",
+        "model_used",
+        "short_content",
+        "created_at",
+    )
     list_filter = ("role", "chat__user", "created_at")
     search_fields = ("chat__user__username", "content")
     date_hierarchy = "created_at"
@@ -29,6 +44,7 @@ class ChatMessageAdmin(admin.ModelAdmin):
 
     def short_content(self, obj):
         return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
+
     short_content.short_description = "Content"
 
 

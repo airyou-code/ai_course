@@ -1,46 +1,24 @@
 import asyncio
 from asgiref.sync import sync_to_async
 from openai import OpenAI
-from time import sleep
-import requests
 import logging
 import json
-import markdown
 from django.views import View
 from rest_framework.status import HTTP_429_TOO_MANY_REQUESTS
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.http import StreamingHttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from rest_framework.renderers import BaseRenderer
-from rest_framework import views
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from openai_chats.models import ChatMessage, Chat, Option
 from courses.models import Lesson, ContentBlock
-from .serializers import ChatMessageSerializer
 
-from drf_spectacular.utils import extend_schema
-
-# Load the API key from .env (or from settings)
-# client = OpenAI(
-#   base_url=settings.OPENAI_URL,
-#   api_key=settings.OPENAI_API_KEY,
-# )
 
 logger = logging.getLogger(__name__)
-client = OpenAI(
-    api_key=settings.OPENAI_API_KEY
-)
-
-
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -55,13 +33,11 @@ class LLMTokensReStreamView(View):
         try:
             auth_result = await sync_to_async(jwt_auth.authenticate)(request)
         except Exception:
-            return JsonResponse(
-                {"detail": "Invalid token."}, status=401
-            )
+            return JsonResponse({"detail": "Invalid token."}, status=401)
         if auth_result is None:
             return JsonResponse(
                 {"detail": "Authentication credentials were not provided or invalid."},
-                status=401
+                status=401,
             )
         request.user, request.auth = auth_result
 
@@ -71,15 +47,13 @@ class LLMTokensReStreamView(View):
     async def post(self, request, content_block_uuid=None):
         user = request.user
         cache_key = f"{user.uuid}_use_stream"
-        is_use_stream: bool = await cache.aget(
-            key=cache_key, default=False
-        )
+        is_use_stream: bool = await cache.aget(key=cache_key, default=False)
         if not is_use_stream:
             await cache.aset(cache_key, True, timeout=5)  # 5 секунд
         else:
             return JsonResponse(
                 {"detail": _("You are already using the stream.")},
-                status=HTTP_429_TOO_MANY_REQUESTS
+                status=HTTP_429_TOO_MANY_REQUESTS,
             )
 
         # 3) Парсим JSON-тело
@@ -97,8 +71,10 @@ class LLMTokensReStreamView(View):
             return JsonResponse({"detail": "Message content is required."}, status=400)
         if len(user_input.split()) > settings.OPENAI_LIMIT_WORDS:
             return JsonResponse(
-                {"detail": f"Your message is too long. Please keep it under {settings.OPENAI_LIMIT_WORDS} words."},
-                status=413
+                {
+                    "detail": f"Your message is too long. Please keep it under {settings.OPENAI_LIMIT_WORDS} words."
+                },
+                status=413,
             )
 
         # 5) Получаем ContentBlock или 404
@@ -122,8 +98,10 @@ class LLMTokensReStreamView(View):
         if count >= settings.OPENAI_LIMIT_MESSAGES:
             await cache.adelete(cache_key)
             return JsonResponse(
-                {"detail": f"You have reached the limit of messages ({settings.OPENAI_LIMIT_MESSAGES})."},
-                status=429
+                {
+                    "detail": f"You have reached the limit of messages ({settings.OPENAI_LIMIT_MESSAGES})."
+                },
+                status=429,
             )
 
         # 8) Строим контекст переписки
@@ -135,7 +113,9 @@ class LLMTokensReStreamView(View):
             conversation.append({"role": "system", "content": global_prompt})
         if lesson_prompt:
             conversation.append({"role": "developer", "content": lesson_prompt})
-        async for msg in ChatMessage.objects.filter(chat=user_chat).order_by("created_at"):
+        async for msg in ChatMessage.objects.filter(chat=user_chat).order_by(
+            "created_at"
+        ):
             if msg.content and msg.role != "system":
                 conversation.append({"role": msg.role, "content": msg.content})
         conversation.append({"role": "user", "content": user_input})
@@ -154,6 +134,7 @@ class LLMTokensReStreamView(View):
                 Попытаться получить следующий элемент из синхронного генератора chunk_iter
                 в ThreadPool, вернуть None, если он исчерпан.
                 """
+
                 def _next():
                     try:
                         return next(chunk_iter)
@@ -184,24 +165,35 @@ class LLMTokensReStreamView(View):
             # сохраняем в БД
             if global_prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="system", content=global_prompt, model_used=params.get("model", "")
+                    chat=user_chat,
+                    role="system",
+                    content=global_prompt,
+                    model_used=params.get("model", ""),
                 )
             if lesson_prompt:
                 await ChatMessage.objects.acreate(
-                    chat=user_chat, role="developer", content=lesson_prompt, model_used=params.get("model", "")
+                    chat=user_chat,
+                    role="developer",
+                    content=lesson_prompt,
+                    model_used=params.get("model", ""),
                 )
             await ChatMessage.objects.acreate(
-                chat=user_chat, role="user", content=user_input, model_used=params.get("model", "")
+                chat=user_chat,
+                role="user",
+                content=user_input,
+                model_used=params.get("model", ""),
             )
             await ChatMessage.objects.acreate(
-                chat=user_chat, role="assistant", content=assistant_content, model_used=params.get("model", "")
+                chat=user_chat,
+                role="assistant",
+                content=assistant_content,
+                model_used=params.get("model", ""),
             )
             await cache.adelete(cache_key)
 
         # 12) Возвращаем StreamingHttpResponse
         response = StreamingHttpResponse(
-            event_stream(),
-            content_type="text/event-stream"
+            event_stream(), content_type="text/event-stream"
         )
         response["Cache-Control"] = "no-cache"
         response["X-Accel-Buffering"] = "no"
