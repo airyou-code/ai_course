@@ -169,7 +169,8 @@ class Option(models.Model):
                 params = option.parameters
             else:
                 params = default or {}
-            cache.aset(cache_key, params)
+            # Добавляем await здесь
+            await cache.aset(cache_key, params)
         return params
 
     @classmethod
@@ -186,5 +187,6 @@ class Option(models.Model):
                 global_prompt = option.global_prompt
             else:
                 global_prompt = ""
-            cache.aset(cache_key, global_prompt)
+            # Добавляем await здесь
+            await cache.aset(cache_key, global_prompt)
         return global_prompt
