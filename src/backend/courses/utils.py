@@ -96,7 +96,7 @@ def get_chat_messages(user, input_block_uuid) -> list:
     # Convert content from Markdown to HTML
     messages_data: list = [
         {
-            'content': markdown.markdown(message.content),
+            'content': message.content,
             'type': "input_dialog" if message.role == "user" else "output_dialog",
         }
         for message in messages if message.role not in ["system", "developer"]

@@ -101,7 +101,7 @@ export async function streamChat(
         }
   
         // обычный кусок ответа
-        batchContent += parsed.content.replace(/\n/g, "\n\n");
+        batchContent += parsed.content;
         dispatch(updateProcBlock({ content: batchContent }));
       },
   

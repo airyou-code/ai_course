@@ -32,7 +32,7 @@ export function DialogBox({
 
   // Добавим общий padding и фон для блока сообщения
   const messageClass = isInput
-    ? "max-w-[80%] rounded-lg bg-muted/50 p-6" // p-6 добавляет «воздуха» вокруг
+    ? "max-w-[80%] rounded-lg bg-muted/50 p-6"
     : "max-w-[100%] rounded-lg bg-muted/50 p-6"
 
   if (is_init) {
@@ -53,7 +53,7 @@ export function DialogBox({
             <>
               {is_md ? (
                 // Оборачиваем Markdown в контейнер с увеличенными отступами
-                <div className="prose prose-lg space-y-6 dark:prose-invert">
+                <div>
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
@@ -85,10 +85,8 @@ export function DialogBox({
           <User className="w-6 h-6 text-gray-500 dark:text-gray-300" />
         </div>
       )}
-
       <div className={messageClass}>
-        {is_md ? (
-          <div className="prose prose-lg max-w-none dark:prose-invert">
+          <div className="prose dark:prose-invert">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
@@ -96,13 +94,6 @@ export function DialogBox({
               {content}
             </ReactMarkdown>
           </div>
-        ) : (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(content),
-            }}
-          ></div>
-        )}
       </div>
     </div>
   )
