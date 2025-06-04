@@ -50,7 +50,6 @@ export default function NavBreadcrumb() {
 
   // 2. Считываем lessonUUId из URL (например, /lesson/:lessonUUId)
   const { lessonUUId } = useParams()
-  console.log('lessonUUId', lessonUUId)
 
   // Если идёт загрузка — показываем Skeleton
   if (isLoading) {

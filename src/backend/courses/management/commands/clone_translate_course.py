@@ -88,8 +88,6 @@ class Command(BaseCommand):
                         module=mod_clone,
                         title=self.translate_text(translator, lesson.title),
                         description=self.translate_text(translator, lesson.description or ''),
-                        duration=lesson.duration,
-                        prompt=lesson.prompt,
                         is_free=lesson.is_free,
                         order=lesson.order
                     )

@@ -67,7 +67,6 @@ export default function CoursePage() {
       )
     );
     const { data } = await fetchNext();
-    console.log(data);
     if (data) {
       dispatch(removeByTypes({types: ['loading', 'button_skeleton']}));
       dispatch(addBlocks(data.blocks));

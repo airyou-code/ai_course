@@ -31,8 +31,6 @@ export const useFetchLessonData = (lesson_uuid: string) => {
         staleTime: 60 * 1000, // 1 minute
     });
 
-    console.error(query.error)
-
     const isForbidden = !!(
         query.error &&
         // @ts-ignore
