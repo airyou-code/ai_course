@@ -1,19 +1,23 @@
-import { User } from "lucide-react"
-import DOMPurify from "dompurify"
+import { User, Copy, ThumbsUp, ThumbsDown } from "lucide-react";
+import DOMPurify from "dompurify";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
+import { useCallback } from "react";
+import { useToast } from "@/hooks/use-toast"; // Если у вас есть такой хук
 
 interface DialogBoxProps {
-  content: string
-  error_msg?: string
-  avatar?: string
-  isInput?: boolean
-  is_md?: boolean
-  is_error?: boolean
-  is_init?: boolean
+  content: string;
+  error_msg?: string;
+  avatar?: string;
+  isInput?: boolean;
+  is_md?: boolean;
+  is_error?: boolean;
+  is_init?: boolean;
 }
 
 export function DialogBox({
@@ -25,6 +29,39 @@ export function DialogBox({
   is_error = false,
   is_init = false,
 }: DialogBoxProps) {
+  // Используем toast для уведомлений (если доступно)
+  const { toast } = useToast?.() || { toast: undefined };
+
+  // Функция для копирования Markdown контента
+  const handleCopy = useCallback(() => {
+    // Копируем оригинальный md-текст, а не отрендеренный HTML
+    navigator.clipboard.writeText(content)
+      .then(() => {
+        // Показываем уведомление об успешном копировании
+        if (toast) {
+          toast({
+            title: "Скопировано!",
+            description: "Markdown-контент успешно скопирован в буфер обмена",
+          });
+        } else {
+          // Если toast недоступен, используем обычное уведомление
+          alert("Скопировано!");
+        }
+      })
+      .catch((error) => {
+        console.error("Ошибка при копировании:", error);
+        if (toast) {
+          toast({
+            variant: "destructive",
+            title: "Ошибка копирования",
+            description: "Не удалось скопировать содержимое",
+          });
+        } else {
+          alert("Не удалось скопировать содержимое");
+        }
+      });
+  }, [content, toast]);
+
   // Определяем класс контейнера (лево/право)
   const containerClass = isInput
     ? "flex gap-4 flex-row-reverse"
@@ -55,8 +92,8 @@ export function DialogBox({
                 // Оборачиваем Markdown в контейнер с увеличенными отступами
                 <div>
                   <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight, rehypeKatex]}
                   >
                     {content}
                   </ReactMarkdown>
@@ -79,22 +116,41 @@ export function DialogBox({
   }
 
   return (
-    <div className={containerClass}>
-      {isInput && (
-        <div className="w-10 h-10 rounded-full bg-gray-200 bg-muted/50 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <User className="w-6 h-6 text-gray-500 dark:text-gray-300" />
-        </div>
-      )}
-      <div className={messageClass}>
+    <div>
+      <div className={containerClass}>
+        {isInput && (
+          <div className="w-10 h-10 rounded-full bg-gray-200 bg-muted/50 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <User className="w-6 h-6 text-gray-500 dark:text-gray-300" />
+          </div>
+        )}
+        <div className={messageClass}>
           <div className="prose dark:prose-invert">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight, rehypeKatex]}
             >
               {content}
             </ReactMarkdown>
           </div>
+        </div>
       </div>
+      {!isInput && (
+        <div className="flex items-center gap-2 px-1 mt-3">
+          <button 
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={handleCopy}
+            title="Копировать Markdown"
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+          {/* <button className="text-gray-400 hover:text-gray-600 transition-colors">
+            <ThumbsUp className="h-4 w-4" />
+          </button>
+          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+            <ThumbsDown className="h-4 w-4" />
+          </button> */}
+        </div>
+      )}
     </div>
-  )
+  );
 }

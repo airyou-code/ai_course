@@ -135,15 +135,24 @@ export default {
                         },
                         /* Таблицы: уменьшаем gap между строками */
                         table: {
-                            marginTop: '0.75rem',
-                            marginBottom: '0.75rem',
+                            display: "block",
+                            width: "100%",
+                            overflowX: "auto",
+                            borderCollapse: "collapse",
                         },
-                        'thead th': {
-                            padding: '0.5rem',       /* вместо 0.75rem */
-                        },
-                        'tbody td': {
-                            padding: '0.5rem',
-                        },
+                        /* Заголовки таблицы */
+                        // "thead th": {
+                        //     /* Обеспечиваем, что текст не будет переноситься */
+                        //     whiteSpace: "nowrap",
+                        //     padding: "0.5rem",        /* по желанию: настраиваем паддинг */
+                        //     borderBottom: "1px solid #e2e8f0", /* светлая граница */
+                        // },
+                        // /* Ячейки тела таблицы */
+                        // "tbody td": {
+                        //     whiteSpace: "nowrap",
+                        //     padding: "0.5rem",
+                        //     borderBottom: "1px solid #e2e8f0",
+                        // },
                     },
                 },
                 /* 

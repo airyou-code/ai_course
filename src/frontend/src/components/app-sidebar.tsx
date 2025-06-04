@@ -160,14 +160,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                {/* <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                </div> */}
-                <div className="flex-1 text-left text-sm leading-tight">
-                  <img src="/logo/logo.png" alt="logo" />
-                  {/* <span className="truncate font-semibold">Prompt Hub</span>
-                  <span className="truncate text-xs">Ai Course</span> */}
-                </div>
+              <Link to="/" className="flex items-center space-x-2">
+                <img
+                  src="logo/logo.png"
+                  alt="PromptHub icon"
+                  className="h-8 w-auto"
+                />
+                <span
+                  className="text-3xl font-semibold leading-none text-gray-900 dark:text-gray-50"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  PromptHub
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
