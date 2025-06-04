@@ -162,7 +162,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link to="/" className="flex items-center space-x-2">
                 <img
-                  src="logo/logo.png"
+                  src="/logo/logo.png"
                   alt="PromptHub icon"
                   className="h-8 w-auto"
                 />
