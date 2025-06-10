@@ -6,10 +6,12 @@ import { REFRESH_TOKEN } from '../config/cookies';
 import { useError } from '@/app/WithErrorProvider';
 import { useToast } from "@/hooks/use-toast"
 import { useUserLanguage } from './user';
+import { useTranslation } from 'react-i18next';
 
 export const useAuthRequest = () => {
   const { toast } = useToast()
   const language = useUserLanguage();
+  const { t } = useTranslation();
 
   return async (
     url: string,
@@ -39,7 +41,7 @@ export const useAuthRequest = () => {
       if (error?.response?.status >= 500) {
         toast({
           variant: "destructive",
-          title: "Ошибка!",
+          title: t("common.errorTitle"),
           description: error?.response?.data?.message || error.message,
         })
       }
@@ -52,6 +54,7 @@ export const useRequest = () => {
   const refreshLogin = useRefreshLogin();
   const { toast } = useToast()
   const language = useUserLanguage();
+  const { t } = useTranslation();
   let isRefreshing = false;
 
   return async (
@@ -103,7 +106,7 @@ export const useRequest = () => {
         } catch (refreshError: any) {
           toast({
             variant: "destructive",
-            title: "Ошибка!",
+            title: t("common.errorTitle"),
             description: error?.response?.data?.message || error.message,
           })
           throw refreshError;
