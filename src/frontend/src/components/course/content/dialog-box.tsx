@@ -9,6 +9,7 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
 import { useCallback } from "react";
 import { useToast } from "@/hooks/use-toast"; // Если у вас есть такой хук
+import { useTranslation } from "react-i18next";
 
 interface DialogBoxProps {
   content: string;
@@ -31,6 +32,7 @@ export function DialogBox({
 }: DialogBoxProps) {
   // Используем toast для уведомлений (если доступно)
   const { toast } = useToast?.() || { toast: undefined };
+  const { t } = useTranslation();
 
   // Функция для копирования Markdown контента
   const handleCopy = useCallback(() => {
@@ -40,12 +42,12 @@ export function DialogBox({
         // Показываем уведомление об успешном копировании
         if (toast) {
           toast({
-            title: "Скопировано!",
-            description: "Markdown-контент успешно скопирован в буфер обмена",
+            title: t("copy.successTitle"),
+            description: t("copy.successDesc"),
           });
         } else {
           // Если toast недоступен, используем обычное уведомление
-          alert("Скопировано!");
+          alert(t("copy.successTitle"));
         }
       })
       .catch((error) => {
@@ -53,11 +55,11 @@ export function DialogBox({
         if (toast) {
           toast({
             variant: "destructive",
-            title: "Ошибка копирования",
-            description: "Не удалось скопировать содержимое",
+            title: t("copy.errorTitle"),
+            description: t("copy.errorDesc"),
           });
         } else {
-          alert("Не удалось скопировать содержимое");
+          alert(t("copy.errorDesc"));
         }
       });
   }, [content, toast]);
@@ -136,10 +138,10 @@ export function DialogBox({
       </div>
       {!isInput && (
         <div className="flex items-center gap-2 px-1 mt-3">
-          <button 
+          <button
             className="text-gray-400 hover:text-gray-600 transition-colors"
             onClick={handleCopy}
-            title="Копировать Markdown"
+            title={t("copy.buttonTitle")}
           >
             <Copy className="h-4 w-4" />
           </button>

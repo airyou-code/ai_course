@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Plus, Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 const courseData = {
   id: "gen-ai-course-full",
@@ -22,6 +23,7 @@ const courseData = {
 
 export default function PaymentPage() {
   const { is_has_full_access } = useUser();
+  const { t } = useTranslation();
     
     if (is_has_full_access) {
       return <Navigate to={{ pathname: "/" }} />;
@@ -59,17 +61,17 @@ export default function PaymentPage() {
             <div className="mb-8">
               <Button variant="ghost" className="text-white hover:bg-slate-800 p-0" onClick={() => navigate(-1)}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Назад
+                {t("payment.back")}
               </Button>
             </div>
 
             <div className="flex-1">
               <div className="mb-8">
-                <h1 className="text-sm text-slate-400 mb-2">Покупка курса</h1>
+                <h1 className="text-sm text-slate-400 mb-2">{t("payment.coursePurchase")}</h1>
                 <h2 className="text-5xl font-bold mb-2">
                   {isLoading ? <Skeleton className="h-12 w-40" /> : `₽${finalPrice.toLocaleString()}`}
                 </h2>
-                <p className="text-slate-400">Единоразовый платеж</p>
+                <p className="text-slate-400">{t("payment.oneTimePayment")}</p>
               </div>
 
               <div className="space-y-6">
@@ -80,12 +82,12 @@ export default function PaymentPage() {
                   <p className="text-slate-400 text-sm mb-4">
                     {isLoading ? <Skeleton className="h-4 w-full" /> : productData.description}
                   </p>
-                  <p className="text-slate-400 text-sm mb-6">Пожизненный доступ</p>
+                  <p className="text-slate-400 text-sm mb-6">{t("payment.lifetimeAccess")}</p>
 
                   {/* Что включено в курс */}
                   <div className="space-y-4">
                     <h4 className="text-lg font-semibold">
-                      {isLoading ? <Skeleton className="h-5 w-32" /> : "Что включено в курс:"}
+                      {isLoading ? <Skeleton className="h-5 w-32" /> : t("payment.includedInCourse")}
                     </h4>
                     <ul className="space-y-3 text-sm">
                       {[...Array(5)].map((_, idx) => (
@@ -95,13 +97,7 @@ export default function PaymentPage() {
                           ) : (
                             <>
                               <Check className="text-green-400 mr-3 mt-0.5 h-4 w-4 flex-shrink-0" />
-                              <span className="text-slate-300">{[
-                                "4 подробных урока по генеративному ИИ",
-                                "Практические задания и примеры",
-                                "Шаблоны и промпты для работы",
-                                "Пожизненный доступ к материалам",
-                                "Сертификат о прохождении"
-                              ][idx]}</span>
+                              <span className="text-slate-300">{t(`payment.benefit${idx + 1}`)}</span>
                             </>
                           )}
                         </li>
@@ -113,7 +109,7 @@ export default function PaymentPage() {
                 <Separator className="bg-slate-700" />
 
                 <div className="flex justify-between text-xl font-semibold">
-                  <span>Итого к оплате</span>
+                  <span>{t("payment.totalDue")}</span>
                   <span>
                     {isLoading ? <Skeleton className="h-5 w-20" /> : `₽${productData.price.toLocaleString()}`}
                   </span>
