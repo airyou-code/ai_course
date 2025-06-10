@@ -8,7 +8,7 @@ import markdown
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 @extend_schema(exclude=True)
 class ChatMessageViewSet(
     viewsets.GenericViewSet,
-    viewsets.mixins.ListModelMixin,
-    viewsets.mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
 ):
     """
     ViewSet for managing chat messages within a ContentBlock.

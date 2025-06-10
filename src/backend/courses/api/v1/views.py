@@ -1,5 +1,5 @@
 from courses.models import Group, ContentBlock, Lesson
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +24,7 @@ class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LessonContentBlocksViewSet(
-    viewsets.GenericViewSet, viewsets.mixins.ListModelMixin
+    viewsets.GenericViewSet, mixins.ListModelMixin
 ):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
@@ -127,7 +127,7 @@ class LessonContentBlocksViewSet(
 
 
 class LessonNextContentBlocksViewSet(
-    viewsets.GenericViewSet, viewsets.mixins.ListModelMixin
+    viewsets.GenericViewSet, mixins.ListModelMixin
 ):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication, SessionAuthentication]
