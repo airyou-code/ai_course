@@ -74,7 +74,9 @@ class LessonContentBlocksViewSet(
             lesson=lesson,
             defaults={
                 "last_seen_block": last_seen_block,
-                "procent_progress": round((1 / content_blocks.count()) * 100),
+                "procent_progress": round(
+                    (1 / content_blocks.count()) * 100
+                ) if content_blocks.count() > 0 else 0,
             },
         )
 
@@ -244,7 +246,7 @@ class LessonNextContentBlocksViewSet(
                 progress.last_seen_block = block
                 progress.procent_progress = round(
                     (next_block_conter / blocks_count) * 100
-                )
+                ) if blocks_count > 0 else 0
                 progress.save()
 
             is_exist_messages = False

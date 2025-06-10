@@ -18,7 +18,7 @@ from courses.models import Lesson, ContentBlock
 
 
 logger = logging.getLogger(__name__)
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+client = OpenAI(api_key=settings.OPENAI_API_KEY, base_url="https://openrouter.ai/api/v1")
 
 
 @method_decorator(csrf_exempt, name="dispatch")

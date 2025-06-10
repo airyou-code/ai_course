@@ -9,7 +9,8 @@ services:
     env_file:
       - src/backend/.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     deploy:
       replicas: 1
       update_config:
@@ -20,6 +21,11 @@ services:
       restart_policy:
         condition: on-failure
         max_attempts: 3
+    healthcheck:
+      test: curl -f http://127.0.0.1:8200/api/v1/live/healthcheck/ || echo "1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - prompthub-network
 
@@ -84,9 +90,12 @@ services:
     env_file:
       - src/backend/.env
     depends_on:
-      - redis
-      - rabbitmq
-      - db
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     deploy:
       replicas: 1
       update_config:
@@ -106,9 +115,12 @@ services:
     env_file:
       - src/backend/.env
     depends_on:
-      - redis
-      - rabbitmq
-      - db
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     deploy:
       replicas: 1
       update_config:

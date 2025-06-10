@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
+from .view import healthcheck, healthcheck_migrations
 # from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
@@ -23,4 +24,6 @@ urlpatterns = [
     path('api/', include("api.urls")),   
     path('auth/', include('social_django.urls', namespace='social')),
     path('robots.txt', TemplateView.as_view(template_name="robots/robots.txt", content_type="text/plain")),
+    path("live/healthcheck/", healthcheck),
+    # path("live/healthcheck/migrations/", healthcheck_migrations),
 ]
