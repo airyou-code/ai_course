@@ -1,17 +1,17 @@
-from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import UserReadOnlyViewSet, UpdateProgressView, GetProgressAPIView
-
-router = DefaultRouter()
-
-# Removing the automatic creation of the root path
-router.include_root_view = False
-
-router.register(r'profile', UserReadOnlyViewSet, basename='user-profile')
-# router.register(r'progress', UpdateProgressView, basename='user-progress')
+from users.api.v1 import views
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('progress/update/', UpdateProgressView.as_view(), name='update-progress'),
-    path('progress/lesson/<uuid:lesson_uuid>/', GetProgressAPIView.as_view(), name='get-progress'),
+    path('profile/', views.UserAPIView.as_view(), name='user-profile'),
+    path('profile/password/change/', views.UserPasswordChangeAPIView.as_view(), name='user-password-change'),
+    path('lessons/review/', views.UserReviewAPIView.as_view(), name='user-lesson-review'),
+    # path('get_tokens/', views.GetTokensAPIView.as_view(), name='get_tokens'),
+    path('progress/update/', views.UpdateProgressView.as_view(), name='update-progress'),
+    path('progress/lesson/<uuid:lesson_uuid>/', views.GetProgressAPIView.as_view(), name='get-progress'),
+    path('email/register/request/', views.EmailRegistrationRequestView.as_view(), name='email_register_request'),
+    path('email/register/', views.EmailRegistrationView.as_view(), name='email_register'),
+    path('email/change/request/', views.UserEmailChangeRequestAPIView.as_view(), name='email_change_request'),
+    path('email/change/', views.UserEmailChangeAPIView.as_view(), name='email_change'),
+    path('password-reset/request/', views.PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

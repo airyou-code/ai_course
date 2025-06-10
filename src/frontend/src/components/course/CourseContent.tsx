@@ -10,25 +10,36 @@ import {
   clearBlocks,
   setCurrentLessonUUId,
 } from '../../store/slices/blocksSlice';
+
 import { useFetchLessonData, useFetchLessonHistory } from '../../hooks/courses';
 import { useFetchNextLessonData } from "@/hooks/courses";
+import { useStreamStatus } from '@/reducers/StreamStatus';
+
 import { DialogBox } from './content/dialog-box';
 import { ChatInput } from './content/chat-input';
 import { ContinueButton } from './content/continue-button';
 import { Test } from './content/test';
 import { NextLessonButton } from './content/next-lesson-button';
+import LessonReview from './content/lesson-review';
+
 import DOMPurify from 'dompurify';
 import InputGptBlock from './InputGptBlock';
+import { useLessonProgress } from '@/reducers/LessonProgress';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
+import { useTranslation } from "react-i18next"
+
 import {
   SkeletonLoader
 } from '../ui/loader';
+import AccessDeniedPage from './access-denied-page';
+
 
 export default function CoursePage() {
+  const { t } = useTranslation()
   const { lessonUUId } = useParams<{ lessonUUId: string }>();
   if (!lessonUUId) {
     return <div>Error: lessonUUId is undefined</div>;
@@ -41,7 +52,8 @@ export default function CoursePage() {
     (state: RootState) => state.blocks
   );
 
-  const { data: fetchedData, isLoading, isError } = useFetchLessonData(lessonUUId);
+  const { data: fetchedData, isLoading, isError, isForbidden } = useFetchLessonData(lessonUUId);
+  const { progress, setProgress } = useLessonProgress();
   const { refetch: fetchNext } = useFetchNextLessonData(lessonUUId);
 
   const handleContinue = async () => {
@@ -55,10 +67,10 @@ export default function CoursePage() {
       )
     );
     const { data } = await fetchNext();
-    console.log(data);
     if (data) {
       dispatch(removeByTypes({types: ['loading', 'button_skeleton']}));
       dispatch(addBlocks(data.blocks));
+      setProgress(data.procent_progress);
     }
   };
 
@@ -72,6 +84,7 @@ export default function CoursePage() {
   useEffect(() => {
     if (fetchedData?.blocks?.length && currentIndex === 0) {
         dispatch(addBlocks(fetchedData.blocks));
+        setProgress(fetchedData.procent_progress);
     }
   }, [fetchedData, currentIndex, dispatch]);
 
@@ -88,10 +101,13 @@ export default function CoursePage() {
     switch (block.type) {
       case 'output_dialog':
         return (
-          <div key={index} ref={blockRef}>
+          <div key={index}>
             <DialogBox
               content={block.content as string}
               is_md={block.is_md || false}
+              is_init={block.is_init || false}
+              is_error={block.is_error || false}
+              error_msg={block.error_msg || ""}
               isInput={block.type === 'input_dialog'}
             />
           </div>
@@ -129,6 +145,12 @@ export default function CoursePage() {
             />
           </div>
         );
+      case 'lesson_review':
+        return (
+          <div key={index} className="pb-5" ref={blockRef}>
+            <LessonReview lessonUUId={lessonUUId} />
+          </div>
+        );
       case 'button_continue':
         return (
           <div key={index} className="flex justify-center" ref={blockRef}>
@@ -147,7 +169,7 @@ export default function CoursePage() {
             />
           ) : <NextLessonButton
             key={index}
-            content="Select the next module"
+            content={t('course.nextLesson')}
             url={'/'}
           />;
       case "loading":
@@ -180,6 +202,8 @@ export default function CoursePage() {
       </div>
     </main>
   );
+  if (isForbidden) return <AccessDeniedPage />;
+  
   if (isError) return <div>Error fetching data</div>;
 
   return (
@@ -189,7 +213,7 @@ export default function CoursePage() {
           <div className="space-y-6 pb-10">
             <div className="pt-4 px-2 tinymce-content">
               <h1>
-                {fetchedData.title}
+                {fetchedData.title.replace(/^.*\$\.\s*/, "")}
               </h1>
             </div>
             {blocks.map((block, index) => renderBlock(block, index))}

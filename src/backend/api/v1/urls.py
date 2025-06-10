@@ -8,6 +8,7 @@ from drf_spectacular.views import (
     SpectacularRedocView
 )
 from ..views import CustomSpectacularAPIView
+from core.views import healthcheck, healthcheck_migrations
 
 app_name = "v1"
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('', include("users.api.v1.urls")),
     path('', include("courses.api.v1.urls")),
     path('', include("openai_chats.api.v1.urls")),
+    path('payments/', include("payments.api.v1.urls")),
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path(
@@ -32,4 +34,7 @@ urlpatterns = [
         name='redoc'
     ),
     path('schema/', CustomSpectacularAPIView.as_view(api_version="v1"), name='schema'),
+
+    path("live/healthcheck/", healthcheck),
+    path("live/healthcheck/migrations/", healthcheck_migrations),
 ]

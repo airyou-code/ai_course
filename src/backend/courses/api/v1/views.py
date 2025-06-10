@@ -10,8 +10,8 @@ from .serializers import (
     ContentBlockListSerializer,
 )
 from rest_framework.authentication import SessionAuthentication
-from users.models import UserLessonProgress
-from openai_chats.utils import get_chat_messages
+from users.models import UserLessonProgress, UserReview, CourseUser
+from courses.utils import get_chat_messages
 
 
 class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -20,7 +20,29 @@ class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [JWTAuthentication, SessionAuthentication]
 
     def get_queryset(self):
-        return Group.objects.prefetch_related("module_set__lesson_set")
+        user = self.request.user
+        return Group.objects.filter(
+            course__language=user.language
+        ).prefetch_related("module_set__lesson_set")
+
+    # def list(self, request, *args, **kwargs):
+    #     # Создаем уникальный ключ кеша для пользователя
+    #     # Это важно, так как разные пользователи могут видеть разные данные
+    #     cache_key = f"group_list_{request.user.id}"
+
+    #     # Пробуем получить данные из кеша
+    #     cached_data = cache.get(cache_key)
+
+    #     if cached_data is not None:
+    #         return Response(cached_data)
+
+    #     # Если данных в кеше нет, выполняем обычный запрос
+    #     response = super().list(request, *args, **kwargs)
+
+    #     # Сохраняем результат в кеш на 15 минут (900 секунд)
+    #     cache.set(cache_key, response.data, timeout=900)
+
+    #     return response
 
 
 class LessonContentBlocksViewSet(
@@ -34,19 +56,27 @@ class LessonContentBlocksViewSet(
         try:
             lesson = Lesson.objects.get(uuid=lesson_uuid)
         except Lesson.DoesNotExist:
-            return Response({"error": "Lesson not found"}, status=404)
+            return Response({"error": _("Lesson not found")}, status=404)
+
+        user: CourseUser = request.user
+
+        if not user.is_has_access(lesson=lesson):
+            return Response(
+                {"error": _("You do not have access to this lesson")},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by("order")
         last_seen_block = content_blocks.first()
-
-        user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
             user=user,
             lesson=lesson,
             defaults={
                 "last_seen_block": last_seen_block,
-                "procent_progress": round((1 / content_blocks.count()) * 100),
+                "procent_progress": round(
+                    (1 / content_blocks.count()) * 100
+                ) if content_blocks.count() > 0 else 0,
             },
         )
 
@@ -72,6 +102,19 @@ class LessonContentBlocksViewSet(
                 )
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
+                
+                is_has_review = UserReview.objects.filter(
+                    lesson=lesson, user=user
+                ).exists()
+                if not is_has_review:
+                    # Добавляем блок "lesson_review" перед кнопкой "button_next"
+                    blocks.append(
+                        {
+                            "type": "lesson_review",
+                            "content": "",
+                            "uuid": "lesson_review",
+                        }
+                    )
 
                 progress.is_completed = True
                 progress.procent_progress = 100
@@ -94,7 +137,7 @@ class LessonContentBlocksViewSet(
                 blocks.append(
                     {
                         "type": block.block_type,
-                        "content": content,
+                        "content": content if block.block_type != "input_gpt" else "",
                         "avatar": block.avatar if hasattr(block, "avatar") else None,
                         "uuid": block.uuid,
                         "nextLessonUrl": next_lesson_url,
@@ -137,13 +180,19 @@ class LessonNextContentBlocksViewSet(
         try:
             lesson = Lesson.objects.get(uuid=lesson_uuid)
         except Lesson.DoesNotExist:
-            return Response({"error": "Lesson not found"}, status=404)
+            return Response({"error": _("Lesson not found")}, status=404)
+
+        user: CourseUser = request.user
+
+        if not user.is_has_access(lesson=lesson):
+            return Response(
+                {"error": _("You do not have access to this lesson")},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         content_blocks = ContentBlock.objects.filter(lesson=lesson).order_by("order")
         last_seen_block = content_blocks.first()
         blocks_count: int = content_blocks.count()
-
-        user = request.user
 
         progress, is_created = UserLessonProgress.objects.get_or_create(
             user=user, lesson=lesson, defaults={"last_seen_block": last_seen_block}
@@ -172,7 +221,21 @@ class LessonNextContentBlocksViewSet(
                     .order_by("order")
                     .first()
                 )
-                next_lesson_url = f"/lesson/{next_lesson.uuid}"
+                if next_lesson:
+                    next_lesson_url = f"/lesson/{next_lesson.uuid}"
+
+                is_has_review = UserReview.objects.filter(
+                    lesson=lesson, user=user
+                ).exists()
+                if not is_has_review:
+                    # Добавляем блок "lesson_review" перед кнопкой "button_next"
+                    blocks.append(
+                        {
+                            "type": "lesson_review",
+                            "content": "",
+                            "uuid": "lesson_review",
+                        }
+                    )
 
                 progress.is_completed = True
                 progress.procent_progress = 100
@@ -183,28 +246,27 @@ class LessonNextContentBlocksViewSet(
                 progress.last_seen_block = block
                 progress.procent_progress = round(
                     (next_block_conter / blocks_count) * 100
-                )
+                ) if blocks_count > 0 else 0
                 progress.save()
 
-            # is_exist_messages = False
-            # if block.block_type == "input_gpt" and is_found_last_block:
-            #     messages_data: list = get_chat_messages(user, block.uuid)
-            #     if messages_data:
-            #         is_exist_messages = True
-            #         blocks += messages_data
+            is_exist_messages = False
+            if block.block_type == "input_gpt" and is_found_last_block:
+                messages_data: list = get_chat_messages(user, block.uuid)
+                if messages_data:
+                    is_exist_messages = True
+                    # blocks += messages_data
 
             if is_next_block:
                 blocks.append(
                     {
                         "type": block.block_type,
-                        "content": content,
+                        "content": content if block.block_type != "input_gpt" else "",
                         "avatar": block.avatar if hasattr(block, "avatar") else None,
                         "uuid": block.uuid,
                         "nextLessonUrl": next_lesson_url,
                     }
                 )
-                # if block.block_type == "input_gpt" and is_exist_messages:
-                if block.block_type == "input_gpt":
+                if block.block_type == "input_gpt" and is_exist_messages:
                     blocks.append(
                         {
                             "type": "button_continue",

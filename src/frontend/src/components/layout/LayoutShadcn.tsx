@@ -1,6 +1,8 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import React, { useContext } from "react"
 import { SidebarRight } from "@/components/sidebar-right"
 import { Link, useParams } from 'react-router-dom'
+import { LessonProgressContext } from "@/reducers/LessonProgress"
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -12,8 +14,15 @@ import NavBreadcrumb from "../nav-bread-crumb"
 
 export default function LayoutShadcn({ children }: React.PropsWithChildren) {
 
+  const lessonProgressContext = useContext(LessonProgressContext)
+
   return (
-    <SidebarProvider>
+    <SidebarProvider
+    style={{
+        // @ts-ignore
+        "--sidebar-width": "20rem"
+      }}
+    >
       <div className="fixed inset-0 flex">
         <AppSidebar className="fixed left-0 top-0 h-full" />
         <SidebarInset className="flex-1 overflow-hidden">
@@ -26,6 +35,14 @@ export default function LayoutShadcn({ children }: React.PropsWithChildren) {
             <div className="px-2">
               <ModeToggle />
             </div>
+            {lessonProgressContext && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
+                <div
+                  style={{ width: `${lessonProgressContext.progress}%` }}
+                  className="h-full bg-green-500 transition-all duration-300"
+                />
+              </div>
+            )}
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
             <div className="mx-auto w-full max-w-3xl">

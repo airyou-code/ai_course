@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+until curl -f backend:8020/api/v1/live/healthcheck/migrations/ &>/dev/null; do
+  >&2 echo 'Waiting for Backend to become available...'
+  sleep 2
+done
+
+>&2 echo 'Backend is available'
+
+celery -A webapp worker -l INFO

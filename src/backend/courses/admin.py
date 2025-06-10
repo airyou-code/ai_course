@@ -4,13 +4,16 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db import models
 from core.widgets import JSONEditorWidget
+from admin_extra_buttons.decorators import button
+from admin_extra_buttons.mixins import ExtraButtonsMixin
 
 from nonrelated_inlines.admin import NonrelatedStackedInline
 from adminsortable.admin import SortableAdmin
 from adminsortable.admin import SortableStackedInline
-from .utils import process_lesson_to_json
+from .utils import process_lesson_to_json, translate_lesson
+from googletrans import Translator
 
-from courses.models import Course, ContentBlock, Lesson, Module, Group
+from courses.models import Course, ContentBlock, Lesson, Module, Group, Access
 from core.admin import CoreAdmin
 
 
@@ -36,9 +39,11 @@ class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
 class CourseAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
+        "language",
         "description",
     )
     search_fields = ("title",)
+    list_filter = ("language",)
     inlines = (GroupsInlain,)
 
     fieldsets = (
@@ -46,6 +51,7 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
             _("General"), {
                 "fields": (
                     "title",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -77,11 +83,13 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
     list_display = (
         "title",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title",)
     list_filter = ("course",)
     inlines = (ModulesInlain,)
+    readonly_fields = ("language",)
 
     fieldsets = (
         (
@@ -89,6 +97,7 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "course",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -102,7 +111,6 @@ class LessonsInlain(SortableStackedInline, NonrelatedStackedInline):
     fields = [
         "title",
         "description",
-        "is_locked",
         "is_free",
         "duration",
     ]
@@ -124,11 +132,13 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
         "title",
         "group",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title",)
     list_filter = ("group__course", "group")
     inlines = (LessonsInlain,)
+    readonly_fields = ("language",)
 
     fieldsets = (
         (
@@ -136,6 +146,7 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
                 "fields": (
                     "title",
                     "group",
+                    "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
@@ -195,6 +206,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "module",
         "group",
         "course",
+        "language",
         "description",
     )
     search_fields = ("title", "uuid")
@@ -202,9 +214,10 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         "module",
         "module__group",
         "module__group__course",
+        "module__group__course__language",
     )
     inlines = (ContenBlockInlain,)
-    readonly_fields = ("uuid", "get_lesson_link")
+    readonly_fields = ("uuid", "get_lesson_link", "language")
 
     fieldsets = (
         (
@@ -213,7 +226,6 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "title",
                     "module",
                     "get_lesson_link",
-                    "is_locked",
                     "is_free",
                     "duration",
                     "description",
@@ -225,25 +237,33 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
         ),
     )
 
+    @button(
+        change_form=True,
+        html_attrs={"style": "background-color:#47BAC1;color:white"},
+        label=_("Translate to EN"),
+    )
+    def translate(self, request, pk):
+        print("translate")
+
     def get_lesson_link(self, obj):
         if obj.uuid:
             return format_html(
                 '''
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     <div style="padding: 10px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">
-                        <a href="https://prompthub.study/lesson/{}" target="_blank" 
+                        <a href="https://app.prompthub.study/lesson/{}" target="_blank" 
                            style="margin-bottom: 10px; display: inline-block;">
                             Открыть урок в новом окне →
                         </a>
                         <div style="margin-top: 10px; font-size: 12px; color: #666;">
                             UUID: {}<br/>
-                            URL: https://prompthub.study/lesson/{}
+                            URL: https://app.prompthub.study/lesson/{}
                         </div>
                     </div>
                     
                     <div style="position: relative;">
                         <iframe 
-                            src="https://prompthub.study/lesson/{}"
+                            src="https://app.prompthub.study/lesson/{}"
                             style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 4px;"
                             title="Предпросмотр урока"
                             allowfullscreen="true"
@@ -329,3 +349,31 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
     def course(self, obj):
         return obj.lesson.module.group.course if obj.lesson and obj.lesson.module and obj.lesson.module.group else None
     course.short_description = 'Course'
+
+
+@admin.register(Access)
+class AccessAdmin(admin.ModelAdmin):
+    """
+    Admin for Access bundles.
+    """
+    list_display = (
+        'name',
+        'description',
+        'created_at',
+        'updated_at',
+    )
+    search_fields = (
+        'name',
+        'description',
+    )
+    list_filter = (
+        'created_at',
+        'updated_at',
+    )
+    filter_horizontal = (
+        'lessons',
+    )
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+    )

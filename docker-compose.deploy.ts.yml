@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  web:
+    image: airyou/prompthub:mono
+    command: bash -c "service nginx start & exec /entrypoint"
+    ports:
+      - '81:81'
+    env_file:
+      - src/backend/.env
+    depends_on:
+      # - redis
+      - db
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 3
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    healthcheck:
+      test: curl -f http://127.0.0.1:8000/api/v1/live/healthcheck/ || echo "1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16
+    ports:
+      - '5432:5432'
+    env_file:
+      - src/backend/.env
+    volumes:
+      - ./data/postgres16:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # redis:
+  #   image: redis:7.2.2
+  #   environment:
+  #     - TZ=Europe/Prague
+  #   ports:
+  #     - '6379:6379'
+  #   healthcheck:
+  #     test: ['CMD-SHELL', 'redis-cli ping | grep -q PONG']
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 3
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:

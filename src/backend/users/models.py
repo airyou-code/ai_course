@@ -1,11 +1,36 @@
+import uuid
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from datetime import datetime
 
+
 class CourseUser(AbstractUser):
-    REQUIRED_FIELDS = ["email"]
+    LANGUAGE_CHOICES = settings.LANGUAGES
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    email = models.EmailField(
+        _('email address'),
+        unique=True,
+        help_text=_('User email address, used as login and must be unique')
+    )
+    access = models.ManyToManyField(
+        'courses.Access',
+        blank=True,
+        related_name='users',
+        help_text=_('Access to lessons')
+    )
+
+    language = models.CharField(
+        max_length=6,
+        choices=LANGUAGE_CHOICES,
+        default='ru',
+        verbose_name=_('Preferred Language')
+    )
 
     class Meta:
         verbose_name = _("User")
@@ -23,6 +48,19 @@ class CourseUser(AbstractUser):
             end_date__gte=datetime.now()
         ).first()
 
+    def is_has_access(self, lesson ) -> bool:
+        """
+        Check if the user has access to a specific lesson.
+        """
+        return lesson.is_free or self.access.filter(lessons=lesson).exists()
+
+    @property
+    def is_has_full_access(self) -> bool:
+        """
+        Check if the user has full access to all lessons.
+        """
+        return self.access.exists()
+
 
 class UserLessonProgress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -34,3 +72,17 @@ class UserLessonProgress(models.Model):
 
     class Meta:
         unique_together = ('user', 'lesson')
+
+
+class UserReview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE)
+    text = models.TextField(blank=True, null=True, default="")
+    useful = models.SmallIntegerField(default=0)
+    interesting = models.SmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
+        verbose_name = _("User Review")
+        verbose_name_plural = _("User Reviews")

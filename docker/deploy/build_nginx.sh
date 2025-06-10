@@ -1,0 +1,1 @@
+docker build -f docker/deploy/nginx/Dockerfile . -t airyou/prompthub:nginx && docker push airyou/prompthub:nginx

@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM --platform=linux/amd64 python:3.12-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -37,6 +37,7 @@ RUN chmod +x /start
 COPY ./src/backend /app/
 COPY ./src/frontend /app/frontend
 
+RUN rm -rf /app/frontend/.env
 RUN npm run build --prefix /app/frontend
 
 # Copy Nginx configuration file
@@ -46,7 +47,7 @@ COPY ./docker/deploy_monolith/nginx.conf /etc/nginx/conf.d/app.conf
 RUN rm /etc/nginx/sites-enabled/default
 
 # Expose ports
-EXPOSE 80
+EXPOSE 81
 EXPOSE 8000
 
 # Check Nginx configuration on a non-privileged port
@@ -54,5 +55,3 @@ RUN sed -i 's/listen 80;/listen 8080;/' /etc/nginx/conf.d/app.conf
 RUN nginx -t -c /etc/nginx/nginx.conf
 RUN sed -i 's/listen 8080;/listen 80;/' /etc/nginx/conf.d/app.conf
 
-# Start Nginx and your application
-CMD service nginx start && /entrypoint

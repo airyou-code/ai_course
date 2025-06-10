@@ -5,7 +5,10 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  User,
+  Crown,
 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 import {
   Avatar,
@@ -29,6 +32,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useNavigate } from 'react-router-dom';
 import { useLogout, useUserState } from '../hooks/user';
+import { useTranslation } from "react-i18next";  // добавляем хук перевода
 
 import ROUTES from '../config/routes'
 
@@ -42,6 +46,7 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const { t } = useTranslation();
   const { isMobile } = useSidebar()
   const navigate = useNavigate();
   const logout = useLogout();
@@ -56,6 +61,24 @@ export function NavUser({
     }
   };
 
+  const hasFullAccess = userData?.is_has_full_access === true
+
+  const planConfig = hasFullAccess
+    ? {
+        label: "Pro",  // например, 'Профи'
+        icon: Crown,
+        variant: "default" as const,
+        color: "text-amber-600",
+        bgColor: "bg-amber-50 border-amber-200",
+      }
+    : {
+        label: "Free",  // например, 'Бесплатно'
+        icon: null,
+        variant: "secondary" as const,
+        color: "text-muted-foreground",
+        bgColor: "bg-gray-50 border-gray-200",
+      }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -66,12 +89,29 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                <AvatarFallback className="rounded-lg">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{userData?.username || ''}</span>
-                <span className="truncate text-xs">{userData?.email || 'No email'}</span>
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-semibold">{userData?.email || t("nav.noEmail")}</span>
+                  {hasFullAccess && planConfig.icon && <planConfig.icon className={`h-3 w-3 ${planConfig.color}`} />}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-xs text-muted-foreground">{userData?.email || t("nav.noEmail")}</span>
+                  <Badge
+                    variant={planConfig.variant}
+                    className={`h-4 px-1.5 text-xs ${hasFullAccess ? "bg-amber-100 text-amber-800 border-amber-300" : ""}`}
+                  >
+                    {planConfig.label}
+                  </Badge>
+                </div>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -79,47 +119,74 @@ export function NavUser({
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
-            align="start"
+            align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{userData?.username || ''}</span>
-                  <span className="truncate text-xs">{userData?.email || 'No email'}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-semibold">{userData?.email || t("nav.noEmail")}</span>
+                    {hasFullAccess && planConfig.icon && <planConfig.icon className={`h-3 w-3 ${planConfig.color}`} />}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-xs text-muted-foreground">{userData?.email || t("nav.noEmail")}</span>
+                    <Badge
+                      variant={planConfig.variant}
+                      className={`h-4 px-1.5 text-xs ${hasFullAccess ? "bg-amber-100 text-amber-800 border-amber-300" : ""}`}
+                    >
+                      {planConfig.label}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
+              {!hasFullAccess && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => navigate(ROUTES.PAYMENT)}
+                    className="cursor-pointer gap-2 text-blue-600"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {t("nav.upgradeToPro")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {/* {hasFullAccess && (
+                <DropdownMenuItem className="gap-2">
+                  <Crown className="h-4 w-4 text-amber-600" />
+                  {t("nav.proFeatures")}
+                </DropdownMenuItem>
+              )} */}
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate(ROUTES.PROFILE)}>
+              <DropdownMenuItem onClick={() => navigate(ROUTES.PROFILE)} className="cursor-pointer">
                 <BadgeCheck />
-                Account
+                {t("nav.account")}
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
                 <Bell />
-                Notifications
+                {t("nav.notifications")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
               <LogOut />
-              Log out
+              {t("nav.logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

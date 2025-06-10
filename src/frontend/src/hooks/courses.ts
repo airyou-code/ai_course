@@ -1,6 +1,7 @@
 import API from '../config/api';
 import QUERY_KEYS from '../config/queries';
 import { useRequest } from "./request";
+import { AxiosError } from "axios"
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 
@@ -21,7 +22,7 @@ export const useFetchModuleData = () => {
 export const useFetchLessonData = (lesson_uuid: string) => {
     const request = useRequest();
 
-    return useQuery({
+    const query = useQuery({
         queryKey: [QUERY_KEYS.LESSON_DATA, lesson_uuid],
         queryFn: async () => {
             const { data } = await request(API.LESSON_DATA(lesson_uuid));
@@ -29,6 +30,21 @@ export const useFetchLessonData = (lesson_uuid: string) => {
         },
         staleTime: 60 * 1000, // 1 minute
     });
+
+    const isForbidden = !!(
+        query.error &&
+        // @ts-ignore
+        query.error.response?.status === 403
+    )
+
+    return {
+        data: query.data,
+        isLoading: query.isLoading,
+        isError: query.isError,
+        isForbidden,
+        error: query.error,
+        refetch: query.refetch,
+    }
 }
 
 

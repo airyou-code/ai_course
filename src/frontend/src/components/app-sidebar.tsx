@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Link } from "react-router-dom"
 import {
   BookOpen,
   Bot,
@@ -159,16 +160,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </a>
-              
+              <Link to="/" className="flex items-center space-x-2">
+                <img
+                  src="/logo/logo.png"
+                  alt="PromptHub icon"
+                  className="h-8 w-auto"
+                />
+                <span
+                  className="text-3xl font-semibold leading-none text-gray-900 dark:text-gray-50"
+                  style={{ fontFamily: "Poppins, sans-serif" }}
+                >
+                  PromptHub
+                </span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -25,7 +25,6 @@ interface Lesson {
   title: string
   duration: string
   description: string
-  is_free: boolean
   is_locked: boolean
   uuid: string
   is_completed?: boolean
@@ -84,7 +83,13 @@ export function NavMain() {
                       className="flex items-center space-x-2 w-full text-left"
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
-                      <span>{module.title}</span>
+                      <span>
+                      {
+                        module.title.includes('$')
+                          ? module.title.replace('$', (moduleIndex + 1).toString())
+                          : module.title
+                      }
+                      </span>
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

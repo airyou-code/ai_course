@@ -50,7 +50,6 @@ export default function NavBreadcrumb() {
 
   // 2. Считываем lessonUUId из URL (например, /lesson/:lessonUUId)
   const { lessonUUId } = useParams()
-  console.log('lessonUUId', lessonUUId)
 
   // Если идёт загрузка — показываем Skeleton
   if (isLoading) {
@@ -80,8 +79,12 @@ export default function NavBreadcrumb() {
           const lesson = mod.lessons[li]
           if (lesson.uuid === lessonUUId) {
             courseTitle = group.title
-            moduleTitle = mod.title
-            lessonTitle = lesson.title
+            moduleTitle = mod.title.includes('$')
+              ? mod.title.replace('$', (mi + 1).toString())
+              : mod.title
+            lessonTitle = lesson.title.includes('$')
+              ? lesson.title.replace('$', (li + 1).toString())
+              : lesson.title
             foundGroupIndex = gi
             foundModuleIndex = mi
             break outerLoop
@@ -94,9 +97,9 @@ export default function NavBreadcrumb() {
 
   return (
     <Breadcrumb>
-      <BreadcrumbList className="flex-wrap">
+      <BreadcrumbList className="flex-wrap font-breadcrumbs">
         <BreadcrumbItem>
-          <BreadcrumbLink>
+          <BreadcrumbLink asChild>
             <Link to="/">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -106,7 +109,7 @@ export default function NavBreadcrumb() {
             {!isMobile && (
               <>
                 <BreadcrumbItem>
-                  <BreadcrumbLink>
+                  <BreadcrumbLink asChild>
                     <Link 
                       to={`/?g=${foundGroupIndex}&m=0`}
                       title={courseTitle}
@@ -118,7 +121,7 @@ export default function NavBreadcrumb() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink>
+                  <BreadcrumbLink asChild>
                     <Link 
                       to={`/?g=${foundGroupIndex}&m=${foundModuleIndex}`}
                       title={moduleTitle}

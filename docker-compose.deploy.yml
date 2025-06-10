@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  backend:
+    image: airyou/prompthub:be
+    command: /start
+    ports:
+      - '127.0.0.1:8200:8200'
+    env_file:
+      - src/backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 3
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    healthcheck:
+      test: curl -f http://127.0.0.1:8200/api/v1/live/healthcheck/ || echo "1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prompthub-network
+
+  frontend:
+    image: airyou/prompthub:fe
+    ports:
+      - "127.0.0.1:83:83"
+    networks:
+      - prompthub-network
+
+  db:
+    image: postgres:16
+    ports:
+      - '127.0.0.1:5434:5432'
+    env_file:
+      - src/backend/.env
+    volumes:
+      - ./data/postgres16:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prompthub-network
+
+  nginx:
+    image: airyou/prompthub:nginx
+    ports:
+      - "82:82"
+    depends_on:
+      - backend
+    networks:
+      - prompthub-network
+  
+  rabbitmq:
+    image: rabbitmq:4.1.0
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    networks:
+      - prompthub-network
+  
+  redis:
+    image: redis:7.4.2
+    command: redis-server --requirepass 12345678 --protected-mode yes
+    ports:
+      - '127.0.0.1:6379:6379'
+    env_file:
+      - src/backend/.env
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a 12345678 ping | grep -q PONG']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - prompthub-network
+  
+  celery_worker:
+    image: airyou/prompthub:be
+    command: /start-celeryworker
+    env_file:
+      - src/backend/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 3
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    networks:
+      - prompthub-network
+
+  celery_beat:
+    image: airyou/prompthub:be
+    command: /start-celerybeat
+    env_file:
+      - src/backend/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 3
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    networks:
+      - prompthub-network
+
+networks:
+  prompthub-network:

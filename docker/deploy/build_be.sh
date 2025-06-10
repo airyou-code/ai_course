@@ -1,0 +1,1 @@
+docker build -f docker/deploy/be/Dockerfile . -t airyou/prompthub:be && docker push airyou/prompthub:be

@@ -1,0 +1,1 @@
+docker pull airyou/prompthub:be && docker pull airyou/prompthub:fe && docker pull airyou/prompthub:nginx
