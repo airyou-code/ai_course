@@ -169,6 +169,16 @@ TEMPLATES = [
 #     },
 # }
 
+# if DEBUG:
+#     INSTALLED_APPS = [
+#         *INSTALLED_APPS,
+#         "debug_toolbar",
+#     ]
+#     MIDDLEWARE = [
+#         "debug_toolbar.middleware.DebugToolbarMiddleware",
+#         *MIDDLEWARE,
+#     ]
+
 WSGI_APPLICATION = 'webapp.wsgi.application'
 
 REST_FRAMEWORK = {
@@ -210,6 +220,12 @@ SPECTACULAR_SETTINGS = {
     #     "displayOperationId": True,
     # },
 }
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

@@ -71,7 +71,18 @@ class UserLessonProgress(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('user', 'lesson')
+        indexes = [
+            # Основной индекс для быстрого поиска прогресса пользователя по уроку
+            models.Index(fields=['user', 'lesson'], name='user_lesson_progress_idx'),
+            # Индекс для фильтрации завершенных уроков
+            models.Index(fields=['user', 'is_completed'], name='user_completed_lessons_idx'),
+            # Индекс для последнего просмотренного блока
+            models.Index(fields=['last_seen_block'], name='last_seen_block_idx'),
+        ]
+        # Добавим уникальное ограничение для избежания дублирования
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'lesson'], name='unique_user_lesson_progress')
+        ]
 
 
 class UserReview(models.Model):
@@ -83,6 +94,13 @@ class UserReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'lesson')
+        indexes = [
+            # Индекс для проверки существования отзыва (важно для запросов в представлениях)
+            models.Index(fields=['user', 'lesson'], name='user_review_idx'),
+        ]
+        # Добавим уникальное ограничение для избежания дублирования отзывов
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'lesson'], name='unique_user_lesson_review')
+        ]
         verbose_name = _("User Review")
         verbose_name_plural = _("User Reviews")

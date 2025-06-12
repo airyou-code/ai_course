@@ -23,6 +23,11 @@ class Course(CoreModel):
     def __str__(self):
         return self.title
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['language'], name='course_language_idx'),
+        ]
+
 
 class Group(CoreModel, SortableMixin):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -41,6 +46,10 @@ class Group(CoreModel, SortableMixin):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            # Быстрая фильтрация групп по курсу и языку
+            models.Index(fields=['course', 'order'], name='group_course_order_idx'),
+        ]
 
 
 class Module(CoreModel, SortableMixin):
@@ -61,10 +70,14 @@ class Module(CoreModel, SortableMixin):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            # Быстрая фильтрация модулей по группе
+            models.Index(fields=['group', 'order'], name='module_group_order_idx'),
+        ]
 
 
 class Lesson(CoreModel, SortableMixin):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     title = models.CharField(max_length=255, help_text="the special character `$` will be replaced by a sequence number")
     description = models.TextField(blank=True, null=True)
@@ -100,6 +113,14 @@ class Lesson(CoreModel, SortableMixin):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            # Комбинированный индекс для next_lesson запросов в представлениях
+            models.Index(fields=['module', 'order'], name='lesson_module_order_idx'),
+            # Индекс для быстрого доступа по is_free (фильтрация бесплатных уроков)
+            models.Index(fields=['is_free'], name='lesson_is_free_idx'),
+            # Индекс для языковых версий
+            models.Index(fields=['lesson_en'], name='lesson_english_version_idx'),
+        ]
 
     def get_progress(self, user):
         progress = UserLessonProgress.objects.filter(
@@ -199,7 +220,7 @@ class ContentBlock(CoreModel, SortableMixin):
         ]
     }
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     content_html = HTMLField(blank=True, null=True)
@@ -216,6 +237,14 @@ class ContentBlock(CoreModel, SortableMixin):
 
     class Meta:
         ordering = ['order']
+        indexes = [
+            # Критически важный индекс для запросов в представлениях
+            models.Index(fields=['lesson', 'order'], name='content_block_lesson_order_idx'),
+            # Быстрый поиск по типу блока (важно для фильтрации в представлениях)
+            models.Index(fields=['block_type'], name='content_block_type_idx'),
+            # Составной индекс для фильтрации по типу блока в пределах урока
+            models.Index(fields=['lesson', 'block_type', 'order'], name='lesson_block_type_order_idx'),
+        ]
 
     def __str__(self):
         return str(self.uuid)

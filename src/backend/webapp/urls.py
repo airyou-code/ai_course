@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from .view import healthcheck, healthcheck_migrations
+# from debug_toolbar.toolbar import debug_toolbar_urls
+from django.conf import settings
 # from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
@@ -27,3 +29,8 @@ urlpatterns = [
     path("live/healthcheck/", healthcheck),
     # path("live/healthcheck/migrations/", healthcheck_migrations),
 ]
+
+# if settings.DEBUG:
+#     urlpatterns = [
+#         *urlpatterns,
+#     ] + debug_toolbar_urls()
