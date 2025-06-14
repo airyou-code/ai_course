@@ -7,7 +7,6 @@ import { getHeders } from '@/utils/headers';
 import { useRefreshLogin } from './user';
 import { endProcBlock, setProcBlockError, updateProcBlock } from '@/store/slices/blocksSlice';
 import { AppDispatch } from '@/store';
-import { useTranslation } from 'react-i18next';
 
 
 export const useFetchChatHistory = (content_block_uuid: string) => {
@@ -29,8 +28,7 @@ export async function streamChat(
     dispatch: AppDispatch,
     setIsStreaming: (isStreaming: boolean) => void,
     refreshLogin: () => Promise<void>,
-    toastFn: (opts: any) => void,
-    t: (key: string) => string  // Новый параметр для функции перевода
+    toastFn: (opts: any) => void
   ) {
     if (!content_block_uuid || !message) return;
     
@@ -42,8 +40,8 @@ export async function streamChat(
       dispatch(setProcBlockError(error.message ?? "Stream error"));
       toastFn({
         variant: "destructive",
-        title: t("common.errorTitle"),
-        description: error.message ?? t("common.streamError"),
+        title: "Ошибка!",
+        description: error.message ?? "Stream error",
       });
       return;
     }
@@ -68,7 +66,7 @@ export async function streamChat(
           dispatch(setProcBlockError(response.statusText));
           toastFn({
             variant: "destructive",
-            title: t("common.errorTitle"),
+            title: "Ошибка!",
             description: response.statusText,
           });
           setIsStreaming(false);
@@ -113,8 +111,8 @@ export async function streamChat(
         dispatch(setProcBlockError(err.message ?? "Stream error"));
         toastFn({
           variant: "destructive",
-          title: t("common.errorTitle"),
-          description: err.message ?? t("common.streamError"),
+          title: "Ошибка!",
+          description: err.message ?? "Stream error",
         });
         setIsStreaming(false);
         controller.abort();

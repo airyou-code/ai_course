@@ -44,7 +44,7 @@ const InputGptBlock = ({ block }) => {
           )
         );
         setIsStreaming(true);
-        streamChat(blockId, message, dispatch, setIsStreaming, refreshLogin, toast, t);
+        streamChat(blockId, message, dispatch, setIsStreaming, refreshLogin, toast);
       }} isStreaming={isStreaming || false} />
     </>
   );
