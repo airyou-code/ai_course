@@ -29,11 +29,10 @@ export async function streamChat(
     dispatch: AppDispatch,
     setIsStreaming: (isStreaming: boolean) => void,
     refreshLogin: () => Promise<void>,
-    toastFn: (opts: any) => void
+    toastFn: (opts: any) => void,
+    t: (key: string) => string  // Новый параметр для функции перевода
   ) {
     if (!content_block_uuid || !message) return;
-
-    const { t } = useTranslation();
     
     try {
       await refreshLogin();

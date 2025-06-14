@@ -30,7 +30,6 @@ const InputGptBlock = ({ block }) => {
     <>
       <ChatInput onSubmit={(message) => {
         const blockId = blockUuid || block.post_uuid;
-        console.log("Block id:", blockId);
         // Удаляем старые блоки для данного parent_uuid
         dispatch(removeByTypes({ types: ['input_gpt', 'button_continue'], parent_uuid: blockParentId }));
         // Добавляем новые блоки после родительского блока
@@ -45,7 +44,7 @@ const InputGptBlock = ({ block }) => {
           )
         );
         setIsStreaming(true);
-        streamChat(blockId, message, dispatch, setIsStreaming, refreshLogin, toast);
+        streamChat(blockId, message, dispatch, setIsStreaming, refreshLogin, toast, t);
       }} isStreaming={isStreaming || false} />
     </>
   );
