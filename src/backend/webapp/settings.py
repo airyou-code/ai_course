@@ -372,7 +372,7 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
-OPENAI_URL = config("OPENAI_URL", default="https://openrouter.ai/api/v1")
+# OPENAI_URL = config("OPENAI_URL", default="https://openrouter.ai/api/v1")
 OPENAI_LIMIT_WORDS = config("OPENAI_LIMIT_WORDS", default=400, cast=int)
 OPENAI_LIMIT_MESSAGES = config("OPENAI_LIMIT_MESSAGES", default=20, cast=int)
 
