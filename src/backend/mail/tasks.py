@@ -22,3 +22,11 @@ def send_verify_email_task(email: int, code: str):
 @app.task
 def send_password_reset_link_email_task(email: str, reset_link: str):
     handlers.password_reset_link_handler(email, reset_link)
+
+
+@app.task
+def send_purchase_reminder_email_task(email: str, url: str = None):
+    if url is None:
+        from django.conf import settings
+        url = f"{settings.FRONTEND_URL}/payment"
+    handlers.purchase_reminder_handler(email, url)

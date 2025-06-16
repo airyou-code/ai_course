@@ -139,6 +139,30 @@ def password_reset_link_handler(email: str, reset_link: str):
         mail.save()
 
 
+def purchase_reminder_handler(email: str, url=f'{settings.FRONTEND_URL}/payment'):
+    """Send offer email about buying full course access."""
+    SUBJECT = 'Откройте доступ к практическим инструментам AI — следующий шаг за вами!'
+    TEMPLATE_RELATIVE_PATH = os.path.join('mail', 'templates', 'purchase_reminder.html')
+    TEMPLATE = os.path.join(settings.BASE_DIR, TEMPLATE_RELATIVE_PATH)
+
+    with open(TEMPLATE, 'r') as f:
+        body = f.read()
+
+    variables = {
+        '{{url}}': url,
+    }
+
+    body = body_replace(body, variables)
+
+    mail = create_model(SUBJECT, body, email)
+
+    res = single_sender_wrapper(SUBJECT, body, email)
+
+    if res:
+        mail.is_send = True
+        mail.save()
+
+
 # def password_reset_request_handler(user: User, code: str, url=f'{settings.FRONTEND_VERIFY_EMAIL_URL}'):
 #     """
 #        Send verification code for reset password

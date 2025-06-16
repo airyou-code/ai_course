@@ -8,7 +8,11 @@ from users import utils
 from django.utils import timezone
 from django.conf import settings
 from rest_framework.exceptions import ValidationError, Throttled
-from mail.tasks import send_verify_email_task, send_password_reset_link_email_task
+from mail.tasks import (
+    send_verify_email_task,
+    send_password_reset_link_email_task,
+    send_purchase_reminder_email_task,
+)
 from mail.models import Mail
 from users import enums
 import uuid
@@ -219,6 +223,9 @@ class EmailRegistration(serializers.ModelSerializer):
         user.last_login = timezone.now()
         user.is_email_verified = True
         user.save()
+
+        if not settings.FAKE_SEND_EMAIL:
+            send_purchase_reminder_email_task.delay(user.email)
         refresh = RefreshToken.for_user(user)
 
         return {
