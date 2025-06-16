@@ -383,13 +383,14 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.ema
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
 REDIRECT_FIELD_NAME = 'next'
 
-SENDGRID_KEY = config('SENDGRID_KEY', "")
 DEFAULT_EMAIL_FROM = config('DEFAULT_EMAIL_FROM', "info@prompthub.study")
-ANYMAIL = {
-    'SENDGRID_API_KEY': config('SENDGRID_KEY', ""),
-}
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.yandex.ru')
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
 FAKE_SEND_EMAIL = config('FAKE_SEND_EMAIL', default=False, cast=bool)
-EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 RESET_CODE_EXPIRE = 3600   # 1 hour
 FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + '/verify-email'
 
