@@ -10,7 +10,6 @@ dj-database-url==1.2.0
 
 celery==5.5.1
 redis==5.2.1
-django-anymail[sendgrid]==10.0
 
 Django==5.1.4
 django-celery-beat==2.8.0

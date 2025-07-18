@@ -98,7 +98,6 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_filters',
     'social_django',
-    'anymail',
     'admin_extra_buttons',
 
     'openai_chats',
@@ -383,13 +382,15 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.ema
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
 REDIRECT_FIELD_NAME = 'next'
 
-SENDGRID_KEY = config('SENDGRID_KEY', "")
+# Amazon SES SMTP settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='email-smtp.us-east-1.amazonaws.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 DEFAULT_EMAIL_FROM = config('DEFAULT_EMAIL_FROM', "info@prompthub.study")
-ANYMAIL = {
-    'SENDGRID_API_KEY': config('SENDGRID_KEY', ""),
-}
 FAKE_SEND_EMAIL = config('FAKE_SEND_EMAIL', default=False, cast=bool)
-EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 RESET_CODE_EXPIRE = 3600   # 1 hour
 FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + '/verify-email'
 

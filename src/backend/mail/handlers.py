@@ -1,10 +1,9 @@
 import os
 from django.conf import settings
 from typing import Optional
-
 from django.core.mail import EmailMultiAlternatives
-from anymail.message import attach_inline_image_file, attach_inline_image
-
+from django.core.mail.message import EmailMessage
+from email.mime.image import MIMEImage
 
 from mail.models import Mail
 from users.models import CourseUser as User
@@ -32,14 +31,17 @@ def single_sender_wrapper(subject: str, body: str, email: str, name: Optional[st
         }
     )
 
-    # Add the logo as a header for CID usage
+    # Add the logo as an inline attachment for CID usage
     logo_path = os.path.join(settings.BASE_DIR, 'mail', 'templates', 'files', 'logo.png')
-    with open(logo_path, 'rb') as logo_file:
-        logo_data = logo_file.read()
-        logo_cid = attach_inline_image(
-            msg, logo_data, 'logo.png', 'logo_cid')
-        body = body.replace('{{ logo }}', logo_cid)
-        msg.body = body
+    if os.path.exists(logo_path):
+        with open(logo_path, 'rb') as logo_file:
+            logo_data = logo_file.read()
+            logo_image = MIMEImage(logo_data)
+            logo_image.add_header('Content-ID', '<logo_cid>')
+            logo_image.add_header('Content-Disposition', 'inline', filename='logo.png')
+            msg.attach(logo_image)
+            body = body.replace('{{ logo }}', 'cid:logo_cid')
+            msg.body = body
 
     # Alternative
     msg.attach_alternative(body, 'text/html')
