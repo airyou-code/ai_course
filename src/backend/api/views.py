@@ -1,11 +1,10 @@
+from drf_spectacular.utils import extend_schema
 from drf_spectacular.views import SpectacularAPIView
+from rest_framework.authentication import (
+    SessionAuthentication,
+)
 from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.authentication import (
-    SessionAuthentication, BasicAuthentication,
-)
-
-from drf_spectacular.utils import extend_schema
 
 
 @extend_schema(exclude=True)

@@ -1,15 +1,16 @@
-from payments.models import Product
 from rest_framework import serializers
+
+from payments.models import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'uuid',
-            'name',
-            'description',
-            'price',
-            'currency',
+            "uuid",
+            "name",
+            "description",
+            "price",
+            "currency",
         ]
-        read_only_fields = ['uuid']
+        read_only_fields = ["uuid"]

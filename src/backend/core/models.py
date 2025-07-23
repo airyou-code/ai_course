@@ -1,41 +1,51 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
 class CoreModel(models.Model):
-
     soft_delete = models.BooleanField(default=False)
 
     time_created = models.DateTimeField(
         _("creation time"),
         # auto_now_add=True,
-        null=True, blank=True
+        null=True,
+        blank=True,
     )
     time_updated = models.DateTimeField(
-        _("update time"), auto_now=True, editable=False,
-        null=True, blank=True
+        _("update time"), auto_now=True, editable=False, null=True, blank=True
     )
     time_deleted = models.DateTimeField(
-        _("deleted time"), editable=False,
-        null=True, blank=True
+        _("deleted time"), editable=False, null=True, blank=True
     )
 
     user_created = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("created by user"),
-        editable=False, null=True, blank=True,
-        related_name="+", on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("created by user"),
+        editable=False,
+        null=True,
+        blank=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
     )
     user_updated = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("updated by user"),
-        editable=False, null=True, blank=True,
-        related_name="+", on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("updated by user"),
+        editable=False,
+        null=True,
+        blank=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
     )
     user_deleted = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_("deleted by user"),
-        editable=False, null=True, blank=True,
-        related_name="+", on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("deleted by user"),
+        editable=False,
+        null=True,
+        blank=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
     )
 
     class Meta:

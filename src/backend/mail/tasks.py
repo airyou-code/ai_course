@@ -1,8 +1,6 @@
-from celery import shared_task
-from webapp.celery import app
-
 # from user import models as user_models
 from mail import handlers
+from webapp.celery import app
 
 
 @app.task

@@ -1,6 +1,6 @@
-from django.http import HttpResponse
-from django.db.migrations.executor import MigrationExecutor
 from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.http import HttpResponse
 
 
 def migrations_are_applied():
@@ -16,7 +16,6 @@ def healthcheck(request):
 
 
 def healthcheck_migrations(request):
-
     if migrations_are_applied():
         return HttpResponse("0", status=200)
     else:

@@ -1,4 +1,3 @@
-from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 
 # Register your models here.
@@ -52,19 +51,25 @@ class CoreAdmin(admin.ModelAdmin):
             Retrieves the readonly fields based on the state of the
             CoreModel instance.
     """
+
     custom_fields: list = []
     change_fields: list = []
     # ordering = ("state")
     base_readonly = (
         "soft_delete",
-        "time_created", "time_updated", "time_deleted",
-        "user_created", "user_updated",
-        "user_deleted"
+        "time_created",
+        "time_updated",
+        "time_deleted",
+        "user_created",
+        "user_updated",
+        "user_deleted",
     )
     base_fields = (
-        "time_created", "time_updated",
+        "time_created",
+        "time_updated",
         "time_deleted",
-        "user_created", "user_updated",
+        "user_created",
+        "user_updated",
         "user_deleted",
         "soft_delete",
     )
@@ -120,18 +125,10 @@ class CoreAdmin(admin.ModelAdmin):
         # if self.has_view_permission(request, obj):
         # basde_readonly = CoreModel.model._meta.get_fields()
         if obj and self.change_fields and obj.time_created:
-
             return [
-                field.name for field in (
-                    *self.model._meta.get_fields(),
-                ) if field.name not in self.change_fields
-            ] + [
-                *self.base_readonly,
-                *self.custom_fields
-            ]
+                field.name
+                for field in (*self.model._meta.get_fields(),)
+                if field.name not in self.change_fields
+            ] + [*self.base_readonly, *self.custom_fields]
 
-        return [
-            *self.readonly_fields,
-            *self.base_readonly,
-            *self.custom_fields
-        ]
+        return [*self.readonly_fields, *self.base_readonly, *self.custom_fields]

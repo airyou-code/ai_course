@@ -1,6 +1,6 @@
-from django.http import HttpResponse
-from django.db.migrations.executor import MigrationExecutor
 from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
+from django.http import HttpResponse
 
 
 def migrations_are_applied():

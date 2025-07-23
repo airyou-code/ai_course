@@ -1,21 +1,21 @@
 import asyncio
-from asgiref.sync import sync_to_async
-from openai import OpenAI
-import logging
 import json
-from django.views import View
-from rest_framework.status import HTTP_429_TOO_MANY_REQUESTS
-from django.utils.translation import gettext_lazy as _
-from django.core.cache import cache
+import logging
+
+from asgiref.sync import sync_to_async
 from django.conf import settings
-from django.http import StreamingHttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.core.cache import cache
+from django.http import JsonResponse, StreamingHttpResponse
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from openai import OpenAI
+from rest_framework.status import HTTP_429_TOO_MANY_REQUESTS
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from openai_chats.models import ChatMessage, Chat, Option
-from courses.models import Lesson, ContentBlock
-
+from courses.models import ContentBlock, Lesson
+from openai_chats.models import Chat, ChatMessage, Option
 
 logger = logging.getLogger(__name__)
 client = OpenAI(api_key=settings.OPENAI_API_KEY)

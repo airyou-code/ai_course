@@ -1,17 +1,17 @@
-from courses.models import Group, ContentBlock, Lesson
-from rest_framework import viewsets, permissions
-from rest_framework.response import Response
-from rest_framework import status
 from django.utils.translation import gettext_lazy as _
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import (
-    GroupSerializer,
-    ContentBlockSerializer,
-    ContentBlockListSerializer,
-)
+from rest_framework import permissions, status, viewsets
 from rest_framework.authentication import SessionAuthentication
-from users.models import UserLessonProgress, UserReview, CourseUser
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from courses.models import ContentBlock, Group, Lesson
 from courses.utils import get_chat_messages
+from users.models import CourseUser, UserLessonProgress, UserReview
+
+from .serializers import (
+    ContentBlockListSerializer,
+    GroupSerializer,
+)
 
 
 class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,9 +21,9 @@ class GroupReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Group.objects.filter(
-            course__language=user.language
-        ).prefetch_related("module_set__lesson_set")
+        return Group.objects.filter(course__language=user.language).prefetch_related(
+            "module_set__lesson_set"
+        )
 
     # def list(self, request, *args, **kwargs):
     #     # Создаем уникальный ключ кеша для пользователя
@@ -74,9 +74,9 @@ class LessonContentBlocksViewSet(
             lesson=lesson,
             defaults={
                 "last_seen_block": last_seen_block,
-                "procent_progress": round(
-                    (1 / content_blocks.count()) * 100
-                ) if content_blocks.count() > 0 else 0,
+                "procent_progress": round((1 / content_blocks.count()) * 100)
+                if content_blocks.count() > 0
+                else 0,
             },
         )
 
@@ -102,7 +102,7 @@ class LessonContentBlocksViewSet(
                 )
                 if next_lesson:
                     next_lesson_url = f"/lesson/{next_lesson.uuid}"
-                
+
                 is_has_review = UserReview.objects.filter(
                     lesson=lesson, user=user
                 ).exists()
@@ -244,9 +244,11 @@ class LessonNextContentBlocksViewSet(
             if is_found_last_block and block.block_type == "text":
                 is_next_block = True
                 progress.last_seen_block = block
-                progress.procent_progress = round(
-                    (next_block_conter / blocks_count) * 100
-                ) if blocks_count > 0 else 0
+                progress.procent_progress = (
+                    round((next_block_conter / blocks_count) * 100)
+                    if blocks_count > 0
+                    else 0
+                )
                 progress.save()
 
             is_exist_messages = False
@@ -288,8 +290,5 @@ class LessonNextContentBlocksViewSet(
                 break
 
         return Response(
-            {
-                "blocks": blocks,
-                "procent_progress": progress.procent_progress
-            }
+            {"blocks": blocks, "procent_progress": progress.procent_progress}
         )

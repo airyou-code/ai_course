@@ -1,28 +1,22 @@
-from django import forms
-from django.utils.translation import gettext_lazy as _
-from django.contrib import admin
-from django.utils.html import format_html
-from django.db import models
-from core.widgets import JSONEditorWidget
 from admin_extra_buttons.decorators import button
-from admin_extra_buttons.mixins import ExtraButtonsMixin
-
+from adminsortable.admin import SortableAdmin, SortableStackedInline
+from django import forms
+from django.contrib import admin
+from django.db import models
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from nonrelated_inlines.admin import NonrelatedStackedInline
-from adminsortable.admin import SortableAdmin
-from adminsortable.admin import SortableStackedInline
-from .utils import process_lesson_to_json, translate_lesson
-from googletrans import Translator
 
-from courses.models import Course, ContentBlock, Lesson, Module, Group, Access
 from core.admin import CoreAdmin
+from core.widgets import JSONEditorWidget
+from courses.models import Access, ContentBlock, Course, Group, Lesson, Module
+
+from .utils import process_lesson_to_json
 
 
 class GroupsInlain(SortableStackedInline, NonrelatedStackedInline):
     model = Group
-    fields = [
-        "title",
-        "description"
-    ]
+    fields = ["title", "description"]
     show_change_link = True
     verbose_name_plural = _("Groups")
     extra = 0
@@ -48,24 +42,22 @@ class CourseAdmin(SortableAdmin, CoreAdmin):
 
     fieldsets = (
         (
-            _("General"), {
+            _("General"),
+            {
                 "fields": (
                     "title",
                     "language",
                     "description",
                     *CoreAdmin.base_fields,
                 )
-            }
+            },
         ),
     )
 
 
 class ModulesInlain(SortableStackedInline, NonrelatedStackedInline):
     model = Module
-    fields = [
-        "title",
-        "description"
-    ]
+    fields = ["title", "description"]
     show_change_link = True
     verbose_name_plural = _("Modules")
     extra = 0
@@ -93,7 +85,8 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
 
     fieldsets = (
         (
-            _("General"), {
+            _("General"),
+            {
                 "fields": (
                     "title",
                     "course",
@@ -101,7 +94,7 @@ class GroupAdmin(SortableAdmin, CoreAdmin):
                     "description",
                     *CoreAdmin.base_fields,
                 )
-            }
+            },
         ),
     )
 
@@ -142,7 +135,8 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
 
     fieldsets = (
         (
-            _("General"), {
+            _("General"),
+            {
                 "fields": (
                     "title",
                     "group",
@@ -150,23 +144,19 @@ class ModuleAdmin(SortableAdmin, CoreAdmin):
                     "description",
                     *CoreAdmin.base_fields,
                 )
-            }
+            },
         ),
     )
 
     def course(self, obj):
         return obj.group.course if obj.group else None
-    course.short_description = 'Course'
+
+    course.short_description = "Course"
 
 
 class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
     model = ContentBlock
-    fields = [
-        "block_type",
-        "content_html",
-        "content_text",
-        "content_json"
-    ]
+    fields = ["block_type", "content_html", "content_text", "content_json"]
     verbose_name_plural = _("Content")
     template = "custom_admin/content_editor.html"
     extra = 0
@@ -189,13 +179,12 @@ class ContenBlockInlain(SortableStackedInline, NonrelatedStackedInline):
 
 class LessonAdminForm(forms.ModelForm):
     content_blocks_gen = forms.CharField(
-        widget=forms.Textarea, required=False,
-        label="Content block gen"
+        widget=forms.Textarea, required=False, label="Content block gen"
     )
 
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = "__all__"
 
 
 @admin.register(Lesson)
@@ -221,7 +210,8 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
 
     fieldsets = (
         (
-            _("General"), {
+            _("General"),
+            {
                 "fields": (
                     "title",
                     "module",
@@ -233,7 +223,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                     "content_blocks_gen",
                     *CoreAdmin.base_fields,
                 )
-            }
+            },
         ),
     )
 
@@ -248,7 +238,7 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
     def get_lesson_link(self, obj):
         if obj.uuid:
             return format_html(
-                '''
+                """
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     <div style="padding: 10px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">
                         <a href="https://app.prompthub.study/lesson/{}" target="_blank" 
@@ -274,34 +264,35 @@ class LessonAdmin(SortableAdmin, CoreAdmin):
                         </div>
                     </div>
                 </div>
-                ''',
+                """,
                 obj.uuid,
                 obj.uuid,
                 obj.uuid,
-                obj.uuid
+                obj.uuid,
             )
         return "-"
+
     get_lesson_link.short_description = "Предпросмотр урока"
 
     def group(self, obj):
         return obj.module.group if obj.module else None
-    group.short_description = 'Group'
+
+    group.short_description = "Group"
 
     def course(self, obj):
         return obj.module.group.course if obj.module and obj.module.group else None
-    course.short_description = 'Course'
+
+    course.short_description = "Course"
 
     def save_model(self, request, obj, form, change):
-        content_blocks_gen_value = form.cleaned_data.get('content_blocks_gen')
+        content_blocks_gen_value = form.cleaned_data.get("content_blocks_gen")
 
         if content_blocks_gen_value:
             blocks_data: dict = process_lesson_to_json(
                 text=content_blocks_gen_value
-            ).get('blocks', [])
+            ).get("blocks", [])
             for block_data in blocks_data:
-                ContentBlock.objects.create(
-                    lesson=obj, **block_data
-                )
+                ContentBlock.objects.create(lesson=obj, **block_data)
 
         super().save_model(request, obj, form, change)
 
@@ -324,7 +315,8 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
 
     fieldsets = (
         (
-            _("General"), {
+            _("General"),
+            {
                 "fields": (
                     "block_type",
                     "lesson",
@@ -334,21 +326,28 @@ class ContentBlockAdmin(SortableAdmin, CoreAdmin):
                     "content_json",
                     *CoreAdmin.base_fields,
                 )
-            }
+            },
         ),
     )
 
     def module(self, obj):
         return obj.lesson.module if obj.lesson else None
-    module.short_description = 'Module'
+
+    module.short_description = "Module"
 
     def group(self, obj):
         return obj.lesson.module.group if obj.lesson and obj.lesson.module else None
-    group.short_description = 'Group'
+
+    group.short_description = "Group"
 
     def course(self, obj):
-        return obj.lesson.module.group.course if obj.lesson and obj.lesson.module and obj.lesson.module.group else None
-    course.short_description = 'Course'
+        return (
+            obj.lesson.module.group.course
+            if obj.lesson and obj.lesson.module and obj.lesson.module.group
+            else None
+        )
+
+    course.short_description = "Course"
 
 
 @admin.register(Access)
@@ -356,24 +355,23 @@ class AccessAdmin(admin.ModelAdmin):
     """
     Admin for Access bundles.
     """
+
     list_display = (
-        'name',
-        'description',
-        'created_at',
-        'updated_at',
+        "name",
+        "description",
+        "created_at",
+        "updated_at",
     )
     search_fields = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
     list_filter = (
-        'created_at',
-        'updated_at',
+        "created_at",
+        "updated_at",
     )
-    filter_horizontal = (
-        'lessons',
-    )
+    filter_horizontal = ("lessons",)
     readonly_fields = (
-        'created_at',
-        'updated_at',
+        "created_at",
+        "updated_at",
     )

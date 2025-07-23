@@ -1,18 +1,16 @@
-from django.utils.translation import gettext_lazy as _
-from requests import Request
 import random
 import string
-import re
-from django.conf import settings
-import redis
-from rest_framework.serializers import ValidationError
 
+import redis
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from rest_framework.serializers import ValidationError
 
 redis_instance = redis.StrictRedis(
     host=settings.REDIS_SERVER,
     password=settings.REDIS_PASSWORD,
     port=settings.REDIS_PORT,
-    db=settings.REDIS_APP_DB
+    db=settings.REDIS_APP_DB,
 )
 
 
@@ -28,25 +26,19 @@ def is_valid_password(password_candidate):
 
 
 def generate_verification_code(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+    return "".join(random.choice(chars) for _ in range(size))
 
 
 def set_verification_code(code, code_type, user_id):
     code_key = f"{code_type}:{code}"
-    setuped_code = redis_instance.set(
-        code_key,
-        user_id,
-        ex=settings.RESET_CODE_EXPIRE
-    )
+    redis_instance.set(code_key, user_id, ex=settings.RESET_CODE_EXPIRE)
     return code_key
 
 
 def set_verification_code_for_registration(code, code_type, user_email):
     code_key = f"{code_type}:{code}"
-    setuped_code = redis_instance.set(
-        code_key,
-        user_email,
-        ex=settings.RESET_CODE_EXPIRE
+    redis_instance.set(
+        code_key, user_email, ex=settings.RESET_CODE_EXPIRE
     )
     return code_key
 

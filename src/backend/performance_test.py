@@ -1,14 +1,16 @@
 # performance_test.py
-import time
-import django
 import os
 import statistics
+import time
 
-# Настройка Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webapp.settings')
-django.setup()
+import django
 
 from courses.models import ContentBlock, Lesson
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
+django.setup()
+
+
 
 def measure_query_time(query_func, iterations=10):
     """Измеряет время выполнения запроса"""
@@ -17,31 +19,38 @@ def measure_query_time(query_func, iterations=10):
         start = time.time()
         result = query_func()
         # Если результат - QuerySet, приведем его к списку для выполнения запроса
-        if hasattr(result, '__iter__'):
+        if hasattr(result, "__iter__"):
             list(result)
         end = time.time()
         times.append(end - start)
-    
+
     return {
-        'min': min(times),
-        'max': max(times),
-        'avg': statistics.mean(times),
-        'median': statistics.median(times)
+        "min": min(times),
+        "max": max(times),
+        "avg": statistics.mean(times),
+        "median": statistics.median(times),
     }
+
 
 # Тестируемые запросы
 def test_content_blocks_by_lesson():
     lesson = Lesson.objects.first()
-    return ContentBlock.objects.filter(lesson=lesson).order_by('order')
+    return ContentBlock.objects.filter(lesson=lesson).order_by("order")
+
 
 def test_next_lesson():
     lesson = Lesson.objects.first()
-    return Lesson.objects.filter(module=lesson.module, order__gt=lesson.order).order_by('order').first()
+    return (
+        Lesson.objects.filter(module=lesson.module, order__gt=lesson.order)
+        .order_by("order")
+        .first()
+    )
+
 
 # Запуск тестов
 tests = {
-    'Content Blocks by Lesson': test_content_blocks_by_lesson,
-    'Next Lesson': test_next_lesson,
+    "Content Blocks by Lesson": test_content_blocks_by_lesson,
+    "Next Lesson": test_next_lesson,
 }
 
 for test_name, test_func in tests.items():

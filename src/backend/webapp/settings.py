@@ -11,60 +11,68 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+
+# from core.logger import LOG
+from datetime import timedelta
+
 # from core.utils import get_data_depoy
 # from .version import VERSION_API as VAPI
 from pathlib import Path
-from decouple import config
-from decouple import Csv
+
+from decouple import Csv, config
 from dj_database_url import parse as db_url
-# from core.logger import LOG
-from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-PROJECT_NAME = config('PROJECT_NAME', default='PromptHub',)
+PROJECT_NAME = config(
+    "PROJECT_NAME",
+    default="PromptHub",
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-c%@zyw#h$&@ga*+cbpqf5l!-z4pm9e)q0@rvjfl1hx=rvc!&nw')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
-
-FRONTEND_URL = config(
-    'FRONTEND_URL',
-    default='http://localhost:5173',
+SECRET_KEY = config(
+    "SECRET_KEY",
+    default="django-insecure-c%@zyw#h$&@ga*+cbpqf5l!-z4pm9e)q0@rvjfl1hx=rvc!&nw",
 )
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config("DEBUG", default=True, cast=bool)
+
+FRONTEND_URL = config(
+    "FRONTEND_URL",
+    default="http://localhost:5173",
+)
+
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 
 CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='http://localhost:5173,https://ai-course-dyb7.onrender.com,https://prompthub.study,http://localhost:82,http://localhost:83',
-    cast=Csv()
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost:5173,https://ai-course-dyb7.onrender.com,https://prompthub.study,http://localhost:82,http://localhost:83",
+    cast=Csv(),
 )
 
 CORS_ORIGIN_WHITELIST = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='http://localhost:5173,http://localhost:8000,http://localhost:82,http://localhost:83,https://ai-course-dyb7.onrender.com,https://prompthub.study',
-    cast=Csv()
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost:5173,http://localhost:8000,http://localhost:82,http://localhost:83,https://ai-course-dyb7.onrender.com,https://prompthub.study",
+    cast=Csv(),
 )
 
 CORS_ALLOWED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='http://localhost:5173,http://localhost:8000,http://localhost:82,http://localhost:83,https://ai-course-dyb7.onrender.com,https://prompthub.study',
-    cast=Csv()
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost:5173,http://localhost:8000,http://localhost:82,http://localhost:83,https://ai-course-dyb7.onrender.com,https://prompthub.study",
+    cast=Csv(),
 )
 
 SITE_ID = 1
 
 # https://github.com/jazzband/django-tinymce/issues/354
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = "SAMEORIGIN"
 # https://issueantenna.com/repo/jazzband/django-tinymce/issues/389
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_ALLOW_ALL = True
@@ -73,85 +81,74 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
-    'tinymce',
-    'adminsortable',
+    "jazzmin",
+    "tinymce",
+    "adminsortable",
     # 'djangocms_admin_style',
     # 'django.contrib.sites',
     # 'sekizai',
     # 'cms',
     # 'menus',
     # 'treebeard',
-
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'corsheaders',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'django_celery_beat',
-    'drf_spectacular',
-    'django_filters',
-    'social_django',
-    'admin_extra_buttons',
-
-    'openai_chats',
-    'core',
-    'mail',
-    'courses',
-    'payments',
-    'users'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "django_celery_beat",
+    "drf_spectacular",
+    "django_filters",
+    "social_django",
+    "admin_extra_buttons",
+    "openai_chats",
+    "core",
+    "mail",
+    "courses",
+    "payments",
+    "users",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-
-    'social_django.middleware.SocialAuthExceptionMiddleware',
-
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    "django.middleware.security.SecurityMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
+    "social_core.backends.google.GoogleOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
-ROOT_URLCONF = 'webapp.urls'
+ROOT_URLCONF = "webapp.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             # 'templates',
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(
-                BASE_DIR,
-                'docs',
-                '_build'
-            ),
-            os.path.join(BASE_DIR, 'dist'),
+            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR, "docs", "_build"),
+            os.path.join(BASE_DIR, "dist"),
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
                 # #cms
                 # 'django.template.context_processors.i18n',
                 # 'sekizai.context_processors.sekizai',
@@ -178,29 +175,26 @@ TEMPLATES = [
 #         *MIDDLEWARE,
 #     ]
 
-WSGI_APPLICATION = 'webapp.wsgi.application'
+WSGI_APPLICATION = "webapp.wsgi.application"
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
         # 'rest_framework.renderers.BrowsableAPIRenderer',
-
     ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
-    'USER_ID_FIELD': 'uuid',
-    'USER_ID_CLAIM': 'user_uuid',
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "USER_ID_FIELD": "uuid",
+    "USER_ID_CLAIM": "user_uuid",
     # 'SIGNING_KEY': SECRET_KEY,
     # 'ALGORITHM': 'HS256',
     # 'AUTH_HEADER_TYPES': ('Bearer',),
@@ -208,9 +202,9 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': "AI Course API",
-    'DESCRIPTION': ' API for development',
-    'VERSION': "0.0.1",
+    "TITLE": "AI Course API",
+    "DESCRIPTION": " API for development",
+    "VERSION": "0.0.1",
     # "SERVE_INCLUDE_SCHEMA": False,
     # "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
     # "SCHEMA_PATH_PREFIX_TRIM": True,
@@ -237,10 +231,10 @@ INTERNAL_IPS = [
 # }
 
 DATABASES = {
-    'default': config(
-        'DATABASE_URL',
-        default='postgres://user:password@127.0.0.1:5432/db_name',
-        cast=db_url
+    "default": config(
+        "DATABASE_URL",
+        default="postgres://user:password@127.0.0.1:5432/db_name",
+        cast=db_url,
     )
 }
 
@@ -259,10 +253,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_TASK_RETRY_BACKOFF = 60  # seconds
 CELERY_TASK_MAX_RETRIES = 3
 
-REDIS_PORT = config('REDIS_PORT')
-REDIS_PASSWORD = config('REDIS_PASSWORD')
-REDIS_SERVER = config('REDIS_SERVER')
-REDIS_APP_DB = config('REDIS_APP_DB')
+REDIS_PORT = config("REDIS_PORT")
+REDIS_PASSWORD = config("REDIS_PASSWORD")
+REDIS_SERVER = config("REDIS_SERVER")
+REDIS_APP_DB = config("REDIS_APP_DB")
 
 CACHES = {
     "default": {
@@ -276,7 +270,7 @@ CACHES = {
 
 # ------------- CELERY TASKS -------------- #
 CELERY_TASK_ROUTES = {
-    'send_verify_email': {'queue': 'main-queue'},
+    "send_verify_email": {"queue": "main-queue"},
     # 'send_password_reset_request_email': {'queue': 'main-queue'},
 }
 
@@ -285,16 +279,16 @@ CELERY_TASK_ROUTES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -302,7 +296,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = config("LANGUAGE_CODE", default='en')
+LANGUAGE_CODE = config("LANGUAGE_CODE", default="en")
 
 TIME_ZONE = config("TIME_ZONE", default="Europe/Prague")
 
@@ -315,22 +309,22 @@ USE_TZ = config("USE_TZ", default=True, cast=bool)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = '/admin/static/'
+STATIC_URL = "/admin/static/"
 
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, 'frontend/dist/static'),
 # ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/admin/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/admin/media/"
 
-DOCS_ROOT = os.path.join(BASE_DIR, 'docs', '_build', 'html')
-DOCS_URL = '/admin/docs/'
+DOCS_ROOT = os.path.join(BASE_DIR, "docs", "_build", "html")
+DOCS_URL = "/admin/docs/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.CourseUser"
 
@@ -338,36 +332,44 @@ AUTH_USER_MODEL = "users.CourseUser"
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "AI Course",
-
     # Title on the brand, and login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
     "site_header": "Welcome to AI Course!",
-
     # Welcome text on the login screen
     "welcome_sign": "Log in",
-
     # Copyright on the footer
     "copyright": config(
-        "FOOTOR_NAME", default="v0.0.1 ()"
+        "FOOTOR_NAME",
+        default="v0.0.1 ()",
         # + '<a href="/docs/changelog.html"'
         # + ' target="_blank">'
         # + 'DOCS</a>'
-        ),
+    ),
 }
 
-JAZZMIN_UI_TWEAKS = {
-}
+JAZZMIN_UI_TWEAKS = {}
 
 
 TINYMCE_DEFAULT_CONFIG = {
     # 'theme': 'modern',
-    'height': 300,
+    "height": 300,
     # 'plugins': 'advlist autolink link image lists charmap print preview hr anchor pagebreak',
     "plugins": [
-        "advlist", "anchor", "autolink", "code", "fullscreen",
-        "help", "image", "insertdatetime", "link", "media",
-        "preview", "searchreplace", "table", "accordion"
+        "advlist",
+        "anchor",
+        "autolink",
+        "code",
+        "fullscreen",
+        "help",
+        "image",
+        "insertdatetime",
+        "link",
+        "media",
+        "preview",
+        "searchreplace",
+        "table",
+        "accordion",
     ],
-    'toolbar': "undo redo | styles | bold italic underline strikethrough | align | bullist numlist | searchreplace",
+    "toolbar": "undo redo | styles | bold italic underline strikethrough | align | bullist numlist | searchreplace",
 }
 
 OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
@@ -376,43 +378,51 @@ OPENAI_LIMIT_WORDS = config("OPENAI_LIMIT_WORDS", default=400, cast=int)
 OPENAI_LIMIT_MESSAGES = config("OPENAI_LIMIT_MESSAGES", default=20, cast=int)
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('GOOGLE_OAUTH2_KEY', default='262614767197-4vs5rl145jj8pchpetngr9hqcjph6ctc.apps.googleusercontent.com')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('GOOGLE_OAUTH2_SECRET', default='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')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
-SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
-REDIRECT_FIELD_NAME = 'next'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config(
+    "GOOGLE_OAUTH2_KEY",
+    default="262614767197-4vs5rl145jj8pchpetngr9hqcjph6ctc.apps.googleusercontent.com",
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config(
+    "GOOGLE_OAUTH2_SECRET", default="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"
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+]
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ["first_name", "last_name"]
+REDIRECT_FIELD_NAME = "next"
 
 # Amazon SES SMTP settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='email-smtp.us-east-1.amazonaws.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-DEFAULT_EMAIL_FROM = config('DEFAULT_EMAIL_FROM', "info@prompthub.study")
-FAKE_SEND_EMAIL = config('FAKE_SEND_EMAIL', default=False, cast=bool)
-RESET_CODE_EXPIRE = 3600   # 1 hour
-FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + '/verify-email'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config("EMAIL_HOST", default="email-smtp.us-east-1.amazonaws.com")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+DEFAULT_EMAIL_FROM = config("DEFAULT_EMAIL_FROM", "info@prompthub.study")
+FAKE_SEND_EMAIL = config("FAKE_SEND_EMAIL", default=False, cast=bool)
+RESET_CODE_EXPIRE = 3600  # 1 hour
+FRONTEND_VERIFY_EMAIL_URL = FRONTEND_URL + "/verify-email"
 
 
 USE_I18N = True
 USE_L10N = True
 
 # Язык по умолчанию
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
 # Три языка: английский, русский, чешский
 LANGUAGES = [
-    ('en', 'English'),
-    ('ru', 'Русский'),
-    ('cs', 'Čeština'),
+    ("en", "English"),
+    ("ru", "Русский"),
+    ("cs", "Čeština"),
 ]
 
 # Папка для файлов перевода
 LOCALE_PATHS = [
-    BASE_DIR / 'locale',
+    BASE_DIR / "locale",
 ]
 
 
-CLOUDPAYMENTS_PUBLIC_ID = config('CLOUDPAYMENTS_PUBLIC_ID', default='your_public_id')
-CLOUDPAYMENTS_SECRET = config('CLOUDPAYMENTS_SECRET', default='your_secret_key')
+CLOUDPAYMENTS_PUBLIC_ID = config("CLOUDPAYMENTS_PUBLIC_ID", default="your_public_id")
+CLOUDPAYMENTS_SECRET = config("CLOUDPAYMENTS_SECRET", default="your_secret_key")
