@@ -45,7 +45,6 @@ class Group(CoreModel, SortableMixin):
     class Meta:
         ordering = ["order"]
         indexes = [
-            # Быстрая фильтрация групп по курсу и языку
             models.Index(fields=["course", "order"], name="group_course_order_idx"),
         ]
 
@@ -70,7 +69,6 @@ class Module(CoreModel, SortableMixin):
     class Meta:
         ordering = ["order"]
         indexes = [
-            # Быстрая фильтрация модулей по группе
             models.Index(fields=["group", "order"], name="module_group_order_idx"),
         ]
 
@@ -114,11 +112,8 @@ class Lesson(CoreModel, SortableMixin):
     class Meta:
         ordering = ["order"]
         indexes = [
-            # Комбинированный индекс для next_lesson запросов в представлениях
             models.Index(fields=["module", "order"], name="lesson_module_order_idx"),
-            # Индекс для быстрого доступа по is_free (фильтрация бесплатных уроков)
             models.Index(fields=["is_free"], name="lesson_is_free_idx"),
-            # Индекс для языковых версий
             models.Index(fields=["lesson_en"], name="lesson_english_version_idx"),
         ]
 
@@ -139,14 +134,12 @@ class Lesson(CoreModel, SortableMixin):
         Return a JSON string with the user's lesson progress status,
         including separate previous, current, and next content blocks.
         """
-        # Асинхронно получаем все текстовые блоки этого урока в порядке
         all_blocks = []
         async for blk in ContentBlock.objects.filter(
             lesson=self, block_type="text"
         ).order_by("order"):
             all_blocks.append(blk)
 
-        # Определяем order текущего блока по прогрессу пользователя
         try:
             progress = await UserLessonProgress.objects.select_related(
                 "last_seen_block"
@@ -159,19 +152,16 @@ class Lesson(CoreModel, SortableMixin):
         except UserLessonProgress.DoesNotExist:
             current_order = all_blocks[0].order if all_blocks else 0
 
-        # Ищем индекс текущего блока в списке all_blocks
         orders = [b.order for b in all_blocks]
         try:
             idx = orders.index(current_order)
         except ValueError:
             idx = 0
 
-        # Выбираем предыдущий, текущий и следующий блоки (или None)
         prev_blk = all_blocks[idx - 1] if idx - 1 >= 0 else None
         curr_blk = all_blocks[idx] if 0 <= idx < len(all_blocks) else None
         next_blk = all_blocks[idx + 1] if idx + 1 < len(all_blocks) else None
 
-        # Формируем словарь с тремя блоками
         result = {
             "previous_block": {"content_html": prev_blk.content_html or ""}
             if prev_blk
@@ -235,13 +225,10 @@ class ContentBlock(CoreModel, SortableMixin):
     class Meta:
         ordering = ["order"]
         indexes = [
-            # Критически важный индекс для запросов в представлениях
             models.Index(
                 fields=["lesson", "order"], name="content_block_lesson_order_idx"
             ),
-            # Быстрый поиск по типу блока (важно для фильтрации в представлениях)
             models.Index(fields=["block_type"], name="content_block_type_idx"),
-            # Составной индекс для фильтрации по типу блока в пределах урока
             models.Index(
                 fields=["lesson", "block_type", "order"],
                 name="lesson_block_type_order_idx",

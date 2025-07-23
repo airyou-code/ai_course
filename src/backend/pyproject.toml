@@ -6,7 +6,6 @@ build-backend = "hatchling.build"
 name = "ai-course"
 version = "0.1.0"
 description = "AI Course Django Application"
-readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alabaster==0.7.16",
